@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Myrtille Industries - Solution Hub</title>
+  <title>Myrtille Industries - PDF Solutions Hub</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
@@ -109,11 +109,11 @@
       margin-top: 20px;
     }
 
-    .solution-card {
+    .subject-button {
       background: rgba(255, 255, 255, 0.08);
       backdrop-filter: blur(10px);
       border-radius: 16px;
-      padding: 30px 25px;
+      padding: 25px 20px;
       border: 1px solid rgba(255, 255, 255, 0.15);
       transition: all 0.3s ease;
       cursor: pointer;
@@ -123,17 +123,19 @@
       text-align: center;
       position: relative;
       overflow: hidden;
-      min-height: 280px;
+      min-height: 160px;
+      text-decoration: none;
+      color: #f0f0f0;
     }
 
-    .solution-card:hover {
+    .subject-button:hover {
       transform: translateY(-10px);
       background: rgba(91, 134, 229, 0.15);
       border-color: rgba(91, 134, 229, 0.4);
       box-shadow: 0 10px 25px rgba(91, 134, 229, 0.3);
     }
 
-    .solution-card::before {
+    .subject-button::before {
       content: '';
       position: absolute;
       top: 0;
@@ -144,58 +146,35 @@
       transition: 0.5s;
     }
 
-    .solution-card:hover::before {
+    .subject-button:hover::before {
       left: 100%;
     }
 
-    .solution-icon {
-      width: 80px;
-      height: 80px;
+    .button-icon {
+      width: 60px;
+      height: 60px;
       background: rgba(91, 134, 229, 0.2);
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
       margin-bottom: 20px;
-      font-size: 32px;
+      font-size: 24px;
       color: #5b86e5;
       border: 2px solid rgba(91, 134, 229, 0.3);
     }
 
-    .solution-card h3 {
-      font-size: 22px;
-      margin-bottom: 15px;
+    .subject-button h3 {
+      font-size: 20px;
+      margin-bottom: 12px;
       font-weight: 600;
       color: #fff;
     }
 
-    .solution-card p {
-      font-size: 15px;
+    .subject-button span {
+      font-size: 14px;
       color: rgba(255, 255, 255, 0.8);
-      margin-bottom: 20px;
       line-height: 1.5;
-    }
-
-    .solution-btn {
-      background: rgba(255, 255, 255, 0.15);
-      color: #fff;
-      border: none;
-      padding: 10px 25px;
-      border-radius: 50px;
-      font-size: 15px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-top: auto;
-    }
-
-    .solution-btn:hover {
-      background: rgba(255, 255, 255, 0.25);
-      transform: translateY(-2px);
-      box-shadow: 0 4px 15px rgba(91, 134, 229, 0.4);
     }
 
     .footer {
@@ -237,19 +216,20 @@
         font-size: 16px;
       }
       
-      .solution-card {
-        padding: 25px 20px;
-        min-height: 260px;
+      .subject-button {
+        padding: 20px 15px;
+        min-height: 150px;
       }
       
-      .solution-icon {
-        width: 70px;
-        height: 70px;
-        font-size: 28px;
-      }
-      
-      .solution-card h3 {
+      .button-icon {
+        width: 50px;
+        height: 50px;
         font-size: 20px;
+        margin-bottom: 15px;
+      }
+      
+      .subject-button h3 {
+        font-size: 18px;
       }
     }
 
@@ -257,167 +237,171 @@
       .solutions-grid {
         grid-template-columns: 1fr;
       }
-      
-      .solution-card {
-        min-height: 240px;
-      }
     }
   </style>
 </head>
 <body>
   <main class="container">
-    <section class="app-card" aria-label="Myrtille Industries Solution Hub">
+    <section class="app-card" aria-label="Myrtille Industries PDF Solutions">
       <!-- Company Header at Top of Glass Card -->
       <div class="app-card-header">
-        <h1><i class="fas fa-industry"></i> Myrtille Industries - Solution Hub</h1>
+        <h1><i class="fas fa-industry"></i> Myrtille Industries - PDF Solutions</h1>
       </div>
 
       <div class="app-content">
         <div class="welcome-section">
-          <h2>Your Comprehensive Document Solutions</h2>
-          <p>Access all of our powerful document processing tools from one centralized hub. Each solution is designed to streamline your workflow and enhance productivity with professional results.</p>
+          <h2>Advanced PDF Document Processing</h2>
+          <p>Access our comprehensive suite of PDF tools designed to enhance your document workflow. All solutions feature professional letterhead integration and secure processing.</p>
         </div>
         
         <div class="solutions-grid">
-          <!-- Text to PDF Solution -->
-          <div class="solution-card" onclick="window.location.href='text-to-pdf.html';">
-            <div class="solution-icon">
-              <i class="fas fa-file-alt"></i>
+          <!-- PDF Editor -->
+          <a href="pdf-editor.html" class="subject-button">
+            <div class="button-icon">
+              <i class="fas fa-edit"></i>
             </div>
-            <h3>Text to PDF Generator</h3>
-            <p>Convert your text documents to professional PDFs with custom letterhead and formatting options.</p>
-            <button class="solution-btn">
-              <i class="https://hisandeepkumar.github.io/textonletterhead/"></i> Open Solution
-            </button>
-          </div>
+            <h3>PDF Editor</h3>
+            <span>Edit text in existing PDF documents</span>
+          </a>
           
-          <!-- Image to PDF Solution -->
-          <div class="solution-card" onclick="window.location.href='image-to-pdf.html';">
-            <div class="solution-icon">
-              <i class="fas fa-file-image"></i>
+          <!-- PDF on Letterhead -->
+          <a href="pdf-letterhead.html" class="subject-button">
+            <div class="button-icon">
+              <i class="fas fa-file-contract"></i>
             </div>
-            <h3>Image to PDF Converter</h3>
-            <p>Transform your images into PDF documents with automatic optimization and formatting.</p>
-            <button class="solution-btn">
-              <i class="fas fa-external-link-alt"></i> Open Solution
-            </button>
-          </div>
+            <h3>PDF on Letterhead</h3>
+            <span>Convert documents with professional letterhead</span>
+          </a>
           
-          <!-- PDF Merger Solution -->
-          <div class="solution-card" onclick="window.location.href='pdf-merger.html';">
-            <div class="solution-icon">
+          <!-- Text on Letterhead -->
+          <a href="text-letterhead.html" class="subject-button">
+            <div class="button-icon">
+              <i class="fas fa-font"></i>
+            </div>
+            <h3>Text on Letterhead</h3>
+            <span>Convert text to PDF with letterhead</span>
+          </a>
+          
+          <!-- Merge PDF -->
+          <a href="merge-pdf.html" class="subject-button">
+            <div class="button-icon">
               <i class="fas fa-object-group"></i>
             </div>
-            <h3>PDF Merger</h3>
-            <p>Combine multiple PDF files into a single document with customizable page ordering.</p>
-            <button class="solution-btn">
-              <i class="fas fa-external-link-alt"></i> Open Solution
-            </button>
-          </div>
+            <h3>Merge PDF</h3>
+            <span>Combine multiple PDF files into one</span>
+          </a>
           
-          <!-- PDF Splitter Solution -->
-          <div class="solution-card" onclick="window.location.href='pdf-splitter.html';">
-            <div class="solution-icon">
+          <!-- Extract Pages -->
+          <a href="extract-pages.html" class="subject-button">
+            <div class="button-icon">
               <i class="fas fa-cut"></i>
             </div>
-            <h3>PDF Splitter</h3>
-            <p>Divide large PDF documents into smaller files by page ranges or specific content.</p>
-            <button class="solution-btn">
-              <i class="fas fa-external-link-alt"></i> Open Solution
-            </button>
-          </div>
+            <h3>Extract Pages</h3>
+            <span>Extract specific pages from PDFs</span>
+          </a>
           
-          <!-- PDF Compressor Solution -->
-          <div class="solution-card" onclick="window.location.href='pdf-compressor.html';">
-            <div class="solution-icon">
-              <i class="fas fa-compress-alt"></i>
+          <!-- PDF to Image -->
+          <a href="pdf-to-image.html" class="subject-button">
+            <div class="button-icon">
+              <i class="fas fa-file-image"></i>
             </div>
-            <h3>PDF Compressor</h3>
-            <p>Reduce PDF file sizes without compromising quality for easy sharing and storage.</p>
-            <button class="solution-btn">
-              <i class="fas fa-external-link-alt"></i> Open Solution
-            </button>
-          </div>
+            <h3>PDF to Image</h3>
+            <span>Convert PDF pages to image formats</span>
+          </a>
           
-          <!-- Watermark PDF Solution -->
-          <div class="solution-card" onclick="window.location.href='watermark-pdf.html';">
-            <div class="solution-icon">
-              <i class="fas fa-tint"></i>
+          <!-- Image to PDF -->
+          <a href="image-to-pdf.html" class="subject-button">
+            <div class="button-icon">
+              <i class="fas fa-file-pdf"></i>
             </div>
-            <h3>Watermark PDF</h3>
-            <p>Add custom watermarks to your PDF documents for branding or security purposes.</p>
-            <button class="solution-btn">
-              <i class="fas fa-external-link-alt"></i> Open Solution
-            </button>
-          </div>
+            <h3>Image to PDF</h3>
+            <span>Convert images to PDF documents</span>
+          </a>
           
-          <!-- PDF to Word Solution -->
-          <div class="solution-card" onclick="window.location.href='pdf-to-word.html';">
-            <div class="solution-icon">
-              <i class="fas fa-file-word"></i>
+          <!-- Add Page Numbers -->
+          <a href="add-page-numbers.html" class="subject-button">
+            <div class="button-icon">
+              <i class="fas fa-list-ol"></i>
             </div>
-            <h3>PDF to Word Converter</h3>
-            <p>Convert PDF documents to editable Word files while preserving formatting.</p>
-            <button class="solution-btn">
-              <i class="fas fa-external-link-alt"></i> Open Solution
-            </button>
-          </div>
+            <h3>Add Page Numbers</h3>
+            <span>Insert page numbers into PDFs</span>
+          </a>
           
-          <!-- Document Signer Solution -->
-          <div class="solution-card" onclick="window.location.href='document-signer.html';">
-            <div class="solution-icon">
+          <!-- Replace Pages -->
+          <a href="replace-pages.html" class="subject-button">
+            <div class="button-icon">
+              <i class="fas fa-exchange-alt"></i>
+            </div>
+            <h3>Replace Pages</h3>
+            <span>Swap pages in PDF documents</span>
+          </a>
+          
+          <!-- Add Signature -->
+          <a href="add-signature.html" class="subject-button">
+            <div class="button-icon">
               <i class="fas fa-signature"></i>
             </div>
-            <h3>Document Signer</h3>
-            <p>Add digital signatures to your PDF documents securely and legally.</p>
-            <button class="solution-btn">
-              <i class="fas fa-external-link-alt"></i> Open Solution
-            </button>
-          </div>
+            <h3>Add Signature</h3>
+            <span>Digitally sign PDF documents</span>
+          </a>
+          
+          <!-- Delete Pages -->
+          <a href="delete-pages.html" class="subject-button">
+            <div class="button-icon">
+              <i class="fas fa-trash-alt"></i>
+            </div>
+            <h3>Delete Pages</h3>
+            <span>Remove pages from PDF files</span>
+          </a>
+          
+          <!-- Reorder Pages -->
+          <a href="reorder-pages.html" class="subject-button">
+            <div class="button-icon">
+              <i class="fas fa-sort"></i>
+            </div>
+            <h3>Reorder Pages</h3>
+            <span>Rearrange PDF page order</span>
+          </a>
+          
+          <!-- Mark in PDF -->
+          <a href="mark-pdf.html" class="subject-button">
+            <div class="button-icon">
+              <i class="fas fa-highlighter"></i>
+            </div>
+            <h3>Mark in PDF</h3>
+            <span>Highlight and annotate PDFs</span>
+          </a>
+          
+          <!-- Add Watermark -->
+          <a href="add-watermark.html" class="subject-button">
+            <div class="button-icon">
+              <i class="fas fa-tint"></i>
+            </div>
+            <h3>Add Watermark</h3>
+            <span>Add text/image watermarks to PDFs</span>
+          </a>
         </div>
         
         <div class="footer">
-          <p>© 2023 Myrtille Industries. All rights reserved. | Solution Hub v1.0</p>
+          <p>© 2023 Myrtille Industries. All rights reserved. | PDF Solutions Hub v1.0</p>
         </div>
       </div>
     </section>
   </main>
   
   <script>
-    // Add hover effect to solution cards
-    document.querySelectorAll('.solution-card').forEach(card => {
-      card.addEventListener('mouseenter', function() {
-        this.style.transform = 'translateY(-10px)';
-      });
-      
-      card.addEventListener('mouseleave', function() {
-        this.style.transform = 'translateY(0)';
-      });
-      
-      // Also make buttons clickable
-      const btn = this.querySelector('.solution-btn');
-      if(btn) {
-        btn.addEventListener('click', function(e) {
-          e.stopPropagation();
-          card.click();
-        });
-      }
-    });
-    
     // Add animation on page load
     document.addEventListener('DOMContentLoaded', function() {
-      const cards = document.querySelectorAll('.solution-card');
-      cards.forEach((card, index) => {
+      const buttons = document.querySelectorAll('.subject-button');
+      buttons.forEach((button, index) => {
+        button.style.opacity = '0';
+        button.style.transform = 'translateY(20px)';
+        button.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+        
         setTimeout(() => {
-          card.style.opacity = '0';
-          card.style.transform = 'translateY(20px)';
-          card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
-          
-          setTimeout(() => {
-            card.style.opacity = '1';
-            card.style.transform = 'translateY(0)';
-          }, 100);
-        }, index * 100);
+          button.style.opacity = '1';
+          button.style.transform = 'translateY(0)';
+        }, 100 + index * 50);
       });
     });
   </script>
