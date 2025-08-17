@@ -387,9 +387,9 @@
     </div>
     <p class="file-info" id="fileInfo"></p>
     <div class="input-container">
-      <label for="signatureImage">Upload Signature Image</label>
+      <label for="signatureImage">Upload Signature Image (Optional)</label>
       <input type="file" id="signatureImage" accept="image/*">
-      <p>Upload a PNG/JPEG image of your signature</p>
+      <p>Upload a PNG/JPEG image or use default signature</p>
     </div>
     <p class="file-info" id="imageInfo"></p>
     <div class="input-container">
@@ -408,7 +408,7 @@
   </div>
 
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('DOMContentLoaded', async () => {
       const uploadArea = document.getElementById('uploadArea');
       const pdfInput = document.getElementById('pdfUpload');
       const signatureImage = document.getElementById('signatureImage');
@@ -429,6 +429,28 @@
       let signatureWidth = 100; // Default signature width in pixels
       let vibrationInterval = null;
 
+      // Load default signature image
+      async function loadDefaultSignature() {
+        try {
+          const response = await fetch('default_signature.png');
+          if (!response.ok) throw new Error('Default signature not found');
+          const blob = await response.blob();
+          selectedImage = new File([blob], 'default_signature.png', { type: blob.type });
+          signatureImgUrl = URL.createObjectURL(blob);
+          imageInfoDisplay.textContent = `Signature: default_signature.png (${formatFileSize(blob.size)})`;
+          imageInfoDisplay.style.display = 'block';
+          generateBtn.disabled = !selectedPdf || signaturePositions.every(arr => arr.length === 0);
+          startVibration();
+        } catch (error) {
+          console.error('Error loading default signature:', error);
+          imageInfoDisplay.textContent = 'Default signature not found. Please upload a signature image.';
+          imageInfoDisplay.style.display = 'block';
+        }
+      }
+
+      // Load default signature on page load
+      await loadDefaultSignature();
+
       // Update signature size display
       signatureSize.addEventListener('input', () => {
         signatureWidth = parseInt(signatureSize.value);
@@ -436,6 +458,12 @@
         // Update existing signatures' size
         document.querySelectorAll('.signature img').forEach(img => {
           img.style.width = `${signatureWidth}px`;
+        });
+        // Update stored widths in signaturePositions
+        signaturePositions.forEach(pageSignatures => {
+          pageSignatures.forEach(signature => {
+            signature.width = signatureWidth * (1 / 0.75); // Scale to PDF coordinates
+          });
         });
       });
 
@@ -529,9 +557,6 @@
           selectedPdf = null;
           previewContainer.innerHTML = '';
           signaturePositions = [];
-          signatureImage.value = '';
-          imageInfoDisplay.textContent = '';
-          imageInfoDisplay.style.display = 'none';
           return;
         }
         selectedPdf = file;
@@ -539,7 +564,7 @@
         fileInfoDisplay.style.display = 'block';
         startVibration();
         await loadPdfPreviews(file);
-        generateBtn.disabled = !selectedImage || signaturePositions.every(arr => arr.length === 0);
+        generateBtn.disabled = signaturePositions.every(arr => arr.length === 0);
         pdfInput.value = ''; // Reset input
       }
 
@@ -547,10 +572,11 @@
       function handleImageSelection(file) {
         if (!file.type.startsWith('image/')) {
           alert('Please select an image file (PNG/JPEG)');
-          imageInfoDisplay.textContent = '';
-          imageInfoDisplay.style.display = 'none';
+          imageInfoDisplay.textContent = 'Default signature not found. Please upload a signature image.';
+          imageInfoDisplay.style.display = 'block';
           generateBtn.disabled = true;
           selectedImage = null;
+          signatureImgUrl = null;
           return;
         }
         selectedImage = file;
@@ -573,7 +599,7 @@
         const pdfJsDoc = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
         for (let i = 1; i <= totalPages; i++) {
           const page = await pdfJsDoc.getPage(i);
-          const viewport = page.getViewport({ scale: 0.75 }); // Increased scale for larger previews
+          const viewport = page.getViewport({ scale: 0.75 }); // Larger previews
           const canvas = document.createElement('canvas');
           canvas.width = viewport.width;
           canvas.height = viewport.height;
@@ -589,7 +615,7 @@
           // Add click event to place signature
           canvas.addEventListener('click', (e) => {
             if (!selectedImage) {
-              alert('Please upload a signature image first');
+              alert('Please ensure a signature image is available');
               return;
             }
             addSignature(i - 1, e, canvas, viewport);
@@ -711,8 +737,12 @@
 
       // Generate PDF with signatures
       async function generateDocument() {
-        if (!selectedPdf || !selectedImage) {
-          alert('Please upload both a PDF and a signature image');
+        if (!selectedPdf) {
+          alert('Please upload a PDF file');
+          return;
+        }
+        if (!selectedImage) {
+          alert('No signature image available');
           return;
         }
         if (signaturePositions.every(arr => arr.length === 0)) {
@@ -739,6 +769,7 @@
           } else {
             throw new Error('Unsupported image format');
           }
+          updateProgress(60);
 
           // Add signatures to pages
           for (let i = 0; i < pages.length; i++) {
@@ -780,20 +811,19 @@
 
           // Reset UI
           selectedPdf = null;
-          selectedImage = null;
-          signatureImgUrl = null;
           signaturePositions = [];
           fileInfoDisplay.textContent = '';
           fileInfoDisplay.style.display = 'none';
-          imageInfoDisplay.textContent = '';
-          imageInfoDisplay.style.display = 'none';
           previewContainer.innerHTML = '';
           generateBtn.disabled = true;
           setTimeout(() => {
             progressContainer.style.display = 'none';
             progressBar.style.width = '0%';
           }, 500);
+          // Reload default signature
+          await loadDefaultSignature();
         } catch (error) {
+          console.error('Error generating document:', error);
           alert(`Error generating document: ${error.message}`);
           generateBtn.disabled = false;
           fileInfoDisplay.style.display = 'block';
@@ -803,6 +833,12 @@
           stopVibration();
         }
       }
+
+      // Generate button click handler
+      generateBtn.addEventListener('click', () => {
+        stopVibration();
+        generateDocument();
+      });
     });
   </script>
 </body>
