@@ -17,7 +17,6 @@
     }
 
     body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       min-height: 100vh;
       display: flex;
       justify-content: center;
@@ -208,10 +207,10 @@
 
     .preview-container {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
       gap: 20px;
       margin: 20px 0;
-      max-height: 500px;
+      max-height: 600px;
       overflow-y: auto;
       padding: 10px;
     }
@@ -219,12 +218,14 @@
     .preview-item {
       position: relative;
       text-align: center;
+      overflow: hidden;
     }
 
     .preview-item canvas {
       max-width: 100%;
       height: auto;
       cursor: pointer;
+      display: block;
     }
 
     .preview-item p {
@@ -369,7 +370,10 @@
         max-width: 100%;
       }
       .preview-container {
-        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        grid-template-columns: 1fr;
+      }
+      .preview-item canvas {
+        max-width: 100%;
       }
     }
   </style>
@@ -424,10 +428,10 @@
       let selectedPdf = null;
       let selectedImage = null;
       let pdfDoc = null;
-      let signaturePositions = []; // Array to store signatures per page
+      let signaturePositions = [];
       let signatureImgUrl = null;
-      let signatureWidth = 100; // Default signature width in pixels
-      let pageSizes = []; // Store PDF page sizes for accurate scaling
+      let signatureWidth = 100;
+      let pageSizes = [];
       let vibrationInterval = null;
 
       // Load default signature image
@@ -449,42 +453,38 @@
         }
       }
 
-      // Load default signature on page load
       await loadDefaultSignature();
 
-      // Update signature size display
+      // Update signature size
       signatureSize.addEventListener('input', () => {
         signatureWidth = parseInt(signatureSize.value);
         sizeValue.textContent = `${signatureWidth}px`;
-        // Update existing signatures' size
         document.querySelectorAll('.signature img').forEach(img => {
           img.style.width = `${signatureWidth}px`;
         });
-        // Update stored widths in signaturePositions
         signaturePositions.forEach(pageSignatures => {
           pageSignatures.forEach(signature => {
-            signature.width = signatureWidth * (1 / 0.75); // Scale to PDF coordinates
+            signature.width = signatureWidth; // Width is in canvas pixels, will scale in PDF
           });
         });
       });
 
-      // Format file size to human-readable format
+      // Format file size
       function formatFileSize(bytes) {
         if (bytes < 1024) return bytes + ' B';
         else if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(2) + ' KB';
         else return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
       }
 
-      // Start vibration synchronized with shine animation
+      // Vibration
       function startVibration() {
         if ('vibrate' in navigator) {
           vibrationInterval = setInterval(() => {
-            navigator.vibrate(50); // Short 50ms vibration
-          }, 2000); // Matches the 2-second shine animation
+            navigator.vibrate(50);
+          }, 2000);
         }
       }
 
-      // Stop vibration
       function stopVibration() {
         if (vibrationInterval) {
           clearInterval(vibrationInterval);
@@ -492,7 +492,7 @@
         }
       }
 
-      // Generate timestamped filename
+      // Generate filename
       function generateFilename() {
         const now = new Date();
         const day = String(now.getDate()).padStart(2, '0');
@@ -502,17 +502,14 @@
         let hours = now.getHours();
         const minutes = String(now.getMinutes()).padStart(2, '0');
         const ampm = hours >= 12 ? 'PM' : 'AM';
-        hours = hours % 12 || 12; // Convert to 12-hour format
+        hours = hours % 12 || 12;
         hours = String(hours).padStart(2, '0');
         return `MYRTILLE_INDUSTRIES_${day}_${month}_${year}_${hours}_${minutes}_${ampm}.pdf`;
       }
 
-      // Upload area click handler
-      uploadArea.addEventListener('click', () => {
-        pdfInput.click();
-      });
+      // Upload area handlers
+      uploadArea.addEventListener('click', () => pdfInput.click());
 
-      // Drag and drop functionality
       ['dragenter', 'dragover'].forEach(eventName => {
         uploadArea.addEventListener(eventName, (e) => {
           e.preventDefault();
@@ -533,21 +530,19 @@
         }
       });
 
-      // PDF file input change handler
       pdfInput.addEventListener('change', (e) => {
         if (e.target.files.length) {
           handlePdfSelection(e.target.files[0]);
         }
       });
 
-      // Signature image input change handler
       signatureImage.addEventListener('change', (e) => {
         if (e.target.files.length) {
           handleImageSelection(e.target.files[0]);
         }
       });
 
-      // Handle PDF file selection
+      // Handle PDF selection
       async function handlePdfSelection(file) {
         if (file.type !== 'application/pdf') {
           alert('Please select a PDF file');
@@ -567,10 +562,10 @@
         startVibration();
         await loadPdfPreviews(file);
         generateBtn.disabled = signaturePositions.every(arr => arr.length === 0);
-        pdfInput.value = ''; // Reset input
+        pdfInput.value = '';
       }
 
-      // Handle image file selection
+      // Handle image selection
       function handleImageSelection(file) {
         if (!file.type.startsWith('image/')) {
           alert('Please select an image file (PNG/JPEG)');
@@ -587,7 +582,7 @@
         imageInfoDisplay.style.display = 'block';
         generateBtn.disabled = !selectedPdf || signaturePositions.every(arr => arr.length === 0);
         startVibration();
-        signatureImage.value = ''; // Reset input
+        signatureImage.value = '';
       }
 
       // Load PDF previews
@@ -596,20 +591,19 @@
         const arrayBuffer = await file.arrayBuffer();
         pdfDoc = await PDFLib.PDFDocument.load(arrayBuffer);
         const totalPages = pdfDoc.getPageCount();
-        signaturePositions = new Array(totalPages).fill().map(() => []); // Initialize as array of arrays for multiple signatures
-        pageSizes = new Array(totalPages); // Store page sizes
+        signaturePositions = new Array(totalPages).fill().map(() => []);
+        pageSizes = new Array(totalPages);
 
         const pdfJsDoc = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
         for (let i = 1; i <= totalPages; i++) {
           const page = await pdfJsDoc.getPage(i);
-          const viewport = page.getViewport({ scale: 0.75 }); // Larger previews
+          const viewport = page.getViewport({ scale: 1.0 }); // Full-scale preview
           const canvas = document.createElement('canvas');
           canvas.width = viewport.width;
           canvas.height = viewport.height;
           const context = canvas.getContext('2d');
           await page.render({ canvasContext: context, viewport }).promise;
 
-          // Store actual PDF page size
           const pdfPage = pdfDoc.getPage(i - 1);
           pageSizes[i - 1] = pdfPage.getSize();
 
@@ -619,7 +613,6 @@
           previewItem.appendChild(canvas);
           previewContainer.appendChild(previewItem);
 
-          // Add click event to place signature
           canvas.addEventListener('click', (e) => {
             if (!selectedImage) {
               alert('Please ensure a signature image is available');
@@ -630,12 +623,12 @@
         }
       }
 
-      // Add signature to canvas
+      // Add signature
       function addSignature(pageIndex, event, canvas, viewport) {
         const rect = canvas.getBoundingClientRect();
         const canvasX = event.clientX - rect.left;
         const canvasY = event.clientY - rect.top;
-        const signatureId = `signature-${pageIndex}-${Date.now()}`; // Unique ID for each signature
+        const signatureId = `signature-${pageIndex}-${Date.now()}`;
         const signature = document.createElement('div');
         signature.className = 'signature';
         signature.id = signatureId;
@@ -654,44 +647,35 @@
           signature.remove();
           signaturePositions[pageIndex] = signaturePositions[pageIndex].filter(pos => pos.id !== signatureId);
           generateBtn.disabled = signaturePositions.every(arr => arr.length === 0);
-          if ('vibrate' in navigator) {
-            navigator.vibrate(50); // Short vibration on delete
-          }
+          if ('vibrate' in navigator) navigator.vibrate(50);
         });
         signature.appendChild(deleteBtn);
 
         canvas.parentElement.appendChild(signature);
 
-        // Convert canvas coordinates to PDF coordinates
         const { width: pdfWidth, height: pdfHeight } = pageSizes[pageIndex];
-        const scale = 0.75; // Preview scale
-        const pdfX = (canvasX / canvas.width) * pdfWidth;
-        const pdfY = pdfHeight - (canvasY / canvas.height) * pdfHeight; // Flip Y for PDF (bottom-left origin)
+        const pdfX = canvasX; // 1:1 mapping
+        const pdfY = pdfHeight - canvasY; // Flip for PDF
 
         console.log(`Adding signature on page ${pageIndex + 1}: Canvas (${canvasX}, ${canvasY}), PDF (${pdfX}, ${pdfY})`);
 
-        // Store signature position
         signaturePositions[pageIndex].push({
           id: signatureId,
           x: pdfX,
           y: pdfY,
-          width: signatureWidth * (pdfWidth / canvas.width), // Scale width to PDF coordinates
+          width: signatureWidth,
         });
 
-        // Enable dragging
         makeDraggable(signature, pageIndex, canvas, signatureId);
 
         generateBtn.disabled = false;
-        if ('vibrate' in navigator) {
-          navigator.vibrate(50); // Short vibration on add
-        }
+        if ('vibrate' in navigator) navigator.vibrate(50);
       }
 
       // Make signature draggable
       function makeDraggable(element, pageIndex, canvas, signatureId) {
         let isDragging = false;
-        let currentX;
-        let currentY;
+        let currentX, currentY;
 
         element.addEventListener('mousedown', startDragging);
         element.addEventListener('touchstart', startDragging);
@@ -717,26 +701,23 @@
           let newX = clientX - currentX;
           let newY = clientY - currentY;
 
-          // Restrict dragging within canvas bounds
           newX = Math.max(0, Math.min(newX, rect.width - element.offsetWidth));
           newY = Math.max(0, Math.min(newY, rect.height - element.offsetHeight));
 
           element.style.left = `${newX}px`;
           element.style.top = `${newY}px`;
 
-          // Convert to PDF coordinates
           const { width: pdfWidth, height: pdfHeight } = pageSizes[pageIndex];
-          const pdfX = (newX / canvas.width) * pdfWidth;
-          const pdfY = pdfHeight - (newY / canvas.height) * pdfHeight;
+          const pdfX = newX;
+          const pdfY = pdfHeight - newY;
 
           console.log(`Dragging signature on page ${pageIndex + 1}: Canvas (${newX}, ${newY}), PDF (${pdfX}, ${pdfY})`);
 
-          // Update signature position
           const signature = signaturePositions[pageIndex].find(pos => pos.id === signatureId);
           if (signature) {
             signature.x = pdfX;
             signature.y = pdfY;
-            signature.width = signatureWidth * (pdfWidth / canvas.width); // Update width
+            signature.width = signatureWidth;
           }
         }
 
@@ -749,13 +730,13 @@
         }
       }
 
-      // Simulate progress for the progress bar
+      // Progress bar
       function updateProgress(percent) {
         progressContainer.style.display = 'block';
         progressBar.style.width = `${percent}%`;
       }
 
-      // Generate PDF with signatures
+      // Generate PDF
       async function generateDocument() {
         if (!selectedPdf) {
           alert('Please upload a PDF file');
@@ -791,19 +772,18 @@
           }
           updateProgress(60);
 
-          // Add signatures to pages
           for (let i = 0; i < pages.length; i++) {
             const page = pages[i];
-            const { width: pdfWidth, height: pdfHeight } = page.getSize();
+            const { height: pdfHeight } = pageSizes[i];
             for (const signature of signaturePositions[i]) {
-              const imgWidth = signature.width; // Use stored width
-              const imgHeight = (imgWidth / image.width) * image.height; // Maintain aspect ratio
+              const imgWidth = signature.width;
+              const imgHeight = (imgWidth / image.width) * image.height;
               page.drawImage(image, {
                 x: signature.x,
-                y: signature.y - imgHeight, // Adjust for PDF bottom-left origin
+                y: signature.y - imgHeight,
                 width: imgWidth,
                 height: imgHeight,
-                opacity: 0.8, // Signature opacity
+                opacity: 0.8,
               });
               console.log(`Placed signature on page ${i + 1}: PDF (${signature.x}, ${signature.y}), Width: ${imgWidth}`);
             }
@@ -819,10 +799,7 @@
           a.href = url;
           a.download = generateFilename();
 
-          // Trigger vibration on mobile devices for download
-          if ('vibrate' in navigator) {
-            navigator.vibrate(200); // Vibrate for 200ms
-          }
+          if ('vibrate' in navigator) navigator.vibrate(200);
 
           document.body.appendChild(a);
           a.click();
@@ -830,7 +807,6 @@
           URL.revokeObjectURL(url);
           updateProgress(100);
 
-          // Reset UI
           selectedPdf = null;
           signaturePositions = [];
           pageSizes = [];
@@ -842,7 +818,6 @@
             progressContainer.style.display = 'none';
             progressBar.style.width = '0%';
           }, 500);
-          // Reload default signature
           await loadDefaultSignature();
         } catch (error) {
           console.error('Error generating document:', error);
@@ -856,7 +831,6 @@
         }
       }
 
-      // Generate button click handler
       generateBtn.addEventListener('click', () => {
         stopVibration();
         generateDocument();
