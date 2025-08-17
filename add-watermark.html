@@ -305,12 +305,12 @@
     <div class="input-container">
       <label for="watermarkText">Enter Watermark Text</label>
       <input type="text" id="watermarkText" placeholder="e.g., MYRTILLE INDUSTRIES">
-      <p>Enter text to add as a diagonal watermark (leave blank if using image)</p>
+      <p>Enter text to add as a diagonal watermark from bottom-left to top-right</p>
     </div>
     <div class="input-container">
       <label for="watermarkImage">Upload Watermark Image</label>
       <input type="file" id="watermarkImage" accept="image/*">
-      <p>Upload an image to add as a centered watermark (leave blank if using text)</p>
+      <p>Upload an image to add as a full-page watermark</p>
     </div>
     <p class="file-info" id="imageInfo"></p>
     <div class="progress-container" id="progressContainer">
@@ -504,18 +504,34 @@
           updateProgress(40);
 
           if (watermarkText.value.trim()) {
-            // Add diagonal text watermark
+            // Add diagonal text watermark from bottom-left to top-right
             const font = await pdfDoc.embedFont(PDFLib.StandardFonts.HelveticaBold);
             const text = watermarkText.value.trim();
             for (const page of pages) {
               const { width, height } = page.getSize();
-              const fontSize = Math.min(width, height) * 0.2; // Dynamic font size
+              const diagonalLength = Math.sqrt(width * width + height * height);
+              const angle = Math.atan2(height, width) * (180 / Math.PI); // Angle of diagonal
+              let fontSize = diagonalLength / 10; // Base font size
               const textWidth = font.widthOfTextAtSize(text, fontSize);
+              const maxTextWidth = diagonalLength * 0.8; // Allow 80% of diagonal length
+
+              // Adjust font size to fit text within page diagonal
+              while (textWidth > maxTextWidth && fontSize > 10) {
+                fontSize -= 2;
+                textWidth = font.widthOfTextAtSize(text, fontSize);
+              }
+              // Ensure minimum font size for short text
+              if (text.length <= 10) {
+                fontSize = Math.max(fontSize, diagonalLength / 15);
+              }
+
+              const textWidthFinal = font.widthOfTextAtSize(text, fontSize);
               const textHeight = font.heightAtSize(fontSize);
-              const angle = 45; // Diagonal angle
+              const xStart = 20; // Margin from bottom-left
+              const yStart = 20; // Margin from bottom-left
               page.drawText(text, {
-                x: (width - textWidth * Math.cos(Math.PI / 4)) / 2,
-                y: (height + textHeight * Math.sin(Math.PI / 4)) / 2,
+                x: xStart,
+                y: yStart,
                 size: fontSize,
                 font: font,
                 color: PDFLib.rgb(0.231, 0.525, 0.898), // Blue (#5b86e5)
@@ -524,7 +540,7 @@
               });
             }
           } else if (selectedImage) {
-            // Add centered image watermark
+            // Add full-page image watermark
             const imageBytes = await selectedImage.arrayBuffer();
             let image;
             if (selectedImage.type === 'image/png') {
@@ -537,7 +553,7 @@
             for (const page of pages) {
               const { width, height } = page.getSize();
               const { width: imgWidth, height: imgHeight } = image;
-              const scale = Math.min(width / imgWidth, height / imgHeight) * 0.5; // Scale to 50% of page
+              const scale = Math.max(width / imgWidth, height / imgHeight); // Scale to cover entire page
               page.drawImage(image, {
                 x: (width - imgWidth * scale) / 2,
                 y: (height - imgHeight * scale) / 2,
