@@ -218,7 +218,7 @@
     .preview-item {
       position: relative;
       text-align: center;
-      overflow: hidden;
+      overflow: visible; /* Ensure layer isn't clipped */
     }
 
     .preview-item canvas {
@@ -240,6 +240,8 @@
       background: rgba(0, 0, 0, 0); /* Transparent */
       cursor: pointer;
       z-index: 10; /* Above canvas */
+      /* Temporary border for debugging */
+      /* border: 1px solid red; */
     }
 
     .signature {
@@ -472,7 +474,7 @@
         });
         signaturePositions.forEach(pageSignatures => {
           pageSignatures.forEach(signature => {
-            signature.width = signatureWidth; // Width is in canvas pixels, will use as-is in PDF
+            signature.width = signatureWidth; // Width is in visual pixels, will scale to PDF
           });
         });
       });
@@ -623,8 +625,10 @@
           // Create transparent signature layer
           const signatureLayer = document.createElement('div');
           signatureLayer.className = 'signature-layer';
-          signatureLayer.style.width = `${canvas.width}px`;
-          signatureLayer.style.height = `${canvas.height}px`;
+          // Set layer size to canvas's visual size
+          const canvasRect = canvas.getBoundingClientRect();
+          signatureLayer.style.width = `${canvasRect.width}px`;
+          signatureLayer.style.height = `${canvasRect.height}px`;
           previewItem.appendChild(signatureLayer);
           previewContainer.appendChild(previewItem);
 
@@ -641,9 +645,10 @@
 
       // Add signature to layer
       function addSignature(pageIndex, event, layer, canvas) {
-        const rect = layer.getBoundingClientRect();
-        const layerX = (event.clientX - rect.left) / window.devicePixelRatio; // Adjust for DPR
-        const layerY = (event.clientY - rect.top) / window.devicePixelRatio;
+        const canvasRect = canvas.getBoundingClientRect();
+        const layerRect = layer.getBoundingClientRect();
+        const layerX = (event.clientX - layerRect.left) / window.devicePixelRatio;
+        const layerY = (event.clientY - layerRect.top) / window.devicePixelRatio;
         const signatureId = `signature-${pageIndex}-${Date.now()}`;
         const signature = document.createElement('div');
         signature.className = 'signature';
@@ -670,26 +675,29 @@
         layer.appendChild(signature);
 
         const { width: pdfWidth, height: pdfHeight } = pageSizes[pageIndex];
-        const pdfX = layerX; // 1:1 mapping
-        const pdfY = pdfHeight - layerY; // Flip for PDF
+        // Map layer coordinates to PDF coordinates
+        const scaleX = pdfWidth / canvasRect.width;
+        const scaleY = pdfHeight / canvasRect.height;
+        const pdfX = layerX * scaleX;
+        const pdfY = pdfHeight - (layerY * scaleY);
 
-        console.log(`Adding signature on page ${pageIndex + 1}: Layer (${layerX}, ${layerY}), PDF (${pdfX}, ${pdfY})`);
+        console.log(`Adding signature on page ${pageIndex + 1}: Layer (${layerX}, ${layerY}), CanvasRect (${canvasRect.width}, ${canvasRect.height}), PDF (${pdfX}, ${pdfY})`);
 
         signaturePositions[pageIndex].push({
           id: signatureId,
           x: pdfX,
           y: pdfY,
-          width: signatureWidth,
+          width: signatureWidth * scaleX,
         });
 
-        makeDraggable(signature, pageIndex, layer, signatureId);
+        makeDraggable(signature, pageIndex, layer, canvas, signatureId);
 
         generateBtn.disabled = false;
         if ('vibrate' in navigator) navigator.vibrate(50);
       }
 
       // Make signature draggable
-      function makeDraggable(element, pageIndex, layer, signatureId) {
+      function makeDraggable(element, pageIndex, layer, canvas, signatureId) {
         let isDragging = false;
         let currentX, currentY;
 
@@ -713,27 +721,30 @@
           if (!isDragging) return;
           const clientX = e.type === 'touchmove' ? e.touches[0].clientX : e.clientX;
           const clientY = e.type === 'touchmove' ? e.touches[0].clientY : e.clientY;
-          const rect = layer.getBoundingClientRect();
+          const layerRect = layer.getBoundingClientRect();
           let newX = (clientX - currentX) / window.devicePixelRatio;
           let newY = (clientY - currentY) / window.devicePixelRatio;
 
-          newX = Math.max(0, Math.min(newX, rect.width - element.offsetWidth));
-          newY = Math.max(0, Math.min(newY, rect.height - element.offsetHeight));
+          newX = Math.max(0, Math.min(newX, layerRect.width - element.offsetWidth));
+          newY = Math.max(0, Math.min(newY, layerRect.height - element.offsetHeight));
 
           element.style.left = `${newX}px`;
           element.style.top = `${newY}px`;
 
+          const canvasRect = canvas.getBoundingClientRect();
           const { width: pdfWidth, height: pdfHeight } = pageSizes[pageIndex];
-          const pdfX = newX;
-          const pdfY = pdfHeight - newY;
+          const scaleX = pdfWidth / canvasRect.width;
+          const scaleY = pdfHeight / canvasRect.height;
+          const pdfX = newX * scaleX;
+          const pdfY = pdfHeight - (newY * scaleY);
 
-          console.log(`Dragging signature on page ${pageIndex + 1}: Layer (${newX}, ${newY}), PDF (${pdfX}, ${pdfY})`);
+          console.log(`Dragging signature on page ${pageIndex + 1}: Layer (${newX}, ${newY}), CanvasRect (${canvasRect.width}, ${canvasRect.height}), PDF (${pdfX}, ${pdfY})`);
 
           const signature = signaturePositions[pageIndex].find(pos => pos.id === signatureId);
           if (signature) {
             signature.x = pdfX;
             signature.y = pdfY;
-            signature.width = signatureWidth;
+            signature.width = signatureWidth * scaleX;
           }
         }
 
