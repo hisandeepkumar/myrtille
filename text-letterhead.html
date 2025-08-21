@@ -215,16 +215,60 @@
       font-weight: 500;
     }
 
-    .watermark-toggle input[type="checkbox"] {
-      margin-right: 8px;
-      width: 20px;
-      height: 20px;
-      accent-color: #5b86e5;
+    .watermark-toggle label {
+      display: flex;
+      align-items: center;
+      gap: 12px;
       cursor: pointer;
+      flex-direction: row; /* Text first, then switch */
     }
 
-    .watermark-toggle label {
-      cursor: pointer;
+    .watermark-toggle input[type="checkbox"] {
+      display: none; /* Hide default checkbox */
+    }
+
+    .toggle-switch {
+      width: 60px;
+      height: 30px;
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 15px;
+      position: relative;
+      transition: background 0.3s ease, border-color 0.3s ease;
+      box-shadow: 0 4px 15px rgba(91, 134, 229, 0.3), inset 0 2px 4px rgba(255, 255, 255, 0.2);
+    }
+
+    .toggle-switch::before {
+      content: '';
+      position: absolute;
+      width: 24px;
+      height: 24px;
+      background: #f0f0f0;
+      border-radius: 50%;
+      top: 3px;
+      left: 3px;
+      transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55), background 0.3s ease;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    }
+
+    .watermark-toggle input:checked + .toggle-switch {
+      background: #34c759; /* Green for "on" state */
+      border-color: #34c759;
+    }
+
+    .watermark-toggle input:checked + .toggle-switch::before {
+      transform: translateX(30px); /* Slide knob to the right */
+      background: #ffffff; /* Bright knob for contrast */
+    }
+
+    .toggle-switch:hover {
+      background: rgba(255, 255, 255, 0.25);
+      box-shadow: 0 6px 20px rgba(91, 134, 229, 0.5), inset 0 2px 4px rgba(255, 255, 255, 0.3);
+    }
+
+    .watermark-toggle input:checked + .toggle-switch:hover {
+      background: #2db44e; /* Darker green on hover */
     }
 
     .status-area {
@@ -417,9 +461,24 @@
         flex-wrap: wrap;
         gap: 12px;
       }
-      
       .address-option {
         min-width: 100%;
+      }
+      .watermark-toggle {
+        font-size: 14px;
+      }
+      .toggle-switch {
+        width: 50px;
+        height: 25px;
+      }
+      .toggle-switch::before {
+        width: 20px;
+        height: 20px;
+        top: 2.5px;
+        left: 2.5px;
+      }
+      .watermark-toggle input:checked + .toggle-switch::before {
+        transform: translateX(25px);
       }
     }
   </style>
@@ -487,8 +546,11 @@
 
         <div class="app-section" style="text-align: center;">
           <div class="watermark-toggle">
-            <input type="checkbox" id="watermarkToggle" aria-label="Enable Watermark">
-            <label for="watermarkToggle">Add MYRTILLE INDUSTRIES Watermark</label>
+            <label for="watermarkToggle">
+              MYRTILLE INDUSTRIES Watermark
+              <input type="checkbox" id="watermarkToggle" aria-label="Enable Watermark">
+              <span class="toggle-switch"></span>
+            </label>
           </div>
           <button class="btn generate-btn" id="generateBtn" aria-label="Generate PDF Document">
             <i class="fas fa-file-pdf"></i> Generate Document
@@ -669,11 +731,12 @@
           });
         }
         
+        console.log('Bold parts:', parts);
         return parts;
       }
 
       function sanitizeText(text) {
-        return text.replace(/[^\x20-\x7E]/g, ' ');
+        return text.replace(/[^\x20-\x7E]/g, ' '); // Fixed regex to preserve printable ASCII
       }
 
       async function generatePDF() {
@@ -703,18 +766,21 @@
 
           const a4Width = 595.28;
           const a4Height = 841.89;
-          const contentAreaWidth = a4Width - 80;
-          const contentAreaHeight = a4Height - 75 - 100 - 40;
+          const contentAreaWidth = a4Width - 80; // 40px margins on each side
+          const contentAreaHeight = a4Height - 75 - 100 - 40; // Header, footer, and extra margin
 
           console.log('Splitting content into paragraphs');
           const paragraphs = content.split('\n\n').map(paragraph => paragraph.split('\n').map(line => processBoldText(line)));
           const lines = [];
-          paragraphs.forEach(paragraph => {
-            paragraph.forEach(lineParts => {
-              lines.push(...splitStyledTextIntoLines(lineParts, helveticaFont, helveticaBoldFont, 12, contentAreaWidth));
+          paragraphs.forEach((paragraph, pIndex) => {
+            paragraph.forEach((lineParts, lIndex) => {
+              const paragraphLines = splitStyledTextIntoLines(lineParts, helveticaFont, helveticaBoldFont, 12, contentAreaWidth);
+              console.log(`Paragraph ${pIndex}, Line ${lIndex}: ${paragraphLines.length} lines`);
+              lines.push(...paragraphLines);
             });
-            lines.push([]); // Add an empty line to indicate paragraph break
+            lines.push([]); // Add empty line for paragraph break
           });
+          console.log('Total lines:', lines.length);
           const pages = groupLinesIntoPages(lines, helveticaFont, 12, contentAreaHeight);
           console.log('Pages created:', pages.length);
 
@@ -736,12 +802,11 @@
               const font = helveticaBoldFont;
               const { width, height } = newPage.getSize();
               const diagonalLength = Math.sqrt(width * width + height * height);
-              const angle = Math.atan2(height, width) * (180 / Math.PI); // Diagonal angle
-              let fontSize = diagonalLength / 10; // Base font size
+              const angle = Math.atan2(height, width) * (180 / Math.PI);
+              let fontSize = diagonalLength / 10;
               let textWidth = font.widthOfTextAtSize(watermarkText, fontSize);
-              const maxTextWidth = diagonalLength * 0.8; // 80% of diagonal length
+              const maxTextWidth = diagonalLength * 0.8;
 
-              // Adjust font size to fit
               while (textWidth > maxTextWidth && fontSize > 10) {
                 fontSize -= 2;
                 textWidth = font.widthOfTextAtSize(watermarkText, fontSize);
@@ -758,7 +823,7 @@
                 y: yCenter,
                 size: fontSize,
                 font: font,
-                color: PDFLib.rgb(0.231, 0.525, 0.898), // #5b86e5
+                color: PDFLib.rgb(0.231, 0.525, 0.898),
                 opacity: 0.3,
                 rotate: PDFLib.degrees(angle),
               });
@@ -835,8 +900,8 @@
             let contentY = a4Height - 75 - 20;
 
             for (const line of pageLines) {
-              if (line.length === 0) { // Paragraph break
-                contentY -= 25; // Extra spacing for paragraph break
+              if (line.length === 0) {
+                contentY -= 25;
                 continue;
               }
               let xOffset = 40;
@@ -856,7 +921,7 @@
                 xOffset += font.widthOfTextAtSize(sanitizedText, 12);
               }
               
-              contentY -= 15; // Standard line spacing
+              contentY -= 15;
             }
           }
 
@@ -901,18 +966,14 @@
 
         for (const part of parts) {
           const font = part.bold ? boldFont : normalFont;
-          const words = part.text.split(' ');
+          const words = part.text.split(/(\s+)/); // Split on whitespace, preserving spaces
 
           for (let i = 0; i < words.length; i++) {
-            let word = words[i];
-            if (i > 0) {
-              word = ' ' + word;
-            }
-
+            const word = words[i];
             const wordWidth = font.widthOfTextAtSize(word, fontSize);
 
             if (currentWidth + wordWidth <= maxWidth) {
-              if (currentLine.length > 0 && currentLine[currentLine.length - 1].bold === part.bold) {
+              if (currentLine.length > 0 && currentLine[currentLine.length - 1].bold === part.bold && word.match(/\s+/)) {
                 currentLine[currentLine.length - 1].text += word;
               } else {
                 currentLine.push({
@@ -922,12 +983,41 @@
               }
               currentWidth += wordWidth;
             } else {
-              lines.push([...currentLine]);
-              currentLine = [{
-                text: word,
-                bold: part.bold
-              }];
-              currentWidth = wordWidth;
+              if (currentLine.length > 0) {
+                lines.push([...currentLine]);
+              }
+              if (wordWidth > maxWidth) {
+                // Handle long words by splitting them
+                let remainingWord = word;
+                while (remainingWord.length > 0) {
+                  let tempText = '';
+                  let tempWidth = 0;
+                  for (let j = 0; j < remainingWord.length; j++) {
+                    const char = remainingWord[j];
+                    const charWidth = font.widthOfTextAtSize(char, fontSize);
+                    if (tempWidth + charWidth <= maxWidth) {
+                      tempText += char;
+                      tempWidth += charWidth;
+                    } else {
+                      if (tempText) {
+                        lines.push([{ text: tempText, bold: part.bold }]);
+                      }
+                      remainingWord = remainingWord.slice(j);
+                      tempText = '';
+                      tempWidth = 0;
+                    }
+                  }
+                  if (tempText) {
+                    lines.push([{ text: tempText, bold: part.bold }]);
+                  }
+                  remainingWord = '';
+                }
+                currentLine = [];
+                currentWidth = 0;
+              } else {
+                currentLine = [{ text: word, bold: part.bold }];
+                currentWidth = wordWidth;
+              }
             }
           }
         }
@@ -936,13 +1026,13 @@
           lines.push(currentLine);
         }
 
+        console.log('Lines generated:', lines);
         return lines;
       }
 
       function groupLinesIntoPages(lines, font, fontSize, maxHeight) {
         const lineHeight = 15;
         const paragraphSpacing = 25;
-        const maxLinesPerPage = Math.floor(maxHeight / lineHeight);
         const pages = [];
         let currentPage = [];
         let currentHeight = 0;
@@ -951,13 +1041,15 @@
           const isParagraphBreak = line.length === 0;
           const heightToAdd = isParagraphBreak ? paragraphSpacing : lineHeight;
 
-          if (currentHeight + heightToAdd <= maxHeight && currentPage.length < maxLinesPerPage) {
-            currentPage.push(line);
-            currentHeight += heightToAdd;
-          } else {
-            pages.push([...currentPage]);
+          if (currentHeight + heightToAdd > maxHeight) {
+            if (currentPage.length > 0) {
+              pages.push([...currentPage]);
+            }
             currentPage = [line];
             currentHeight = heightToAdd;
+          } else {
+            currentPage.push(line);
+            currentHeight += heightToAdd;
           }
         }
 
@@ -965,6 +1057,7 @@
           pages.push(currentPage);
         }
 
+        console.log('Pages generated:', pages);
         return pages;
       }
 
