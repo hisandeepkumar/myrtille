@@ -42,8 +42,6 @@
       padding: 32px;
     }
 
-   
-
     .header {
       padding: 24px;
       text-align: center;
@@ -434,7 +432,7 @@
         selectedPdf = file;
         fileInfoDisplay.textContent = `${file.name} (${formatFileSize(file.size)})`;
         fileInfoDisplay.style.display = 'block';
-        watermarkBtn.disabled = !(watermarkText.value.trim() || selectedImage);
+        watermarkBtn.disabled = false; // Enable button when PDF is selected
         startVibration();
         pdfInput.value = ''; // Reset input
       }
@@ -445,14 +443,14 @@
           alert('Please select an image file');
           imageInfoDisplay.textContent = '';
           imageInfoDisplay.style.display = 'none';
-          watermarkBtn.disabled = true;
+          watermarkBtn.disabled = !selectedPdf; // Disable only if no PDF is selected
           selectedImage = null;
           return;
         }
         selectedImage = file;
         imageInfoDisplay.textContent = `Image: ${file.name} (${formatFileSize(file.size)})`;
         imageInfoDisplay.style.display = 'block';
-        watermarkBtn.disabled = !selectedPdf;
+        watermarkBtn.disabled = false; // Enable button when image is selected
         watermarkText.value = ''; // Clear text input if image is selected
         startVibration();
         watermarkImage.value = ''; // Reset input
@@ -466,7 +464,7 @@
           imageInfoDisplay.style.display = 'none';
           watermarkImage.value = '';
         }
-        watermarkBtn.disabled = !selectedPdf || (!watermarkText.value.trim() && !selectedImage);
+        watermarkBtn.disabled = !selectedPdf; // Only require PDF, text is optional
       });
 
       // Watermark button click handler
@@ -487,10 +485,6 @@
           alert('Please upload a PDF file');
           return;
         }
-        if (!watermarkText.value.trim() && !selectedImage) {
-          alert('Please enter watermark text or upload an image');
-          return;
-        }
 
         watermarkBtn.disabled = true;
         try {
@@ -502,10 +496,19 @@
           const pages = pdfDoc.getPages();
           updateProgress(40);
 
-          if (watermarkText.value.trim()) {
+          // Determine what to use for watermarking
+          let watermarkTextValue = watermarkText.value.trim();
+          let watermarkImageFile = selectedImage;
+          
+          // If neither text nor image is provided, use default text
+          if (!watermarkTextValue && !watermarkImageFile) {
+            watermarkTextValue = "MYRTILLE INDUSTRIES";
+          }
+
+          if (watermarkTextValue) {
             // Add centered diagonal text watermark from bottom-left to top-right
             const font = await pdfDoc.embedFont(PDFLib.StandardFonts.HelveticaBold);
-            const text = watermarkText.value.trim();
+            const text = watermarkTextValue;
             for (const page of pages) {
               const { width, height } = page.getSize();
               const diagonalLength = Math.sqrt(width * width + height * height);
@@ -540,13 +543,13 @@
                 rotate: PDFLib.degrees(angle),
               });
             }
-          } else if (selectedImage) {
+          } else if (watermarkImageFile) {
             // Add full-page image watermark
-            const imageBytes = await selectedImage.arrayBuffer();
+            const imageBytes = await watermarkImageFile.arrayBuffer();
             let image;
-            if (selectedImage.type === 'image/png') {
+            if (watermarkImageFile.type === 'image/png') {
               image = await pdfDoc.embedPng(imageBytes);
-            } else if (selectedImage.type === 'image/jpeg') {
+            } else if (watermarkImageFile.type === 'image/jpeg') {
               image = await pdfDoc.embedJpg(imageBytes);
             } else {
               throw new Error('Unsupported image format');
