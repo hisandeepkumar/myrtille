@@ -508,14 +508,11 @@
           URL.revokeObjectURL(url);
           updateProgress(100);
 
-          // Reset UI
-          files = [];
-          fileList.innerHTML = '';
-          mergeBtn.disabled = true;
-          stopAllVibrations();
+          // Reset progress bar after a delay but keep the files
           setTimeout(() => {
             progressContainer.style.display = 'none';
             progressBar.style.width = '0%';
+            mergeBtn.disabled = false; // Re-enable the merge button
           }, 500);
         } catch (error) {
           alert(`Error merging PDFs: ${error.message}`);
