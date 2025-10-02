@@ -194,6 +194,73 @@
       line-height: 1.4;
     }
 
+    /* Watermark Toggle Styles */
+    .watermark-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 24px 0;
+      color: #f0f0f0;
+      font-size: 16px;
+      font-weight: 500;
+    }
+
+    .watermark-toggle label {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+      flex-direction: row;
+    }
+
+    .watermark-toggle input[type="checkbox"] {
+      display: none;
+    }
+
+    .toggle-switch {
+      width: 60px;
+      height: 30px;
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 15px;
+      position: relative;
+      transition: background 0.3s ease, border-color 0.3s ease;
+      box-shadow: 0 4px 15px rgba(91, 134, 229, 0.3), inset 0 2px 4px rgba(255, 255, 255, 0.2);
+    }
+
+    .toggle-switch::before {
+      content: '';
+      position: absolute;
+      width: 24px;
+      height: 24px;
+      background: #f0f0f0;
+      border-radius: 50%;
+      top: 3px;
+      left: 3px;
+      transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55), background 0.3s ease;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    }
+
+    .watermark-toggle input:checked + .toggle-switch {
+      background: #34c759;
+      border-color: #34c759;
+    }
+
+    .watermark-toggle input:checked + .toggle-switch::before {
+      transform: translateX(30px);
+      background: #ffffff;
+    }
+
+    .toggle-switch:hover {
+      background: rgba(255, 255, 255, 0.25);
+      box-shadow: 0 6px 20px rgba(91, 134, 229, 0.5), inset 0 2px 4px rgba(255, 255, 255, 0.3);
+    }
+
+    .watermark-toggle input:checked + .toggle-switch:hover {
+      background: #2db44e;
+    }
+
     .btn {
       background: rgba(255, 255, 255, 0.2);
       backdrop-filter: blur(12px);
@@ -350,6 +417,22 @@
       .address-btn {
         max-width: 100%;
       }
+      .watermark-toggle {
+        font-size: 14px;
+      }
+      .toggle-switch {
+        width: 50px;
+        height: 25px;
+      }
+      .toggle-switch::before {
+        width: 20px;
+        height: 20px;
+        top: 2.5px;
+        left: 2.5px;
+      }
+      .watermark-toggle input:checked + .toggle-switch::before {
+        transform: translateX(25px);
+      }
     }
   </style>
 </head>
@@ -397,6 +480,15 @@
       </div>
     </div>
 
+    <!-- Watermark Toggle -->
+    <div class="watermark-toggle">
+      <label for="watermarkToggle">
+        MYRTILLE INDUSTRIES Watermark
+        <input type="checkbox" id="watermarkToggle" aria-label="Enable Watermark">
+        <span class="toggle-switch"></span>
+      </label>
+    </div>
+
     <button class="btn" id="generateBtn" disabled>
       <i class="fas fa-magic"></i>
       <span>Generate Document</span>
@@ -439,6 +531,7 @@
       const errorText = document.getElementById('errorText');
       const newAddressBtn = document.getElementById('newAddressBtn');
       const oldAddressBtn = document.getElementById('oldAddressBtn');
+      const watermarkToggle = document.getElementById('watermarkToggle');
 
       let selectedAddress = 'new'; // Default to new address
       let currentFile = null; // Store the current file
@@ -620,6 +713,39 @@
             const page = pages[index];
             const { width, height } = page.getSize();
             const newPage = finalPdf.addPage([a4Width, a4Height]);
+
+            // Add watermark if enabled
+            if (watermarkToggle.checked) {
+              const watermarkText = "MYRTILLE INDUSTRIES";
+              const font = helveticaBoldFont;
+              const { width, height } = newPage.getSize();
+              const diagonalLength = Math.sqrt(width * width + height * height);
+              const angle = Math.atan2(height, width) * (180 / Math.PI);
+              let fontSize = diagonalLength / 10;
+              let textWidth = font.widthOfTextAtSize(watermarkText, fontSize);
+              const maxTextWidth = diagonalLength * 0.8;
+
+              while (textWidth > maxTextWidth && fontSize > 10) {
+                fontSize -= 2;
+                textWidth = font.widthOfTextAtSize(watermarkText, fontSize);
+              }
+              if (watermarkText.length <= 10) {
+                fontSize = Math.max(fontSize, diagonalLength / 15);
+                textWidth = font.widthOfTextAtSize(watermarkText, fontSize);
+              }
+
+              const xCenter = width / 2 - (textWidth * Math.cos(angle * Math.PI / 180)) / 2;
+              const yCenter = height / 2 - (textWidth * Math.sin(angle * Math.PI / 180)) / 2;
+              newPage.drawText(watermarkText, {
+                x: xCenter,
+                y: yCenter,
+                size: fontSize,
+                font: font,
+                color: PDFLib.rgb(0.231, 0.525, 0.898),
+                opacity: 0.3,
+                rotate: PDFLib.degrees(angle),
+              });
+            }
 
             // Draw header
             newPage.drawRectangle({
