@@ -32,7 +32,7 @@
 
     .container {
       width: 100%;
-      max-width: 1000px;
+      max-width: 1200px;
       background: rgba(255, 255, 255, 0.2);
       backdrop-filter: blur(16px);
       border-radius: 20px;
@@ -146,7 +146,7 @@
     .pages-container {
       display: none;
       margin-top: 24px;
-      max-height: 500px;
+      max-height: 600px;
       overflow-y: auto;
       border-radius: 12px;
       background: rgba(255, 255, 255, 0.1);
@@ -161,10 +161,10 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 12px 16px;
+      padding: 16px;
       background: rgba(255, 255, 255, 0.1);
-      border-radius: 8px;
-      margin-bottom: 8px;
+      border-radius: 12px;
+      margin-bottom: 12px;
       border: 1px solid rgba(255, 255, 255, 0.1);
       transition: all 0.3s ease;
     }
@@ -185,30 +185,41 @@
     .page-info {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 16px;
+      flex: 1;
     }
 
     .page-number {
       background: rgba(52, 152, 219, 0.3);
-      width: 30px;
-      height: 30px;
+      width: 36px;
+      height: 36px;
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
       font-weight: 600;
+      flex-shrink: 0;
+    }
+
+    .page-preview-container {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex: 1;
     }
 
     .page-preview {
-      width: 80px;
-      height: 100px;
+      width: 150px;
+      height: 200px;
       background: rgba(255, 255, 255, 0.1);
-      border-radius: 4px;
+      border-radius: 8px;
       overflow: hidden;
       display: flex;
       align-items: center;
       justify-content: center;
       position: relative;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      flex-shrink: 0;
     }
 
     .page-preview canvas {
@@ -224,9 +235,24 @@
       padding: 8px;
     }
 
+    .page-details {
+      flex: 1;
+    }
+
+    .page-title {
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .page-size {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.7);
+    }
+
     .page-actions {
       display: flex;
       gap: 8px;
+      flex-shrink: 0;
     }
 
     .btn {
@@ -285,7 +311,7 @@
     }
 
     .btn-small {
-      padding: 8px 16px;
+      padding: 10px 18px;
       font-size: 14px;
       box-shadow: 0 4px 12px rgba(52, 152, 219, 0.4), 0 2px 6px rgba(0, 0, 0, 0.2), inset 0 1px 2px rgba(255, 255, 255, 0.3), inset 0 -1px 2px rgba(0, 0, 0, 0.1);
     }
@@ -328,14 +354,17 @@
     }
 
     .crop-container {
-      width: 90%;
-      max-width: 900px;
+      width: 95%;
+      max-width: 1200px;
+      height: 90vh;
       background: rgba(255, 255, 255, 0.2);
       backdrop-filter: blur(16px);
       border-radius: 20px;
       padding: 24px;
       box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
       border: 1px solid rgba(255, 255, 255, 0.3);
+      display: flex;
+      flex-direction: column;
     }
 
     .crop-header {
@@ -362,50 +391,78 @@
     .crop-content {
       display: flex;
       gap: 20px;
-      margin-bottom: 20px;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    .crop-preview-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
     }
 
     .crop-preview {
       flex: 1;
-      height: 400px;
       background: rgba(255, 255, 255, 0.1);
       border-radius: 12px;
       display: flex;
       justify-content: center;
       align-items: center;
-      overflow: hidden;
+      overflow: auto;
       position: relative;
+      padding: 20px;
     }
 
     .crop-preview canvas {
       max-width: 100%;
       max-height: 100%;
-      object-fit: contain;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+    }
+
+    .crop-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+
+    .crop-border {
+      position: absolute;
+      border: 2px dashed #3498db;
+      background: rgba(52, 152, 219, 0.1);
+      box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5);
     }
 
     .crop-controls {
-      flex: 1;
+      width: 300px;
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 16px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 20px;
     }
 
     .crop-slider {
       display: flex;
-      align-items: center;
-      gap: 12px;
+      flex-direction: column;
+      gap: 8px;
     }
 
     .crop-slider label {
-      min-width: 100px;
       font-weight: 500;
+      display: flex;
+      justify-content: space-between;
     }
 
     .crop-slider input {
-      flex: 1;
-      height: 6px;
+      width: 100%;
+      height: 8px;
       background: rgba(255, 255, 255, 0.2);
-      border-radius: 3px;
+      border-radius: 4px;
       outline: none;
       -webkit-appearance: none;
     }
@@ -503,7 +560,7 @@
       margin-right: 8px;
     }
 
-    @media (max-width: 768px) {
+    @media (max-width: 1024px) {
       .container {
         padding: 16px;
       }
@@ -523,11 +580,18 @@
         padding: 12px 24px;
       }
       .crop-container {
-        width: 95%;
+        width: 98%;
         padding: 16px;
       }
       .crop-content {
         flex-direction: column;
+      }
+      .crop-controls {
+        width: 100%;
+      }
+      .page-preview {
+        width: 120px;
+        height: 160px;
       }
     }
   </style>
@@ -589,39 +653,50 @@
         </button>
       </div>
       <div class="crop-content">
-        <div class="crop-preview" id="cropPreview">
-          <div class="page-preview-placeholder">Page preview will appear here</div>
+        <div class="crop-preview-container">
+          <div class="crop-preview" id="cropPreview">
+            <div class="page-preview-placeholder">Page preview will appear here</div>
+            <div class="crop-overlay" id="cropOverlay"></div>
+          </div>
         </div>
         <div class="crop-controls">
           <div class="crop-slider">
-            <label for="cropTop">Top:</label>
+            <label for="cropTop">
+              <span>Top Margin</span>
+              <span id="cropTopValue">0%</span>
+            </label>
             <input type="range" id="cropTop" min="0" max="100" value="0">
-            <span id="cropTopValue">0%</span>
           </div>
           <div class="crop-slider">
-            <label for="cropBottom">Bottom:</label>
+            <label for="cropBottom">
+              <span>Bottom Margin</span>
+              <span id="cropBottomValue">0%</span>
+            </label>
             <input type="range" id="cropBottom" min="0" max="100" value="0">
-            <span id="cropBottomValue">0%</span>
           </div>
           <div class="crop-slider">
-            <label for="cropLeft">Left:</label>
+            <label for="cropLeft">
+              <span>Left Margin</span>
+              <span id="cropLeftValue">0%</span>
+            </label>
             <input type="range" id="cropLeft" min="0" max="100" value="0">
-            <span id="cropLeftValue">0%</span>
           </div>
           <div class="crop-slider">
-            <label for="cropRight">Right:</label>
+            <label for="cropRight">
+              <span>Right Margin</span>
+              <span id="cropRightValue">0%</span>
+            </label>
             <input type="range" id="cropRight" min="0" max="100" value="0">
-            <span id="cropRightValue">0%</span>
+          </div>
+          <div class="crop-actions">
+            <button class="btn btn-small" id="cropReset">
+              <i class="fas fa-undo"></i> Reset
+            </button>
+            <button class="btn btn-small" id="cropApply">
+              <i class="fas fa-check"></i> Apply Crop
+            </button>
           </div>
         </div>
-      </div>
-      <div class="crop-actions">
-        <button class="btn btn-small" id="cropReset">
-          <i class="fas fa-undo"></i> Reset
-        </button>
-        <button class="btn btn-small" id="cropApply">
-          <i class="fas fa-check"></i> Apply Crop
-        </button>
       </div>
     </div>
   </div>
@@ -649,6 +724,7 @@
       const cropClose = document.getElementById('cropClose');
       const cropPageNumber = document.getElementById('cropPageNumber');
       const cropPreview = document.getElementById('cropPreview');
+      const cropOverlay = document.getElementById('cropOverlay');
       const cropTop = document.getElementById('cropTop');
       const cropBottom = document.getElementById('cropBottom');
       const cropLeft = document.getElementById('cropLeft');
@@ -665,6 +741,9 @@
       let pdfDoc = null;
       let currentPageIndex = 0;
       let pageModifications = {}; // Store page modifications (delete and crop)
+      let cropCanvas = null;
+      let cropCtx = null;
+      let cropBorder = null;
 
       // Upload area click handler
       uploadArea.addEventListener('click', () => {
@@ -784,14 +863,22 @@
           
           // Get page preview
           const previewCanvas = await renderPagePreview(index);
+          const page = await pdfDoc.getPage(index + 1);
+          const viewport = page.getViewport({ scale: 1.0 });
+          const pageSize = `${Math.round(viewport.width)} × ${Math.round(viewport.height)}`;
           
           pageItem.innerHTML = `
             <div class="page-info">
               <div class="page-number">${index + 1}</div>
-              <div class="page-preview">
-                ${previewCanvas.outerHTML}
+              <div class="page-preview-container">
+                <div class="page-preview">
+                  ${previewCanvas.outerHTML}
+                </div>
+                <div class="page-details">
+                  <div class="page-title">Page ${index + 1}</div>
+                  <div class="page-size">${pageSize} px</div>
+                </div>
               </div>
-              <div>Page ${index + 1}</div>
             </div>
             <div class="page-actions">
               <button class="btn btn-small" data-action="crop" data-index="${index}">
@@ -822,7 +909,7 @@
 
       async function renderPagePreview(pageIndex) {
         const page = await pdfDoc.getPage(pageIndex + 1);
-        const viewport = page.getViewport({ scale: 0.2 }); // Small scale for preview
+        const viewport = page.getViewport({ scale: 0.3 }); // Larger scale for better preview
         
         const canvas = document.createElement('canvas');
         const context = canvas.getContext('2d');
@@ -839,19 +926,49 @@
 
       async function renderCropPreview(pageIndex) {
         const page = await pdfDoc.getPage(pageIndex + 1);
-        const viewport = page.getViewport({ scale: 0.8 }); // Larger scale for crop preview
+        const viewport = page.getViewport({ scale: 1.0 }); // Full scale for crop preview
         
-        const canvas = document.createElement('canvas');
-        const context = canvas.getContext('2d');
-        canvas.height = viewport.height;
-        canvas.width = viewport.width;
+        // Create canvas for rendering
+        cropCanvas = document.createElement('canvas');
+        cropCtx = cropCanvas.getContext('2d');
+        cropCanvas.height = viewport.height;
+        cropCanvas.width = viewport.width;
         
         await page.render({
-          canvasContext: context,
+          canvasContext: cropCtx,
           viewport: viewport
         }).promise;
         
-        return canvas;
+        return cropCanvas;
+      }
+
+      function updateCropBorder() {
+        if (!cropCanvas) return;
+        
+        const top = parseFloat(cropTop.value) / 100;
+        const bottom = parseFloat(cropBottom.value) / 100;
+        const left = parseFloat(cropLeft.value) / 100;
+        const right = parseFloat(cropRight.value) / 100;
+        
+        const cropWidth = cropCanvas.width * (1 - left - right);
+        const cropHeight = cropCanvas.height * (1 - top - bottom);
+        const cropX = cropCanvas.width * left;
+        const cropY = cropCanvas.height * bottom;
+        
+        // Remove existing border
+        if (cropBorder) {
+          cropBorder.remove();
+        }
+        
+        // Create new border
+        cropBorder = document.createElement('div');
+        cropBorder.className = 'crop-border';
+        cropBorder.style.left = `${cropX}px`;
+        cropBorder.style.top = `${cropY}px`;
+        cropBorder.style.width = `${cropWidth}px`;
+        cropBorder.style.height = `${cropHeight}px`;
+        
+        cropOverlay.appendChild(cropBorder);
       }
 
       function deletePage(index) {
@@ -940,6 +1057,11 @@
           const previewCanvas = await renderCropPreview(index);
           cropPreview.innerHTML = '';
           cropPreview.appendChild(previewCanvas);
+          cropOverlay.innerHTML = '';
+          cropPreview.appendChild(cropOverlay);
+          
+          // Update crop border
+          updateCropBorder();
           
           statusMessage.textContent = "Preview loaded";
           progressBar.style.width = "100%";
@@ -962,10 +1084,22 @@
       // Event listeners for crop modal
       cropClose.addEventListener('click', closeCropModal);
       
-      cropTop.addEventListener('input', updateCropValues);
-      cropBottom.addEventListener('input', updateCropValues);
-      cropLeft.addEventListener('input', updateCropValues);
-      cropRight.addEventListener('input', updateCropValues);
+      cropTop.addEventListener('input', () => {
+        updateCropValues();
+        updateCropBorder();
+      });
+      cropBottom.addEventListener('input', () => {
+        updateCropValues();
+        updateCropBorder();
+      });
+      cropLeft.addEventListener('input', () => {
+        updateCropValues();
+        updateCropBorder();
+      });
+      cropRight.addEventListener('input', () => {
+        updateCropValues();
+        updateCropBorder();
+      });
       
       cropReset.addEventListener('click', () => {
         cropTop.value = 0;
@@ -973,6 +1107,7 @@
         cropLeft.value = 0;
         cropRight.value = 0;
         updateCropValues();
+        updateCropBorder();
       });
       
       cropApply.addEventListener('click', applyCrop);
