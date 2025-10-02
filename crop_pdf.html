@@ -6,6 +6,7 @@
   <title>PDF Crop Tool</title>
   <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
@@ -31,7 +32,7 @@
 
     .container {
       width: 100%;
-      max-width: 800px;
+      max-width: 1000px;
       background: rgba(255, 255, 255, 0.2);
       backdrop-filter: blur(16px);
       border-radius: 20px;
@@ -145,7 +146,7 @@
     .pages-container {
       display: none;
       margin-top: 24px;
-      max-height: 400px;
+      max-height: 500px;
       overflow-y: auto;
       border-radius: 12px;
       background: rgba(255, 255, 255, 0.1);
@@ -165,6 +166,16 @@
       border-radius: 8px;
       margin-bottom: 8px;
       border: 1px solid rgba(255, 255, 255, 0.1);
+      transition: all 0.3s ease;
+    }
+
+    .page-item:hover {
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    .page-item.deleted {
+      opacity: 0.5;
+      background: rgba(231, 76, 60, 0.1);
     }
 
     .page-item:last-child {
@@ -186,6 +197,31 @@
       align-items: center;
       justify-content: center;
       font-weight: 600;
+    }
+
+    .page-preview {
+      width: 80px;
+      height: 100px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 4px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .page-preview canvas {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+    }
+
+    .page-preview-placeholder {
+      color: rgba(255, 255, 255, 0.5);
+      font-size: 12px;
+      text-align: center;
+      padding: 8px;
     }
 
     .page-actions {
@@ -264,6 +300,16 @@
       box-shadow: 0 6px 16px rgba(231, 76, 60, 0.5), 0 3px 8px rgba(0, 0, 0, 0.3), inset 0 1px 2px rgba(255, 255, 255, 0.4), inset 0 -1px 2px rgba(0, 0, 0, 0.1);
     }
 
+    .btn-restore {
+      background: rgba(46, 204, 113, 0.3);
+      box-shadow: 0 4px 12px rgba(46, 204, 113, 0.4), 0 2px 6px rgba(0, 0, 0, 0.2), inset 0 1px 2px rgba(255, 255, 255, 0.3), inset 0 -1px 2px rgba(0, 0, 0, 0.1);
+    }
+
+    .btn-restore:hover {
+      background: rgba(46, 204, 113, 0.4);
+      box-shadow: 0 6px 16px rgba(46, 204, 113, 0.5), 0 3px 8px rgba(0, 0, 0, 0.3), inset 0 1px 2px rgba(255, 255, 255, 0.4), inset 0 -1px 2px rgba(0, 0, 0, 0.1);
+    }
+
     .crop-modal {
       display: none;
       position: fixed;
@@ -283,7 +329,7 @@
 
     .crop-container {
       width: 90%;
-      max-width: 800px;
+      max-width: 900px;
       background: rgba(255, 255, 255, 0.2);
       backdrop-filter: blur(16px);
       border-radius: 20px;
@@ -313,12 +359,17 @@
       cursor: pointer;
     }
 
+    .crop-content {
+      display: flex;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
     .crop-preview {
-      width: 100%;
+      flex: 1;
       height: 400px;
       background: rgba(255, 255, 255, 0.1);
       border-radius: 12px;
-      margin-bottom: 20px;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -326,7 +377,14 @@
       position: relative;
     }
 
+    .crop-preview canvas {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+    }
+
     .crop-controls {
+      flex: 1;
       display: flex;
       flex-direction: column;
       gap: 12px;
@@ -468,6 +526,9 @@
         width: 95%;
         padding: 16px;
       }
+      .crop-content {
+        flex-direction: column;
+      }
     }
   </style>
 </head>
@@ -527,29 +588,31 @@
           <i class="fas fa-times"></i>
         </button>
       </div>
-      <div class="crop-preview" id="cropPreview">
-        <p>Page preview will appear here</p>
-      </div>
-      <div class="crop-controls">
-        <div class="crop-slider">
-          <label for="cropTop">Top:</label>
-          <input type="range" id="cropTop" min="0" max="100" value="0">
-          <span id="cropTopValue">0%</span>
+      <div class="crop-content">
+        <div class="crop-preview" id="cropPreview">
+          <div class="page-preview-placeholder">Page preview will appear here</div>
         </div>
-        <div class="crop-slider">
-          <label for="cropBottom">Bottom:</label>
-          <input type="range" id="cropBottom" min="0" max="100" value="0">
-          <span id="cropBottomValue">0%</span>
-        </div>
-        <div class="crop-slider">
-          <label for="cropLeft">Left:</label>
-          <input type="range" id="cropLeft" min="0" max="100" value="0">
-          <span id="cropLeftValue">0%</span>
-        </div>
-        <div class="crop-slider">
-          <label for="cropRight">Right:</label>
-          <input type="range" id="cropRight" min="0" max="100" value="0">
-          <span id="cropRightValue">0%</span>
+        <div class="crop-controls">
+          <div class="crop-slider">
+            <label for="cropTop">Top:</label>
+            <input type="range" id="cropTop" min="0" max="100" value="0">
+            <span id="cropTopValue">0%</span>
+          </div>
+          <div class="crop-slider">
+            <label for="cropBottom">Bottom:</label>
+            <input type="range" id="cropBottom" min="0" max="100" value="0">
+            <span id="cropBottomValue">0%</span>
+          </div>
+          <div class="crop-slider">
+            <label for="cropLeft">Left:</label>
+            <input type="range" id="cropLeft" min="0" max="100" value="0">
+            <span id="cropLeftValue">0%</span>
+          </div>
+          <div class="crop-slider">
+            <label for="cropRight">Right:</label>
+            <input type="range" id="cropRight" min="0" max="100" value="0">
+            <span id="cropRightValue">0%</span>
+          </div>
         </div>
       </div>
       <div class="crop-actions">
@@ -565,6 +628,9 @@
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
+      // Set up PDF.js worker
+      pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
+
       const uploadArea = document.getElementById('uploadArea');
       const fileInput = document.getElementById('pdfUpload');
       const downloadBtn = document.getElementById('downloadBtn');
@@ -582,6 +648,7 @@
       const cropModal = document.getElementById('cropModal');
       const cropClose = document.getElementById('cropClose');
       const cropPageNumber = document.getElementById('cropPageNumber');
+      const cropPreview = document.getElementById('cropPreview');
       const cropTop = document.getElementById('cropTop');
       const cropBottom = document.getElementById('cropBottom');
       const cropLeft = document.getElementById('cropLeft');
@@ -595,6 +662,7 @@
 
       let currentFile = null;
       let currentPdf = null;
+      let pdfDoc = null;
       let currentPageIndex = 0;
       let pageModifications = {}; // Store page modifications (delete and crop)
 
@@ -676,8 +744,10 @@
 
           const uploadedPdfBytes = await currentFile.arrayBuffer();
           currentPdf = await PDFLib.PDFDocument.load(uploadedPdfBytes);
-          const pages = currentPdf.getPages();
-          const pageCount = pages.length;
+          
+          // Load PDF with pdf.js for rendering
+          pdfDoc = await pdfjsLib.getDocument({ data: uploadedPdfBytes }).promise;
+          const pageCount = pdfDoc.numPages;
 
           filePages.textContent = pageCount + (pageCount === 1 ? " page" : " pages");
           
@@ -688,7 +758,7 @@
           pageModifications = {};
           
           // Display pages
-          displayPages(pages);
+          await displayPages(pageCount);
 
           statusMessage.textContent = "Ready for modifications";
           progressBar.style.width = "100%";
@@ -703,16 +773,24 @@
         }
       }
 
-      function displayPages(pages) {
+      async function displayPages(pageCount) {
         pagesContainer.innerHTML = '';
         pagesContainer.classList.add('active');
         
-        pages.forEach((page, index) => {
+        for (let index = 0; index < pageCount; index++) {
           const pageItem = document.createElement('div');
           pageItem.className = 'page-item';
+          pageItem.id = `page-${index}`;
+          
+          // Get page preview
+          const previewCanvas = await renderPagePreview(index);
+          
           pageItem.innerHTML = `
             <div class="page-info">
               <div class="page-number">${index + 1}</div>
+              <div class="page-preview">
+                ${previewCanvas.outerHTML}
+              </div>
               <div>Page ${index + 1}</div>
             </div>
             <div class="page-actions">
@@ -725,7 +803,7 @@
             </div>
           `;
           pagesContainer.appendChild(pageItem);
-        });
+        }
 
         // Add event listeners to page action buttons
         document.querySelectorAll('.page-actions button').forEach(button => {
@@ -742,6 +820,40 @@
         });
       }
 
+      async function renderPagePreview(pageIndex) {
+        const page = await pdfDoc.getPage(pageIndex + 1);
+        const viewport = page.getViewport({ scale: 0.2 }); // Small scale for preview
+        
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('2d');
+        canvas.height = viewport.height;
+        canvas.width = viewport.width;
+        
+        await page.render({
+          canvasContext: context,
+          viewport: viewport
+        }).promise;
+        
+        return canvas;
+      }
+
+      async function renderCropPreview(pageIndex) {
+        const page = await pdfDoc.getPage(pageIndex + 1);
+        const viewport = page.getViewport({ scale: 0.8 }); // Larger scale for crop preview
+        
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('2d');
+        canvas.height = viewport.height;
+        canvas.width = viewport.width;
+        
+        await page.render({
+          canvasContext: context,
+          viewport: viewport
+        }).promise;
+        
+        return canvas;
+      }
+
       function deletePage(index) {
         if (pageModifications[index]) {
           pageModifications[index].deleted = true;
@@ -750,17 +862,17 @@
         }
         
         // Visual feedback - mark page as deleted
-        const pageItems = document.querySelectorAll('.page-item');
-        if (pageItems[index]) {
-          pageItems[index].style.opacity = '0.5';
-          pageItems[index].querySelector('.page-actions').innerHTML = `
-            <button class="btn btn-small" data-action="restore" data-index="${index}">
+        const pageItem = document.getElementById(`page-${index}`);
+        if (pageItem) {
+          pageItem.classList.add('deleted');
+          pageItem.querySelector('.page-actions').innerHTML = `
+            <button class="btn btn-small btn-restore" data-action="restore" data-index="${index}">
               <i class="fas fa-undo"></i> Restore
             </button>
           `;
           
           // Add event listener to restore button
-          pageItems[index].querySelector('button').addEventListener('click', (e) => {
+          pageItem.querySelector('button').addEventListener('click', (e) => {
             const index = parseInt(e.currentTarget.getAttribute('data-index'));
             restorePage(index);
           });
@@ -773,10 +885,10 @@
         }
         
         // Visual feedback - restore page appearance
-        const pageItems = document.querySelectorAll('.page-item');
-        if (pageItems[index]) {
-          pageItems[index].style.opacity = '1';
-          pageItems[index].querySelector('.page-actions').innerHTML = `
+        const pageItem = document.getElementById(`page-${index}`);
+        if (pageItem) {
+          pageItem.classList.remove('deleted');
+          pageItem.querySelector('.page-actions').innerHTML = `
             <button class="btn btn-small" data-action="crop" data-index="${index}">
               <i class="fas fa-crop-alt"></i> Crop
             </button>
@@ -786,7 +898,7 @@
           `;
           
           // Re-add event listeners
-          const buttons = pageItems[index].querySelectorAll('button');
+          const buttons = pageItem.querySelectorAll('button');
           buttons[0].addEventListener('click', (e) => {
             const index = parseInt(e.currentTarget.getAttribute('data-index'));
             openCropModal(index);
@@ -798,7 +910,7 @@
         }
       }
 
-      function openCropModal(index) {
+      async function openCropModal(index) {
         currentPageIndex = index;
         cropPageNumber.textContent = index + 1;
         
@@ -807,10 +919,7 @@
         cropBottom.value = 0;
         cropLeft.value = 0;
         cropRight.value = 0;
-        cropTopValue.textContent = '0%';
-        cropBottomValue.textContent = '0%';
-        cropLeftValue.textContent = '0%';
-        cropRightValue.textContent = '0%';
+        updateCropValues();
         
         // Apply any existing crop settings
         if (pageModifications[index] && pageModifications[index].crop) {
@@ -820,6 +929,27 @@
           cropLeft.value = crop.left * 100;
           cropRight.value = crop.right * 100;
           updateCropValues();
+        }
+        
+        // Render page preview in crop modal
+        statusArea.classList.add('active');
+        statusMessage.textContent = "Loading page preview...";
+        progressBar.style.width = "50%";
+        
+        try {
+          const previewCanvas = await renderCropPreview(index);
+          cropPreview.innerHTML = '';
+          cropPreview.appendChild(previewCanvas);
+          
+          statusMessage.textContent = "Preview loaded";
+          progressBar.style.width = "100%";
+          setTimeout(() => {
+            statusArea.classList.remove('active');
+            progressBar.style.width = "0%";
+          }, 500);
+        } catch (error) {
+          console.error('Error rendering preview:', error);
+          showError(`Error loading page preview: ${error.message}`);
         }
         
         cropModal.classList.add('active');
@@ -869,14 +999,14 @@
         }
         
         // Visual feedback - mark page as cropped
-        const pageItems = document.querySelectorAll('.page-item');
-        if (pageItems[currentPageIndex]) {
-          const cropIndicator = document.createElement('div');
-          cropIndicator.innerHTML = '<i class="fas fa-crop-alt" style="color: #3498db;"></i>';
-          cropIndicator.style.marginLeft = '8px';
-          
-          const pageInfo = pageItems[currentPageIndex].querySelector('.page-info');
+        const pageItem = document.getElementById(`page-${currentPageIndex}`);
+        if (pageItem) {
+          const pageInfo = pageItem.querySelector('.page-info');
           if (!pageInfo.querySelector('.fa-crop-alt')) {
+            const cropIndicator = document.createElement('i');
+            cropIndicator.className = 'fas fa-crop-alt';
+            cropIndicator.style.color = '#3498db';
+            cropIndicator.style.marginLeft = '8px';
             pageInfo.appendChild(cropIndicator);
           }
         }
