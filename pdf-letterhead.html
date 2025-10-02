@@ -714,39 +714,6 @@
             const { width, height } = page.getSize();
             const newPage = finalPdf.addPage([a4Width, a4Height]);
 
-            // Add watermark if enabled
-            if (watermarkToggle.checked) {
-              const watermarkText = "MYRTILLE INDUSTRIES";
-              const font = helveticaBoldFont;
-              const { width, height } = newPage.getSize();
-              const diagonalLength = Math.sqrt(width * width + height * height);
-              const angle = Math.atan2(height, width) * (180 / Math.PI);
-              let fontSize = diagonalLength / 10;
-              let textWidth = font.widthOfTextAtSize(watermarkText, fontSize);
-              const maxTextWidth = diagonalLength * 0.8;
-
-              while (textWidth > maxTextWidth && fontSize > 10) {
-                fontSize -= 2;
-                textWidth = font.widthOfTextAtSize(watermarkText, fontSize);
-              }
-              if (watermarkText.length <= 10) {
-                fontSize = Math.max(fontSize, diagonalLength / 15);
-                textWidth = font.widthOfTextAtSize(watermarkText, fontSize);
-              }
-
-              const xCenter = width / 2 - (textWidth * Math.cos(angle * Math.PI / 180)) / 2;
-              const yCenter = height / 2 - (textWidth * Math.sin(angle * Math.PI / 180)) / 2;
-              newPage.drawText(watermarkText, {
-                x: xCenter,
-                y: yCenter,
-                size: fontSize,
-                font: font,
-                color: PDFLib.rgb(0.231, 0.525, 0.898),
-                opacity: 0.3,
-                rotate: PDFLib.degrees(angle),
-              });
-            }
-
             // Draw header
             newPage.drawRectangle({
               x: 0,
@@ -831,6 +798,39 @@
               width: scaledWidth,
               height: scaledHeight,
             });
+
+            // Add watermark on top layer if enabled
+            if (watermarkToggle.checked) {
+              const watermarkText = "MYRTILLE INDUSTRIES";
+              const font = helveticaBoldFont;
+              const { width, height } = newPage.getSize();
+              const diagonalLength = Math.sqrt(width * width + height * height);
+              const angle = Math.atan2(height, width) * (180 / Math.PI);
+              let fontSize = diagonalLength / 10;
+              let textWidth = font.widthOfTextAtSize(watermarkText, fontSize);
+              const maxTextWidth = diagonalLength * 0.8;
+
+              while (textWidth > maxTextWidth && fontSize > 10) {
+                fontSize -= 2;
+                textWidth = font.widthOfTextAtSize(watermarkText, fontSize);
+              }
+              if (watermarkText.length <= 10) {
+                fontSize = Math.max(fontSize, diagonalLength / 15);
+                textWidth = font.widthOfTextAtSize(watermarkText, fontSize);
+              }
+
+              const xCenter = width / 2 - (textWidth * Math.cos(angle * Math.PI / 180)) / 2;
+              const yCenter = height / 2 - (textWidth * Math.sin(angle * Math.PI / 180)) / 2;
+              newPage.drawText(watermarkText, {
+                x: xCenter,
+                y: yCenter,
+                size: fontSize,
+                font: font,
+                color: PDFLib.rgb(0.231, 0.525, 0.898),
+                opacity: 0.3,
+                rotate: PDFLib.degrees(angle),
+              });
+            }
           }
 
           statusMessage.textContent = "Finalizing document...";
