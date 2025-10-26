@@ -42,7 +42,6 @@
       padding: 32px;
     }
 
-
     .header {
       padding: 24px;
       text-align: center;
@@ -185,7 +184,14 @@
       cursor: not-allowed;
     }
 
-    .add-file-btn {
+    .button-row {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      margin: 10px 0;
+    }
+
+    .add-file-btn, .add-personal-btn {
       display: flex;
       align-items: center;
       justify-content: center;
@@ -196,11 +202,10 @@
       color: white;
       font-size: 20px;
       cursor: pointer;
-      margin: 10px auto;
       transition: transform 0.3s ease;
     }
 
-    .add-file-btn:hover {
+    .add-file-btn:hover, .add-personal-btn:hover {
       transform: scale(1.1);
     }
 
@@ -300,6 +305,11 @@
       .file-item {
         font-size: 0.9rem;
       }
+      .button-row {
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+      }
     }
   </style>
 </head>
@@ -315,8 +325,13 @@
       <input type="file" id="pdfUpload" accept="application/pdf" multiple hidden>
     </div>
     <div class="file-list" id="fileList"></div>
-    <div class="add-file-btn" id="addFileBtn" title="Add another PDF">
-      <i class="fas fa-plus"></i>
+    <div class="button-row">
+      <div class="add-file-btn" id="addFileBtn" title="Add another PDF">
+        <i class="fas fa-plus"></i>
+      </div>
+      <div class="add-personal-btn" id="addPersonalBtn" title="Add Personal Documents">
+        <i class="fas fa-user"></i>
+      </div>
     </div>
     <div class="progress-container" id="progressContainer">
       <div class="progress-bar" id="progressBar"></div>
@@ -334,6 +349,7 @@
       const mergeBtn = document.getElementById('mergeBtn');
       const fileList = document.getElementById('fileList');
       const addFileBtn = document.getElementById('addFileBtn');
+      const addPersonalBtn = document.getElementById('addPersonalBtn');
       const progressContainer = document.getElementById('progressContainer');
       const progressBar = document.getElementById('progressBar');
 
@@ -391,6 +407,26 @@
       // Add file button click handler
       addFileBtn.addEventListener('click', () => {
         fileInput.click();
+      });
+
+      // Add personal documents button click handler
+      addPersonalBtn.addEventListener('click', async () => {
+        try {
+          // Fetch the personal_documents.pdf from your website directory
+          const response = await fetch('personal_documents.pdf');
+          if (!response.ok) {
+            throw new Error('Personal documents file not found');
+          }
+          
+          const blob = await response.blob();
+          const file = new File([blob], 'personal_documents.pdf', { type: 'application/pdf' });
+          
+          // Add the personal document to the files array
+          files.push(file);
+          renderFileList();
+        } catch (error) {
+          alert('Error adding personal documents: ' + error.message);
+        }
       });
 
       // Drag and drop functionality
