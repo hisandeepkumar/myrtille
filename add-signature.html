@@ -1,98 +1,137 @@
-<!doctype html>
-<html lang="en">
+<!DOCTYPE html>
+<html lang="hi">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>PDF Signature Adder — List Previews (default_signature.png)</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>PDF Signature Adder — Styled</title>
 
-<script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
+  <!-- libs -->
+  <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
 
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-<style>
-  *{ box-sizing:border-box; font-family:Inter,system-ui,-apple-system,'Segoe UI',Roboto,Arial; }
-  body{ margin:0; padding:18px; background:#071029; color:#e6eef8; display:flex; justify-content:center; }
-  .wrapper{ width:100%; max-width:980px; }
-  h1{ margin:6px 0 16px; font-size:20px; display:flex; gap:10px; align-items:center; }
-  .controls{ display:flex; flex-direction:column; gap:10px; margin-bottom:14px; }
-  .upload{ border:2px dashed rgba(255,255,255,0.06); padding:14px; border-radius:10px; cursor:pointer; background:rgba(255,255,255,0.01); position:relative; }
-  .file-info, .image-info{ font-weight:600; color:#dbeafe; margin-top:8px; }
-  .inputs{ display:flex; gap:12px; flex-wrap:wrap; align-items:center; }
-  input[type=range]{ width:220px; }
-  button.btn{ margin-top:10px; padding:10px 16px; border-radius:10px; background:#0ea5e9; color:#021026; font-weight:700; border:none; cursor:pointer; }
-  button.btn:disabled{ opacity:0.5; cursor:not-allowed; }
+  <style>
+    *{ box-sizing:border-box; font-family:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,Arial; }
+    body{
+      margin:0; min-height:100vh; display:flex; align-items:center; justify-content:center;
+      background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('images/background.jpg');
+      background-size:cover; background-position:center; padding:24px; color:#f0f0f0;
+    }
 
-  /* PREVIEW list: single column */
-  .preview-list{ display:flex; flex-direction:column; gap:18px; max-height:60vh; overflow:auto; padding-right:8px; }
-  .preview-item{ background:rgba(255,255,255,0.02); border-radius:10px; padding:12px; position:relative; display:flex; flex-direction:column; align-items:center; }
-  .preview-item h3{ margin:0 0 8px; font-size:14px; color:#cfe8ff; }
+    .container{
+      width:100%; max-width:960px; background:rgba(255,255,255,0.12);
+      backdrop-filter: blur(12px); border-radius:18px; padding:28px; border:1px solid rgba(255,255,255,0.08);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.45);
+    }
 
-  /* wrapper around canvas to position signature layer exactly */
-  .canvas-wrap{ position:relative; display:inline-block; }
-  canvas{ display:block; border-radius:6px; box-shadow:0 6px 20px rgba(0,0,0,0.6); background:white; }
+    .header{ text-align:center; padding:12px 6px; border-bottom:1px solid rgba(255,255,255,0.06); margin-bottom:18px; }
+    .header h1{ display:flex; gap:10px; align-items:center; justify-content:center; font-size:22px; margin:0; }
+    .header h1 i{ color:#5b86e5; font-size:26px; }
 
-  .sig-layer{ position:absolute; left:0; top:0; pointer-events:auto; }
-  .signature{ position:absolute; cursor:move; user-select:none; touch-action:none; display:flex; align-items:center; }
-  .signature img{ display:block; width:100px; height:auto; pointer-events:none; opacity:0.95; }
-  .delete-btn{ position:absolute; right:-10px; top:-10px; width:26px; height:26px; background:#ef4444; color:white; border-radius:50%; border:none; display:flex; align-items:center; justify-content:center; cursor:pointer; }
+    .upload-area {
+      border: 2px dashed rgba(255,255,255,0.25);
+      border-radius:12px; padding:36px 20px; text-align:center; cursor:pointer; margin-bottom:18px;
+      background: rgba(255,255,255,0.02);
+      position:relative;
+    }
+    .upload-area:hover{ border-color:#5b86e5; background:rgba(91,134,229,0.04); }
+    .upload-area i{ font-size:38px; color:#5b86e5; margin-bottom:12px; display:block; }
+    .upload-area h3{ margin:6px 0; font-size:18px; color:#fff; }
+    .upload-area p{ margin:6px 0; color:rgba(255,255,255,0.8); }
 
-  .progress{ height:8px; background:rgba(255,255,255,0.04); border-radius:6px; overflow:hidden; margin-top:10px; display:none; }
-  .progress > div{ height:100%; width:0%; background:#60a5fa; transition:width 200ms linear; }
+    /* Keep input covering entire area so single click always triggers */
+    .upload-area input[type="file"]{ position:absolute; inset:0; width:100%; height:100%; opacity:0; cursor:pointer; }
 
-  @media (max-width:760px){
-    .inputs{ flex-direction:column; align-items:stretch; }
-  }
-</style>
+    .controls-row{ display:flex; gap:12px; align-items:center; flex-wrap:wrap; margin-bottom:12px; }
+    .controls-row .left{ flex:1; display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
+    .controls-row .right{ display:flex; gap:12px; align-items:center; }
+
+    .file-list{ max-height:220px; overflow:auto; margin:12px 0; padding-right:8px; }
+    .preview-list{ display:flex; flex-direction:column; gap:14px; }
+
+    .preview-item{ background: rgba(255,255,255,0.02); border-radius:10px; padding:12px; display:flex; flex-direction:column; align-items:center; }
+    .preview-item h3{ margin:0 0 8px; color:#dbeafe; font-weight:600; }
+
+    .canvas-wrap{ position:relative; display:inline-block; }
+    canvas{ display:block; border-radius:6px; box-shadow:0 6px 18px rgba(0,0,0,0.45); background:white; }
+
+    .sig-layer{ position:absolute; left:0; top:0; pointer-events:auto; }
+    .signature{ position:absolute; cursor:move; touch-action:none; user-select:none; display:flex; align-items:center; }
+    .signature img{ display:block; width:189px; height:auto; pointer-events:none; opacity:0.96; }
+    .delete-btn{ position:absolute; right:-10px; top:-10px; width:26px; height:26px; background:#ef4444; color:white; border-radius:50%; border:none; display:flex; align-items:center; justify-content:center; cursor:pointer; }
+
+    .file-item{ display:flex; align-items:center; justify-content:space-between; padding:10px; border-radius:8px; margin-bottom:8px; background:linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.8) 50%, rgba(255,255,255,0) 100%); background-size:200% 100%; -webkit-background-clip:text; -webkit-text-fill-color:transparent; font-weight:700; text-decoration:underline; }
+    .file-item small{ color:rgba(255,255,255,0.6); font-weight:500; text-decoration:none; -webkit-text-fill-color:initial; background:none; }
+
+    .add-file-btn{ width:44px; height:44px; border-radius:50%; background:#5b86e5; display:flex; align-items:center; justify-content:center; cursor:pointer; color:white; margin-left:6px; }
+    .btn{ display:block; margin:18px auto 0; padding:12px 26px; border-radius:30px; background:rgba(255,255,255,0.08); color:#fff; border:1px solid rgba(255,255,255,0.06); cursor:pointer; font-weight:700; }
+    .btn:disabled{ opacity:0.5; cursor:not-allowed; }
+
+    .progress-container{ width:100%; height:8px; background:rgba(255,255,255,0.04); border-radius:6px; overflow:hidden; margin-top:12px; display:none; }
+    .progress-bar{ height:100%; width:0%; background:#5b86e5; transition:width 260ms linear; }
+
+    .footer{ margin-top:18px; text-align:center; color:rgba(255,255,255,0.7); font-size:13px; padding-top:10px; border-top:1px solid rgba(255,255,255,0.04); }
+
+    @media (max-width:760px){
+      .container{ padding:16px; }
+      .signature img{ width:140px; }
+    }
+
+  </style>
 </head>
 <body>
-  <div class="wrapper">
-    <h1><i class="fas fa-file-signature" style="color:#60a5fa"></i> PDF Signature Adder — List Previews</h1>
-
-    <div class="controls">
-      <div class="upload" id="uploadArea">
-        <strong>Click or drag & drop a PDF here</strong>
-        <input type="file" id="pdfInput" accept="application/pdf" style="position:absolute; inset:0; opacity:0; cursor:pointer;">
-        <div class="file-info" id="fileInfo" style="display:none"></div>
-      </div>
-
-      <div class="inputs">
-        <div>
-          <label style="font-weight:700">Signature Image (optional)</label><br>
-          <input type="file" id="sigImage" accept="image/*">
-          <div class="image-info" id="imageInfo" style="display:none"></div>
-        </div>
-
-        <div>
-          <label style="font-weight:700">Signature width (<span id="sizeVal">100</span> px)</label><br>
-          <input type="range" id="sizeRange" min="50" max="350" value="100">
-        </div>
-
-        <div style="align-self:center">
-          <button class="btn" id="generateBtn" disabled><i class="fas fa-download"></i> Generate Signed PDF</button>
-        </div>
-      </div>
-
+  <div class="container">
+    <div class="header">
+      <h1><i class="fas fa-file-signature"></i> PDF Signature Adder</h1>
     </div>
 
-    <div class="preview-list" id="previewList"></div>
+    <div class="upload-area" id="uploadArea">
+      <i class="fas fa-cloud-upload-alt"></i>
+      <h3>Upload a PDF file (single)</h3>
+      <p>Click here or drag & drop — file will upload once and show previews for every page</p>
+      <!-- file input covers area so one click works reliably -->
+      <input id="pdfFileInput" type="file" accept="application/pdf">
+    </div>
 
-    <div class="progress" id="progress"><div id="progressBar"></div></div>
+    <div class="controls-row">
+      <div class="left">
+        <label style="font-weight:700; color:#eaf4ff">Signature Image (optional)</label>
+        <input id="sigImageInput" type="file" accept="image/*" style="border-radius:8px; padding:6px;">
+        <small id="sigInfo" style="margin-left:8px; color:#dbeafe; display:inline-block"></small>
+      </div>
+
+      <div class="right">
+        <label style="font-weight:700; color:#eaf4ff; margin-right:6px">Signature width</label>
+        <input id="sigWidth" type="range" min="50" max="350" value="189" style="vertical-align:middle;">
+        <span id="sigWidthVal" style="margin-left:8px; font-weight:700">189 px</span>
+      </div>
+    </div>
+
+    <div class="file-list" id="fileList">
+      <!-- page previews will appear here as list -->
+      <div id="previewList" class="preview-list"></div>
+    </div>
+
+    <div class="progress-container" id="progressContainer"><div class="progress-bar" id="progressBar"></div></div>
+
+    <button class="btn" id="generateBtn" disabled>Generate Signed PDF</button>
+
+    <div class="footer">Secure • Professional — Keep your <strong>default_signature.png</strong> in same folder for default</div>
   </div>
 
 <script>
-(async ()=> {
-  const pdfInput = document.getElementById('pdfInput');
+document.addEventListener('DOMContentLoaded', ()=> {
+  const pdfInput = document.getElementById('pdfFileInput');
   const uploadArea = document.getElementById('uploadArea');
-  const fileInfo = document.getElementById('fileInfo');
   const previewList = document.getElementById('previewList');
-  const sigImageInput = document.getElementById('sigImage');
-  const imageInfo = document.getElementById('imageInfo');
-  const sizeRange = document.getElementById('sizeRange');
-  const sizeVal = document.getElementById('sizeVal');
+  const sigImageInput = document.getElementById('sigImageInput');
+  const sigInfo = document.getElementById('sigInfo');
+  const sigWidth = document.getElementById('sigWidth');
+  const sigWidthVal = document.getElementById('sigWidthVal');
   const generateBtn = document.getElementById('generateBtn');
-  const progress = document.getElementById('progress');
+  const progressContainer = document.getElementById('progressContainer');
   const progressBar = document.getElementById('progressBar');
 
   const DPR = window.devicePixelRatio || 1;
@@ -101,242 +140,226 @@
   let pdfJsDoc = null;
   let selectedImageFile = null;
   let signatureImgUrl = null;
-  let signatureWidth = parseInt(sizeRange.value,10);
-  let pageData = []; // per page: {pdfSize:{w,h}, viewport:{w,h}, canvasSize:{cssW,cssH}, signatures:[{id,x_pdf,top_pdf,visualWidth}]}
+  let signatureWidthPx = 189; // default as requested
+  let pageData = []; // per page meta and signatures
 
-  // inline fallback SVG (used only if default_signature.png not found and user didn't upload)
+  // fallback inline svg
   const FALLBACK_SIG = `data:image/svg+xml;base64,${btoa(
-    `<svg xmlns='http://www.w3.org/2000/svg' width='400' height='140'>
-      <path d='M10 90 C 60 10, 140 10, 190 90 S 330 170, 390 90' stroke='#0b1220' stroke-width='6' fill='none' stroke-linecap='round' />
+    `<svg xmlns='http://www.w3.org/2000/svg' width='400' height='150'>
+      <path d='M10 90 C 60 10, 140 10, 190 90 S 330 170, 390 90' stroke='#111827' stroke-width='6' fill='none' stroke-linecap='round' />
     </svg>`
   )}`;
 
   function fmt(bytes){
     if(!bytes) return '';
-    if(bytes<1024) return bytes + ' B';
-    if(bytes<1024*1024) return (bytes/1024).toFixed(2) + ' KB';
-    return (bytes/(1024*1024)).toFixed(2) + ' MB';
+    if(bytes<1024) return bytes+' B';
+    if(bytes<1024*1024) return (bytes/1024).toFixed(2)+' KB';
+    return (bytes/(1024*1024)).toFixed(2)+' MB';
   }
 
-  // Drag visuals
-  ['dragenter','dragover'].forEach(ev => {
-    uploadArea.addEventListener(ev, e=>{ e.preventDefault(); uploadArea.style.borderColor='#60a5fa'; });
-  });
-  ['dragleave','drop'].forEach(ev => {
-    uploadArea.addEventListener(ev, e=>{ e.preventDefault(); uploadArea.style.borderColor=''; });
-  });
-  uploadArea.addEventListener('drop', e=> {
-    if(e.dataTransfer?.files?.length) handlePdf(e.dataTransfer.files[0]);
-  });
-  uploadArea.addEventListener('click', ()=> pdfInput.click());
-  pdfInput.addEventListener('change', e=> { if(e.target.files?.length) handlePdf(e.target.files[0]); });
+  // try to load default_signature.png, if present — store but don't block UI
+  async function loadDefaultSignatureIfExists(){
+    if(selectedImageFile) return;
+    try {
+      const resp = await fetch('default_signature.png', {cache:'no-store'});
+      if(!resp.ok) throw new Error('not found');
+      const blob = await resp.blob();
+      selectedImageFile = new File([blob], 'default_signature.png', { type: blob.type });
+      signatureImgUrl = URL.createObjectURL(blob);
+      sigInfo.textContent = `Default loaded: default_signature.png (${fmt(blob.size)})`;
+    } catch (err){
+      // fallback to inline
+      signatureImgUrl = FALLBACK_SIG;
+      sigInfo.textContent = `Using fallback signature`;
+      console.warn('default_signature.png not found — using fallback SVG.');
+    }
+  }
 
-  sigImageInput.addEventListener('change', e=>{
+  // update slider text and visible signatures widths
+  sigWidth.addEventListener('input', ()=> {
+    signatureWidthPx = parseInt(sigWidth.value,10);
+    sigWidthVal.textContent = signatureWidthPx + ' px';
+    document.querySelectorAll('.signature img').forEach(img => img.style.width = signatureWidthPx + 'px');
+    pageData.forEach(p => p.signatures && p.signatures.forEach(s => s.visualWidth = signatureWidthPx));
+  });
+
+  // handle signature image upload by user
+  sigImageInput.addEventListener('change', (e)=> {
     if(!e.target.files?.length) return;
     const f = e.target.files[0];
     if(!f.type.startsWith('image/')) { alert('Select an image file (PNG/JPEG/SVG)'); return; }
     selectedImageFile = f;
     signatureImgUrl = URL.createObjectURL(f);
-    imageInfo.style.display='block';
-    imageInfo.textContent = `Signature: ${f.name} (${fmt(f.size)})`;
-    generateBtn.disabled = pageData.every(p=> (p.signatures && p.signatures.length===0));
+    sigInfo.textContent = `Signature: ${f.name} (${fmt(f.size)})`;
   });
 
-  sizeRange.addEventListener('input', ()=> {
-    signatureWidth = parseInt(sizeRange.value,10);
-    sizeVal.textContent = signatureWidth;
-    // update visible images
-    document.querySelectorAll('.signature img').forEach(img=> img.style.width = `${signatureWidth}px`);
-    // update stored visual widths
-    pageData.forEach(p => { if(p.signatures) p.signatures.forEach(s=> s.visualWidth = signatureWidth); });
+  // upload area drag/drop visuals
+  ['dragenter','dragover'].forEach(ev => {
+    uploadArea.addEventListener(ev, (e)=> { e.preventDefault(); uploadArea.classList.add('active'); uploadArea.style.borderColor='#5b86e5'; });
+  });
+  ['dragleave','drop'].forEach(ev => {
+    uploadArea.addEventListener(ev, (e)=> { e.preventDefault(); uploadArea.classList.remove('active'); uploadArea.style.borderColor=''; });
+  });
+  uploadArea.addEventListener('drop', (e)=>{
+    if(e.dataTransfer?.files?.length) handlePdfFile(e.dataTransfer.files[0]);
   });
 
-  // Ensure default signature (default_signature.png) is loaded into selectedImageFile if user didn't upload
-  async function ensureDefaultSig(){
-    if(selectedImageFile) return;
-    try {
-      const resp = await fetch('default_signature.png', {cache: 'no-store'});
-      if(!resp.ok) throw new Error('default_signature.png not found ('+resp.status+')');
-      const blob = await resp.blob();
-      // convert blob to File so embedding logic later can handle it similarly
-      selectedImageFile = new File([blob], 'default_signature.png', { type: blob.type });
-      signatureImgUrl = URL.createObjectURL(blob);
-      imageInfo.style.display='block';
-      imageInfo.textContent = `Signature: default_signature.png (${fmt(blob.size)})`;
-      console.log('Loaded default_signature.png from same folder.');
-    } catch (err){
-      console.warn('default_signature.png not found — falling back to inline SVG. Error:', err);
-      // fallback to embedded svg data
-      const res = await fetch(FALLBACK_SIG);
-      const blob = await res.blob();
-      selectedImageFile = new File([blob], 'fallback_signature.svg', { type: blob.type });
-      signatureImgUrl = URL.createObjectURL(blob);
-      imageInfo.style.display='block';
-      imageInfo.textContent = `Signature: fallback_signature (inline)`;
-    }
-  }
+  // single file input change — only once needed
+  pdfInput.addEventListener('change', (e)=> {
+    if(e.target.files?.length) handlePdfFile(e.target.files[0]);
+  });
 
-  // Handle PDF reading + render previews in LIST form (single column)
-  async function handlePdf(file){
+  // handle selected PDF (single file)
+  async function handlePdfFile(file){
     if(!file) return;
-    if(file.type !== 'application/pdf'){ alert('Select a PDF'); return; }
-    selectedPdfFile = file;
-    fileInfo.style.display = 'block';
-    fileInfo.textContent = `${file.name} (${fmt(file.size)})`;
+    if(file.type !== 'application/pdf'){ alert('Please select a PDF file'); return; }
+
+    // clean previous state
     previewList.innerHTML = '';
     pageData = [];
     generateBtn.disabled = true;
+    selectedPdfFile = file;
 
-    const arr = await file.arrayBuffer();
-    pdfLibDoc = await PDFLib.PDFDocument.load(arr);
-    pdfJsDoc = await pdfjsLib.getDocument({data:arr}).promise;
+    // show basic info
+    loadDefaultSignatureIfExists(); // try load default quietly
+    try {
+      const arrayBuffer = await file.arrayBuffer();
+      pdfLibDoc = await PDFLib.PDFDocument.load(arrayBuffer);
+      pdfJsDoc = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+      // render previews (list)
+      const total = pdfLibDoc.getPageCount();
+      const MAX_DISPLAY_WIDTH = 820;
+      for(let p=1;p<=total;p++){
+        const page = await pdfJsDoc.getPage(p);
+        const baseViewport = page.getViewport({scale:1});
+        const targetScale = Math.min(1.2, Math.max(0.6, MAX_DISPLAY_WIDTH / baseViewport.width));
+        const viewport = page.getViewport({ scale: targetScale });
+        const cssW = Math.round(viewport.width);
+        const cssH = Math.round(viewport.height);
+        const canvas = document.createElement('canvas');
+        canvas.style.width = cssW + 'px';
+        canvas.style.height = cssH + 'px';
+        canvas.width = Math.floor(cssW * DPR);
+        canvas.height = Math.floor(cssH * DPR);
+        const ctx = canvas.getContext('2d');
+        ctx.setTransform(DPR,0,0,DPR,0,0);
+        await page.render({ canvasContext: ctx, viewport }).promise;
 
-    const total = pdfLibDoc.getPageCount();
+        const libPage = pdfLibDoc.getPage(p-1);
+        const psize = libPage.getSize();
 
-    // For list previews we fix max display width for each canvas (keeps consistent)
-    const MAX_DISPLAY_WIDTH = 740; // css px
+        // create preview item
+        const item = document.createElement('div');
+        item.className = 'preview-item';
+        const title = document.createElement('h3');
+        title.textContent = `Page ${p}`;
+        item.appendChild(title);
 
-    for(let p=1;p<=total;p++){
-      const page = await pdfJsDoc.getPage(p);
-      // compute scale so that viewport.width fits MAX_DISPLAY_WIDTH (or less)
-      const baseViewport = page.getViewport({scale:1});
-      const targetScale = Math.min(1.25, Math.max(0.6, MAX_DISPLAY_WIDTH / baseViewport.width));
-      const viewport = page.getViewport({scale: targetScale});
+        const wrap = document.createElement('div');
+        wrap.className = 'canvas-wrap';
+        wrap.style.width = cssW + 'px';
+        wrap.style.height = cssH + 'px';
+        wrap.appendChild(canvas);
 
-      // canvas size for DPR
-      const cssW = Math.round(viewport.width);
-      const cssH = Math.round(viewport.height);
-      const canvas = document.createElement('canvas');
-      canvas.style.width = cssW + 'px';
-      canvas.style.height = cssH + 'px';
-      canvas.width = Math.floor(cssW * DPR);
-      canvas.height = Math.floor(cssH * DPR);
-      const ctx = canvas.getContext('2d');
-      ctx.setTransform(DPR,0,0,DPR,0,0);
-      await page.render({ canvasContext: ctx, viewport }).promise;
+        const layer = document.createElement('div');
+        layer.className = 'sig-layer';
+        layer.style.width = cssW + 'px';
+        layer.style.height = cssH + 'px';
+        layer.style.left = '0';
+        layer.style.top = '0';
+        layer.style.pointerEvents = 'auto';
+        wrap.appendChild(layer);
 
-      // pdf-lib page size in PDF points
-      const libPage = pdfLibDoc.getPage(p-1);
-      const psize = libPage.getSize(); // { width, height }
+        item.appendChild(wrap);
+        previewList.appendChild(item);
 
-      // create preview item (list-style)
-      const item = document.createElement('div');
-      item.className = 'preview-item';
-      const title = document.createElement('h3');
-      title.textContent = `Page ${p}`;
-      item.appendChild(title);
+        pageData[p-1] = {
+          pdfSize: { width: psize.width, height: psize.height },
+          viewport: { width: viewport.width, height: viewport.height },
+          canvasSize: { cssWidth: cssW, cssHeight: cssH },
+          layerElement: layer,
+          wrapElement: wrap,
+          signatures: []
+        };
 
-      // wrapper to position signature layer exactly over canvas
-      const wrap = document.createElement('div');
-      wrap.className = 'canvas-wrap';
-      wrap.style.width = cssW + 'px';
-      wrap.style.height = cssH + 'px';
-      wrap.appendChild(canvas);
+        // click to place signature
+        layer.addEventListener('click', async (ev)=>{
+          ev.preventDefault();
+          await loadDefaultSignatureIfExists();
+          if(!signatureImgUrl){ alert('Signature missing'); return; }
+          const rect = layer.getBoundingClientRect();
+          const clientX = ev.clientX;
+          const clientY = ev.clientY;
+          const x_css = clientX - rect.left;
+          const y_css = clientY - rect.top;
+          addSignatureToPage(p-1, x_css, y_css);
+        });
+      }
 
-      // signature transparent layer
-      const layer = document.createElement('div');
-      layer.className = 'sig-layer';
-      layer.style.width = cssW + 'px';
-      layer.style.height = cssH + 'px';
-      layer.style.left = '0';
-      layer.style.top = '0';
-      layer.style.pointerEvents = 'auto';
-      wrap.appendChild(layer);
-
-      item.appendChild(wrap);
-      previewList.appendChild(item);
-
-      // store page meta
-      pageData[p-1] = {
-        pdfSize: { width: psize.width, height: psize.height }, // pdf points
-        viewport: { width: viewport.width, height: viewport.height }, // css px (un-DPR'd)
-        canvasSize: { cssWidth: cssW, cssHeight: cssH },
-        layerElement: layer,
-        wrapElement: wrap,
-        signatures: []
-      };
-
-      // click to add signature at clicked position (css coordinates)
-      layer.addEventListener('click', async (ev)=>{
-        await ensureDefaultSig();
-        if(!signatureImgUrl){ alert('Signature missing'); return; }
-
-        // compute coordinates relative to layer
-        const rect = layer.getBoundingClientRect();
-        const clientX = ev.clientX;
-        const clientY = ev.clientY;
-        const x_css = clientX - rect.left;
-        const y_css = clientY - rect.top; // distance from top (css px)
-
-        addSignatureToPage(p-1, x_css, y_css);
-      });
-    } // end pages loop
-
-    // enable generate only when one or more signatures are present
-    generateBtn.disabled = pageData.every(p=> (p.signatures && p.signatures.length===0));
+      // enable generate if at least one sign placed later
+      generateBtn.disabled = pageData.every(pd => !pd.signatures || pd.signatures.length===0);
+    } catch (err){
+      console.error('PDF load/render error', err);
+      alert('Error loading PDF: '+ (err.message || err));
+    }
   }
 
-  // add signature DOM and store PDF-mapped coords
+  // add signature to specific page (DOM + stored PDF coords)
   function addSignatureToPage(pageIndex, x_css, y_css){
     const pd = pageData[pageIndex];
     if(!pd) return;
     const layer = pd.layerElement;
-    // create DOM signature
-    const id = 'sig-'+pageIndex+'-'+Date.now();
+    const id = `sig-${pageIndex}-${Date.now()}`;
     const sig = document.createElement('div');
     sig.className = 'signature';
     sig.id = id;
-    // center the image at click point visually
-    const left = x_css - (signatureWidth/2);
-    const top = y_css - (signatureWidth/2);
+    const left = x_css - (signatureWidthPx/2);
+    const top = y_css - (signatureWidthPx/2);
     sig.style.left = Math.max(0,left) + 'px';
     sig.style.top = Math.max(0,top) + 'px';
-    sig.style.width = signatureWidth + 'px';
+    sig.style.width = signatureWidthPx + 'px';
 
     const img = document.createElement('img');
     img.src = signatureImgUrl || FALLBACK_SIG;
-    img.style.width = signatureWidth + 'px';
+    img.style.width = signatureWidthPx + 'px';
     sig.appendChild(img);
 
     const del = document.createElement('button');
     del.className = 'delete-btn';
     del.innerHTML = '<i class="fas fa-trash"></i>';
-    del.addEventListener('click', (ev)=> {
-      ev.stopPropagation();
+    del.addEventListener('click', (e)=> {
+      e.stopPropagation();
       sig.remove();
-      pd.signatures = pd.signatures.filter(s=> s.id !== id);
-      generateBtn.disabled = pd.signatures.every(arr=> arr.length===0) && pageData.every(p=> p.signatures.length===0);
+      pd.signatures = pd.signatures.filter(s => s.id !== id);
+      generateBtn.disabled = pageData.every(p=> p.signatures.length===0);
     });
     sig.appendChild(del);
 
     layer.appendChild(sig);
 
-    // map css coords -> PDF points
+    // map css coords => PDF pts
     const scaleX = pd.pdfSize.width / pd.viewport.width;
     const scaleY = pd.pdfSize.height / pd.viewport.height;
-    const pdfX = (left) * scaleX; // left in PDF points
-    const pdfTop = (top) * scaleY; // distance from top in PDF points
+    const pdfX = (left) * scaleX;
+    const pdfTop = (top) * scaleY;
 
-    const stored = { id, x_pdf: pdfX, top_pdf: pdfTop, visualWidth: signatureWidth };
+    const stored = { id, x_pdf: pdfX, top_pdf: pdfTop, visualWidth: signatureWidthPx };
     pd.signatures.push(stored);
 
-    // make draggable
     makeDraggable(sig, pageIndex, stored);
-
     generateBtn.disabled = false;
   }
 
   function makeDraggable(domEl, pageIndex, stored){
-    let dragging = false;
-    let startX=0, startY=0, startLeft=0, startTop=0;
+    let dragging=false, startX=0, startY=0, startLeft=0, startTop=0;
     const layer = pageData[pageIndex].layerElement;
 
     const onDown = (e) => {
       e.preventDefault();
       dragging = true;
-      const clientX = e.type.startsWith('touch') ? e.touches[0].clientX : e.clientX;
-      const clientY = e.type.startsWith('touch') ? e.touches[0].clientY : e.clientY;
-      startX = clientX; startY = clientY;
+      const cx = e.type.startsWith('touch') ? e.touches[0].clientX : e.clientX;
+      const cy = e.type.startsWith('touch') ? e.touches[0].clientY : e.clientY;
+      startX = cx; startY = cy;
       startLeft = parseFloat(domEl.style.left || 0);
       startTop = parseFloat(domEl.style.top || 0);
       document.addEventListener('mousemove', onMove);
@@ -348,19 +371,15 @@
     const onMove = (e) => {
       if(!dragging) return;
       e.preventDefault();
-      const clientX = e.type.startsWith('touch') ? e.touches[0].clientX : e.clientX;
-      const clientY = e.type.startsWith('touch') ? e.touches[0].touches ? e.touches[0].clientY : e.touches[0].clientY : e.clientY;
-      const dx = clientX - startX;
-      const dy = clientY - startY;
-      let newLeft = startLeft + dx;
-      let newTop = startTop + dy;
-      // clamp inside layer
+      const cx = e.type.startsWith('touch') ? e.touches[0].clientX : e.clientX;
+      const cy = e.type.startsWith('touch') ? e.touches[0].clientY : e.clientY;
+      const dx = cx - startX, dy = cy - startY;
+      let newLeft = startLeft + dx, newTop = startTop + dy;
       newLeft = Math.max(0, Math.min(newLeft, layer.clientWidth - domEl.offsetWidth));
-      newTop  = Math.max(0, Math.min(newTop, layer.clientHeight - domEl.offsetHeight));
+      newTop = Math.max(0, Math.min(newTop, layer.clientHeight - domEl.offsetHeight));
       domEl.style.left = newLeft + 'px';
       domEl.style.top = newTop + 'px';
 
-      // update stored PDF coords
       const pd = pageData[pageIndex];
       const scaleX = pd.pdfSize.width / pd.viewport.width;
       const scaleY = pd.pdfSize.height / pd.viewport.height;
@@ -370,7 +389,7 @@
     };
 
     const onUp = (e) => {
-      dragging = false;
+      dragging=false;
       document.removeEventListener('mousemove', onMove);
       document.removeEventListener('mouseup', onUp);
       document.removeEventListener('touchmove', onMove);
@@ -381,32 +400,35 @@
     domEl.addEventListener('touchstart', onDown, {passive:false});
   }
 
-  // generation
-  generateBtn.addEventListener('click', async ()=>{
-    if(!selectedPdfFile) { alert('Please upload a PDF'); return; }
-    if(pageData.every(p=> p.signatures.length===0)){ alert('Place at least one signature'); return; }
-    await ensureDefaultSig();
-    try{
+  // update progress UI
+  function updateProgress(pct){
+    progressContainer.style.display = 'block';
+    progressBar.style.width = `${pct}%`;
+  }
+
+  // generate final PDF
+  generateBtn.addEventListener('click', async ()=> {
+    if(!selectedPdfFile) { alert('Upload a PDF first'); return; }
+    if(pageData.every(pd => !pd.signatures || pd.signatures.length===0)) { alert('Place at least one signature'); return; }
+    await loadDefaultSignatureIfExists();
+    try {
       generateBtn.disabled = true;
-      progress.style.display='block';
-      progressBar.style.width='10%';
-
+      updateProgress(5);
       const arr = await selectedPdfFile.arrayBuffer();
-      progressBar.style.width='25%';
+      updateProgress(20);
       const pdfDoc = await PDFLib.PDFDocument.load(arr);
-      progressBar.style.width='40%';
+      updateProgress(40);
 
-      // embed image (handle SVG by rasterizing to PNG)
+      // embed image (handle svg -> png rasterize)
       const imgBytes = await selectedImageFile.arrayBuffer();
       let embedded;
       if(selectedImageFile.type === 'image/svg+xml' || selectedImageFile.name.endsWith('.svg')){
-        // rasterize svg via image->canvas->png
+        // rasterize
         const svgText = await (new Response(imgBytes)).text();
         const imgEl = new Image();
         const blob = new Blob([svgText], {type:'image/svg+xml'});
         const url = URL.createObjectURL(blob);
-        await new Promise((res, rej) => { imgEl.onload = ()=> res(); imgEl.onerror = ()=> rej('SVG load fail'); imgEl.src = url; });
-        // draw
+        await new Promise((res, rej)=> { imgEl.onload = res; imgEl.onerror = rej; imgEl.src = url; });
         const c = document.createElement('canvas');
         c.width = imgEl.naturalWidth || 400;
         c.height = imgEl.naturalHeight || 150;
@@ -419,10 +441,9 @@
       } else if(selectedImageFile.type === 'image/png') {
         embedded = await pdfDoc.embedPng(imgBytes);
       } else {
-        // jpeg fallback
         embedded = await pdfDoc.embedJpg(imgBytes);
       }
-      progressBar.style.width='65%';
+      updateProgress(60);
 
       const pages = pdfDoc.getPages();
       for(let i=0;i<pages.length;i++){
@@ -430,49 +451,51 @@
         const pd = pageData[i];
         if(!pd) continue;
         for(const s of pd.signatures){
-          // compute pdf width based on visualWidth (css px -> pdf pts)
-          const pdfW = (s.visualWidth || signatureWidth) * (pd.pdfSize.width / pd.viewport.width);
-          const imgW = embedded.width;
-          const imgH = embedded.height;
+          const pdfW = (s.visualWidth || signatureWidthPx) * (pd.pdfSize.width / pd.viewport.width);
+          const imgW = embedded.width, imgH = embedded.height;
           const pdfH = (pdfW / imgW) * imgH;
           const yBottom = pd.pdfSize.height - s.top_pdf - pdfH;
           page.drawImage(embedded, { x: s.x_pdf, y: yBottom, width: pdfW, height: pdfH, opacity:1 });
         }
       }
-      progressBar.style.width='85%';
+
+      updateProgress(85);
       const out = await pdfDoc.save();
-      progressBar.style.width='95%';
+      updateProgress(95);
 
       const blob = new Blob([out], { type:'application/pdf' });
+      const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
+      a.href = url;
       a.download = `SIGNED_${Date.now()}.pdf`;
-      document.body.appendChild(a); a.click(); a.remove();
-      progressBar.style.width='100%';
-      setTimeout(()=>{ progress.style.display='none'; progressBar.style.width='0%'; },500);
-      // reset
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      updateProgress(100);
+      setTimeout(()=>{ progressContainer.style.display='none'; progressBar.style.width='0%'; }, 600);
+
+      // reset small state (keep default signature loaded)
       previewList.innerHTML = '';
-      selectedPdfFile = null;
-      fileInfo.style.display='none';
-      imageInfo.style.display='none';
       pageData = [];
+      selectedPdfFile = null;
       generateBtn.disabled = true;
-    }catch(err){
-      console.error(err);
-      alert('Error: '+(err.message||err));
+    } catch (err){
+      console.error('Generate error', err);
+      alert('Error generating document: '+ (err.message || err));
       generateBtn.disabled = false;
-      progress.style.display='none';
-      progressBar.style.width='0%';
+      progressContainer.style.display = 'none';
+      progressBar.style.width = '0%';
     }
   });
 
-  // small utility: enable generate button if any signature placed
-  const observer = new MutationObserver(()=> {
-    generateBtn.disabled = pageData.every(p=> p.signatures.length===0);
+  // keep generate button enabled only after some signature placed
+  const mo = new MutationObserver(()=> {
+    generateBtn.disabled = pageData.every(pd => pd.signatures.length===0);
   });
-  observer.observe(previewList, { childList:true, subtree:true });
+  mo.observe(previewList, { childList:true, subtree:true });
 
-})();
+});
 </script>
 </body>
 </html>
