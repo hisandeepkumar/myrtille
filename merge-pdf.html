@@ -412,20 +412,42 @@
       // Add personal documents button click handler
       addPersonalBtn.addEventListener('click', async () => {
         try {
-          // Fetch the personal_documents.pdf from your website directory
-          const response = await fetch('personal_documents.pdf');
+          // Show loading state
+          addPersonalBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+          
+          // Convert Google Drive share link to direct download link
+          const fileId = '1Oyoc_UrQcKu6sRwCv2Dc9gdzhr_iBjYh';
+          const directDownloadUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
+          
+          // Fetch the PDF from Google Drive
+          const response = await fetch(directDownloadUrl);
+          
           if (!response.ok) {
-            throw new Error('Personal documents file not found');
+            throw new Error(`Failed to fetch PDF: ${response.status} ${response.statusText}`);
           }
           
           const blob = await response.blob();
-          const file = new File([blob], 'personal_documents.pdf', { type: 'application/pdf' });
+          
+          // Check if the blob is a valid PDF
+          if (blob.type !== 'application/pdf') {
+            throw new Error('The downloaded file is not a valid PDF');
+          }
+          
+          // Create a file object from the blob
+          const file = new File([blob], 'personal_document.pdf', { type: 'application/pdf' });
           
           // Add the personal document to the files array
           files.push(file);
           renderFileList();
+          
+          // Restore button icon
+          addPersonalBtn.innerHTML = '<i class="fas fa-user"></i>';
         } catch (error) {
-          alert('Error adding personal documents: ' + error.message);
+          console.error('Error adding personal document:', error);
+          alert('Error adding personal document: ' + error.message);
+          
+          // Restore button icon even on error
+          addPersonalBtn.innerHTML = '<i class="fas fa-user"></i>';
         }
       });
 
