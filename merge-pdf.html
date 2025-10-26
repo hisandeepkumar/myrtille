@@ -415,9 +415,8 @@
           // Show loading state
           addPersonalBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
           
-          // Convert Google Drive share link to direct download link
-          const fileId = '1Oyoc_UrQcKu6sRwCv2Dc9gdzhr_iBjYh';
-          const directDownloadUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
+          // Use the direct Google Drive download link
+          const directDownloadUrl = 'https://drive.usercontent.google.com/u/0/uc?id=1Oyoc_UrQcKu6sRwCv2Dc9gdzhr_iBjYh&export=download';
           
           // Fetch the PDF from Google Drive
           const response = await fetch(directDownloadUrl);
