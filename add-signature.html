@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>PDF Signature Adder — Improved</title>
+  <title>PDF Signature Adder — All Pages Visible</title>
 
   <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
@@ -16,11 +16,13 @@
     html,body{ height:100%; margin:0; background:#071029; color:#e6eef8; }
     body{ display:flex; align-items:flex-start; justify-content:center; padding:28px; }
 
+    /* container will grow to fit all pages (no fixed height) */
     .container{
       width:100%; max-width:980px; background:rgba(255,255,255,0.06);
-      backdrop-filter: blur(10px); border-radius:16px; padding:20px 22px 160px; /* extra bottom space for floating button */
+      backdrop-filter: blur(10px); border-radius:16px; padding:20px 22px 160px; /* bottom spacing for floating button */
       border:1px solid rgba(255,255,255,0.06); box-shadow:0 12px 40px rgba(0,0,0,0.6);
-      min-height:60vh;
+      /* No max-height or overflow so it expands to show all pages */
+      min-height: 60px;
     }
 
     .header{ display:flex; align-items:center; gap:12px; margin-bottom:12px; }
@@ -39,16 +41,16 @@
     .controls .left{ display:flex; gap:10px; align-items:center; }
     .controls label{ font-weight:700; color:#dbeafe; }
 
-    .preview-list{ display:flex; flex-direction:column; gap:18px; max-height:62vh; overflow:auto; padding-right:6px; }
+    /* preview-list now auto-expands — no max-height */
+    .preview-list{ display:flex; flex-direction:column; gap:18px; padding-right:6px; }
 
     .preview-item{ background:rgba(255,255,255,0.02); border-radius:10px; padding:12px; display:flex; flex-direction:column; align-items:center; }
     .preview-item h3{ margin:0 0 8px; color:#cfe8ff; font-weight:700; width:100%; text-align:left; }
 
-    /* canvas-wrap now fills container width so canvas shows full page */
+    /* canvas-wrap fills available width (full page visible) */
     .canvas-wrap{ position:relative; width:100%; display:flex; justify-content:center; }
     canvas{ width:100% !important; height:auto !important; border-radius:6px; box-shadow:0 8px 30px rgba(0,0,0,0.6); background:white; display:block; }
 
-    /* layer positioned absolutely over canvas, aligned top-left of canvas by using wrapper offset */
     .sig-layer{ position:absolute; left:0; top:0; pointer-events:auto; }
 
     .signature{ position:absolute; cursor:move; touch-action:none; user-select:none; display:flex; align-items:center; transition:transform 120ms ease; }
@@ -58,17 +60,17 @@
 
     .delete-btn{ position:absolute; right:-10px; top:-10px; width:26px; height:26px; background:#ef4444; color:white; border-radius:50%; border:none; display:flex; align-items:center; justify-content:center; cursor:pointer; }
 
-    /* floating glassy pill button */
+    /* glass-like floating pill */
     .floating-btn{
       position:fixed; left:50%; transform:translateX(-50%); bottom:18px; z-index:9999;
       background: rgba(255,255,255,0.06);
-      backdrop-filter: blur(8px) saturate(1.1);
+      backdrop-filter: blur(10px) saturate(1.05);
       border: 1px solid rgba(255,255,255,0.12);
-      box-shadow: 0 12px 26px rgba(9,15,34,0.55), inset 0 1px 0 rgba(255,255,255,0.04);
+      box-shadow: 0 12px 30px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.04);
       color: white; padding:12px 28px; border-radius:999px; font-weight:800; cursor:pointer; display:flex; gap:10px; align-items:center;
       transition: transform 160ms ease, box-shadow 160ms ease, background 160ms ease;
     }
-    .floating-btn:hover{ transform:translateX(-50%) translateY(-4px); box-shadow:0 18px 40px rgba(9,15,34,0.6); background: rgba(255,255,255,0.08); }
+    .floating-btn:hover{ transform:translateX(-50%) translateY(-4px); box-shadow:0 18px 44px rgba(0,0,0,0.6); background: rgba(255,255,255,0.08); }
     .floating-btn:disabled{ opacity:0.6; cursor:not-allowed; }
 
     .progress{ position:fixed; left:50%; transform:translateX(-50%); bottom:78px; width:420px; height:8px; background:rgba(255,255,255,0.04); border-radius:8px; overflow:hidden; display:none; z-index:9998; }
@@ -77,10 +79,10 @@
     .footer-note{ margin-top:12px; color:rgba(255,255,255,0.6); font-size:13px; text-align:center; }
 
     @media (max-width:760px){
-      .container{ padding-bottom:200px; }
-      .progress{ width:86%; left:50%; transform:translateX(-50%); }
+      .container{ padding-bottom:220px; }
+      .progress{ width:86%; }
       .floating-btn{ width:86%; left:50%; transform:translateX(-50%); }
-      .signature img{ width:140px; } /* visual only */
+      .signature img{ width:140px; }
     }
   </style>
 </head>
@@ -94,7 +96,7 @@
     <div class="upload-area" id="uploadArea">
       <i class="fas fa-cloud-upload-alt"></i>
       <h3>Upload a PDF (single)</h3>
-      <p>Select a PDF and previews for every page will appear below.</p>
+      <p>Select a PDF and previews for every page will appear below (container expands to show all pages).</p>
       <input id="pdfInput" type="file" accept="application/pdf">
     </div>
 
@@ -114,7 +116,7 @@
 
     <div class="preview-list" id="previewList" aria-live="polite"></div>
 
-    <div class="footer-note">Positions preserved exactly. Click an existing signature to prevent new overlay (it will pulse).</div>
+    <div class="footer-note">Positions preserved exactly. Clicking on an existing signature prevents overlay (it pulses).</div>
   </div>
 
   <div class="progress" id="progress"><div id="progressBar"></div></div>
@@ -141,13 +143,13 @@ document.addEventListener('DOMContentLoaded', ()=> {
   let selectedImageFile = null;
   let signatureImgUrl = null;
   let signatureWidth = 189; // default
-  let pageData = []; // per page meta {pdfSize, viewport, canvasElem, layerElem, signatures: [...]}
+  let pageData = [];
 
   const FALLBACK = `data:image/svg+xml;base64,${btoa("<svg xmlns='http://www.w3.org/2000/svg' width='400' height='150'><path d='M10 90 C 60 10, 140 10, 190 90 S 330 170, 390 90' stroke='#111827' stroke-width='6' fill='none' stroke-linecap='round' /></svg>")}`;
 
   function fmt(bytes){ if(!bytes) return ''; if(bytes<1024) return bytes+' B'; if(bytes<1024*1024) return (bytes/1024).toFixed(2)+' KB'; return (bytes/(1024*1024)).toFixed(2)+' MB'; }
 
-  // try load default_signature.png (optional)
+  // silently try to load default_signature.png if present
   async function loadDefaultIfExists(){
     if(selectedImageFile) return;
     try{
@@ -203,22 +205,20 @@ document.addEventListener('DOMContentLoaded', ()=> {
       pdfJsDoc = await pdfjsLib.getDocument({data:ab}).promise;
       const total = pdfLibDoc.getPageCount();
 
-      // compute available width for canvases (container width minus paddings)
-      const containerStyle = getComputedStyle(container);
-      const paddingLeft = parseFloat(containerStyle.paddingLeft || 24);
-      const paddingRight = parseFloat(containerStyle.paddingRight || 24);
-      const availableWidth = Math.max(300, container.clientWidth - paddingLeft - paddingRight - 4);
+      // measure container inner width (account for padding)
+      const cs = getComputedStyle(container);
+      const padLeft = parseFloat(cs.paddingLeft || 20);
+      const padRight = parseFloat(cs.paddingRight || 20);
+      const availableWidth = Math.max(300, container.clientWidth - padLeft - padRight - 4);
 
       for(let p=1;p<=total;p++){
         const page = await pdfJsDoc.getPage(p);
         const base = page.getViewport({scale:1});
-        // scale so that full page width fits availableWidth
         const scale = (availableWidth / base.width);
         const viewport = page.getViewport({scale});
         const cssW = Math.round(viewport.width);
         const cssH = Math.round(viewport.height);
 
-        // create canvas sized to cssW but drawn at DPR for crispness
         const canvas = document.createElement('canvas');
         canvas.style.width = cssW + 'px';
         canvas.style.height = cssH + 'px';
@@ -243,7 +243,7 @@ document.addEventListener('DOMContentLoaded', ()=> {
         wrap.style.height = cssH + 'px';
         wrap.appendChild(canvas);
 
-        // layer: same size as canvas, positioned at top-left inside wrap
+        // layer same size as canvas, positioned top-left within wrap
         const layer = document.createElement('div');
         layer.className = 'sig-layer';
         layer.style.width = cssW + 'px';
@@ -266,42 +266,43 @@ document.addEventListener('DOMContentLoaded', ()=> {
           signatures: []
         };
 
-        // click handler for adding signature; But prevent overlay: if clicking inside any existing signature DOM area, do not add new—pulse that signature
         layer.addEventListener('click', async (ev) => {
           ev.preventDefault();
           await loadDefaultIfExists();
-          if(!signatureImgUrl) { alert('Signature missing'); return; }
+          if(!signatureImgUrl){ alert('Signature missing'); return; }
 
           const rect = layer.getBoundingClientRect();
-          const clickX = ev.clientX - rect.left; // css px relative to layer
+          const clickX = ev.clientX - rect.left;
           const clickY = ev.clientY - rect.top;
 
-          // check if click lies inside any existing signature's bounding rect
-          const existingSigs = Array.from(layer.querySelectorAll('.signature'));
-          for(const el of existingSigs){
+          // prevent overlay: if click inside existing signature rect => pulse and return
+          const existing = Array.from(layer.querySelectorAll('.signature'));
+          for(const el of existing){
             const br = el.getBoundingClientRect();
             const relLeft = br.left - rect.left;
             const relTop  = br.top - rect.top;
             const relRight = relLeft + br.width;
             const relBottom = relTop + br.height;
             if(clickX >= relLeft && clickX <= relRight && clickY >= relTop && clickY <= relBottom){
-              // pulse that element to signal overlay prevented
               el.classList.add('pulse');
               setTimeout(()=> el.classList.remove('pulse'), 360);
-              return; // DO NOT add another signature on top
+              return;
             }
           }
 
-          // if not inside existing signature — add normally
           addSignatureToPage(p-1, clickX, clickY);
         });
       }
 
-      // after rendering all pages, Generate button enabled only when at least one signature placed
+      // container automatically expands since no fixed heights
+      // ensure generate disabled until user places at least one signature
       generateBtn.disabled = pageData.every(pd => !pd.signatures || pd.signatures.length === 0);
 
+      // scroll to top of previews
+      previewList.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
     }catch(err){
-      console.error('PDF error', err);
+      console.error('PDF load/render error', err);
       alert('Error loading PDF: ' + (err.message || err));
     }
   }
@@ -339,7 +340,6 @@ document.addEventListener('DOMContentLoaded', ()=> {
 
     layer.appendChild(sig);
 
-    // map css coords to PDF pts
     const scaleX = pd.pdfSize.width / pd.viewport.width;
     const scaleY = pd.pdfSize.height / pd.viewport.height;
     const pdfX = (left) * scaleX;
@@ -402,7 +402,7 @@ document.addEventListener('DOMContentLoaded', ()=> {
     domEl.addEventListener('touchstart', down, {passive:false});
   }
 
-  // generation
+  // generation logic (same embedding/draw approach)
   generateBtn.addEventListener('click', async ()=>{
     if(!selectedPdfFile) { alert('Upload a PDF first'); return; }
     if(pageData.every(pd => !pd.signatures || pd.signatures.length===0)) { alert('Place at least one signature'); return; }
@@ -417,9 +417,8 @@ document.addEventListener('DOMContentLoaded', ()=> {
       const pdfDoc = await PDFLib.PDFDocument.load(ab);
       progressBar.style.width = '36%';
 
-      // embed image (rasterize svg if necessary)
-      let embedded;
       const imgBytes = await selectedImageFile.arrayBuffer();
+      let embedded;
       if(selectedImageFile.type === 'image/svg+xml' || selectedImageFile.name.endsWith('.svg')){
         const svgText = await (new Response(imgBytes)).text();
         const imgEl = new Image();
@@ -475,7 +474,7 @@ document.addEventListener('DOMContentLoaded', ()=> {
       selectedPdfFile = null;
       generateBtn.disabled = true;
     }catch(err){
-      console.error('Generate error', err);
+      console.error(err);
       alert('Error generating signed PDF: ' + (err.message || err));
       generateBtn.disabled = false;
       progress.style.display = 'none';
@@ -483,7 +482,7 @@ document.addEventListener('DOMContentLoaded', ()=> {
     }
   });
 
-  // observe preview changes to toggle generate button
+  // toggle generate button depending on signatures present
   const mo = new MutationObserver(()=> {
     generateBtn.disabled = pageData.every(pd => !pd.signatures || pd.signatures.length===0);
   });
