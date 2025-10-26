@@ -144,6 +144,7 @@ document.addEventListener('DOMContentLoaded', ()=> {
   let signatureImgUrl = null;
   let signatureWidth = 189; // default
   let pageData = [];
+  let originalFilename = ''; // Store the original filename
 
   const FALLBACK = `data:image/svg+xml;base64,${btoa("<svg xmlns='http://www.w3.org/2000/svg' width='400' height='150'><path d='M10 90 C 60 10, 140 10, 190 90 S 330 170, 390 90' stroke='#111827' stroke-width='6' fill='none' stroke-linecap='round' /></svg>")}`;
 
@@ -187,7 +188,13 @@ document.addEventListener('DOMContentLoaded', ()=> {
   ['dragleave','drop'].forEach(ev => uploadArea.addEventListener(ev, e=>{ e.preventDefault(); uploadArea.classList.remove('active'); }));
   uploadArea.addEventListener('drop', e=> { if(e.dataTransfer?.files?.length) handlePdf(e.dataTransfer.files[0]); });
 
-  pdfInput.addEventListener('change', (e)=> { if(e.target.files?.length) handlePdf(e.target.files[0]); });
+  pdfInput.addEventListener('change', (e)=> { 
+    if(e.target.files?.length) {
+      handlePdf(e.target.files[0]);
+      // Store the original filename without extension
+      originalFilename = e.target.files[0].name.replace(/\.pdf$/i, '');
+    }
+  });
 
   async function handlePdf(file){
     if(!file) return;
@@ -461,7 +468,11 @@ document.addEventListener('DOMContentLoaded', ()=> {
       const blob = new Blob([out], { type:'application/pdf' });
       const a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
-      a.download = `SIGNED_${Date.now()}.pdf`;
+      
+      // Use original filename with "_signed" suffix instead of random timestamp
+      const downloadFilename = originalFilename ? `${originalFilename}_signed.pdf` : `signed_document.pdf`;
+      a.download = downloadFilename;
+      
       document.body.appendChild(a);
       a.click();
       a.remove();
@@ -472,6 +483,7 @@ document.addEventListener('DOMContentLoaded', ()=> {
       previewList.innerHTML = '';
       pageData = [];
       selectedPdfFile = null;
+      originalFilename = ''; // Reset filename
       generateBtn.disabled = true;
     }catch(err){
       console.error(err);
