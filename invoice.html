@@ -70,89 +70,6 @@
       font-size: 16px;
     }
 
-    /* Toggle Switch Container */
-    .toggle-container {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-      margin: 24px 0;
-    }
-
-    @media (max-width: 768px) {
-      .toggle-container {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    .toggle-btn {
-      background: rgba(255, 255, 255, 0.1);
-      border: 1px solid rgba(255, 255, 255, 0.3);
-      border-radius: 12px;
-      padding: 16px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      color: #f0f0f0;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      text-align: left;
-    }
-
-    .toggle-btn.active {
-      background: rgba(91, 134, 229, 0.3);
-      border-color: #5b86e5;
-      box-shadow: 0 0 15px rgba(91, 134, 229, 0.4);
-    }
-
-    .toggle-btn:hover:not(.active) {
-      background: rgba(255, 255, 255, 0.15);
-    }
-
-    .toggle-btn .toggle-label {
-      font-weight: 600;
-      font-size: 14px;
-      color: #5b86e5;
-    }
-
-    .toggle-btn .toggle-description {
-      font-size: 12px;
-      opacity: 0.8;
-      margin-top: 4px;
-    }
-
-    .toggle-switch-small {
-      width: 40px;
-      height: 20px;
-      background: rgba(255, 255, 255, 0.15);
-      border: 1px solid rgba(255, 255, 255, 0.3);
-      border-radius: 10px;
-      position: relative;
-      transition: background 0.3s ease, border-color 0.3s ease;
-    }
-
-    .toggle-switch-small::before {
-      content: '';
-      position: absolute;
-      width: 16px;
-      height: 16px;
-      background: #f0f0f0;
-      border-radius: 50%;
-      top: 1.5px;
-      left: 1.5px;
-      transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55), background 0.3s ease;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-    }
-
-    .toggle-btn.active .toggle-switch-small {
-      background: #34c759;
-      border-color: #34c759;
-    }
-
-    .toggle-btn.active .toggle-switch-small::before {
-      transform: translateX(20px);
-      background: #ffffff;
-    }
-
     /* Form Styles */
     .form-section {
       margin-bottom: 30px;
@@ -463,115 +380,6 @@
       from { transform: rotate(0deg); }
       to { transform: rotate(360deg); }
     }
-
-    /* Watermark Toggle */
-    .watermark-toggle {
-      margin: 20px 0;
-      padding: 15px;
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 10px;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-    }
-
-    .watermark-toggle label {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      color: rgba(255, 255, 255, 0.9);
-      font-size: 14px;
-      font-weight: 500;
-      cursor: pointer;
-    }
-
-    .watermark-toggle input[type="checkbox"] {
-      display: none;
-    }
-
-    .watermark-toggle .slider {
-      width: 50px;
-      height: 24px;
-      background: rgba(255, 255, 255, 0.15);
-      border-radius: 12px;
-      position: relative;
-      transition: all 0.3s ease;
-    }
-
-    .watermark-toggle .slider::before {
-      content: '';
-      position: absolute;
-      width: 20px;
-      height: 20px;
-      background: #f0f0f0;
-      border-radius: 50%;
-      top: 2px;
-      left: 2px;
-      transition: all 0.3s ease;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-    }
-
-    .watermark-toggle input:checked + .slider {
-      background: #34c759;
-    }
-
-    .watermark-toggle input:checked + .slider::before {
-      transform: translateX(26px);
-      background: #ffffff;
-    }
-
-    /* Invoice Template Selector */
-    .template-selector {
-      margin: 20px 0;
-      padding: 15px;
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 10px;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-    }
-
-    .template-selector h4 {
-      color: rgba(255, 255, 255, 0.9);
-      margin-bottom: 12px;
-      font-size: 14px;
-      font-weight: 600;
-    }
-
-    .template-options {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-
-    .template-option {
-      flex: 1;
-      min-width: 100px;
-      padding: 10px;
-      border-radius: 8px;
-      background: rgba(255, 255, 255, 0.1);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      text-align: center;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-
-    .template-option:hover {
-      background: rgba(255, 255, 255, 0.15);
-    }
-
-    .template-option.active {
-      background: rgba(91, 134, 229, 0.3);
-      border-color: #5b86e5;
-      box-shadow: 0 0 10px rgba(91, 134, 229, 0.3);
-    }
-
-    .template-option i {
-      font-size: 20px;
-      margin-bottom: 5px;
-      display: block;
-    }
-
-    .template-option span {
-      font-size: 12px;
-      color: rgba(255, 255, 255, 0.9);
-    }
   </style>
 </head>
 <body>
@@ -589,78 +397,6 @@
       <div class="header">
         <h1><i class="fas fa-file-invoice"></i> Myrtille Industries Invoice Generator</h1>
         <p>Professional invoice generator with modern templates</p>
-      </div>
-
-      <!-- Toggle Buttons -->
-      <div class="toggle-container">
-        <div class="toggle-btn" id="logoToggle">
-          <div>
-            <div class="toggle-label">Company Logo</div>
-            <div class="toggle-description">Add Myrtille Industries logo</div>
-          </div>
-          <div class="toggle-switch-small"></div>
-        </div>
-
-        <div class="toggle-btn" id="watermarkToggle">
-          <div>
-            <div class="toggle-label">Watermark</div>
-            <div class="toggle-description">Add "PAID" or "UNPAID" watermark</div>
-          </div>
-          <div class="toggle-switch-small"></div>
-        </div>
-
-        <div class="toggle-btn" id="qrCodeToggle">
-          <div>
-            <div class="toggle-label">QR Code</div>
-            <div class="toggle-description">Add payment QR code</div>
-          </div>
-          <div class="toggle-switch-small"></div>
-        </div>
-
-        <div class="toggle-btn" id="colorSchemeToggle">
-          <div>
-            <div class="toggle-label">Color Scheme</div>
-            <div class="toggle-description">Use blue color scheme</div>
-          </div>
-          <div class="toggle-switch-small"></div>
-        </div>
-      </div>
-
-      <!-- Invoice Template Selector -->
-      <div class="template-selector">
-        <h4>Invoice Template</h4>
-        <div class="template-options">
-          <div class="template-option active" data-template="modern" onclick="selectTemplate('modern')">
-            <i class="fas fa-palette"></i>
-            <span>Modern</span>
-          </div>
-          <div class="template-option" data-template="classic" onclick="selectTemplate('classic')">
-            <i class="fas fa-building"></i>
-            <span>Classic</span>
-          </div>
-          <div class="template-option" data-template="minimal" onclick="selectTemplate('minimal')">
-            <i class="fas fa-stream"></i>
-            <span>Minimal</span>
-          </div>
-          <div class="template-option" data-template="professional" onclick="selectTemplate('professional')">
-            <i class="fas fa-briefcase"></i>
-            <span>Professional</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Watermark Status -->
-      <div class="watermark-toggle">
-        <label>
-          <span>Invoice Status</span>
-          <div>
-            <input type="checkbox" id="paidStatus" checked>
-            <div class="slider"></div>
-          </div>
-        </label>
-        <div style="font-size: 12px; color: rgba(255, 255, 255, 0.7); margin-top: 8px;">
-          Toggle for PAID (checked) or UNPAID (unchecked) watermark
-        </div>
       </div>
 
       <form id="invoiceForm">
@@ -808,25 +544,8 @@
           </div>
           
           <div class="form-group">
-            <label for="bankDetails">Bank Details (for transfer)</label>
-            <textarea id="bankDetails">Account Name: Myrtille Industries
-Account No.: 921020038756944
-Bank: Axis Bank, Swej Farm, Jaipur
-IFSC: UTIB0002582</textarea>
-          </div>
-          
-          <div class="form-group">
-            <label for="terms">Terms and Conditions</label>
-            <textarea id="terms">1. Payment due within 30 days of invoice date.
-2. Late payment interest @18% p.a.
-3. Goods once sold will not be taken back.
-4. All disputes subject to Jaipur jurisdiction.
-5. Thank you for doing business with us.</textarea>
-          </div>
-          
-          <div class="form-group">
-            <label for="notes">Additional Notes (Optional)</label>
-            <textarea id="notes" placeholder="Any additional information or notes..."></textarea>
+            <label for="terms">Terms and Conditions (One Line)</label>
+            <textarea id="terms" rows="2">Payment due within 30 days of invoice date. Late payment interest @18% p.a.</textarea>
           </div>
         </div>
 
@@ -838,10 +557,6 @@ IFSC: UTIB0002582</textarea>
           
           <button type="button" class="btn btn-danger" id="resetFormBtn">
             <i class="fas fa-redo"></i> Reset Form
-          </button>
-          
-          <button type="button" class="btn" id="saveTemplateBtn">
-            <i class="fas fa-save"></i> Save as Template
           </button>
         </div>
       </form>
@@ -886,39 +601,10 @@ IFSC: UTIB0002582</textarea>
       document.getElementById('addItemBtn').addEventListener('click', addItemRow);
       document.getElementById('generateInvoiceBtn').addEventListener('click', generateInvoicePDF);
       document.getElementById('resetFormBtn').addEventListener('click', resetForm);
-      document.getElementById('saveTemplateBtn').addEventListener('click', saveTemplate);
-      
-      // Toggle button event listeners
-      document.getElementById('logoToggle').addEventListener('click', function() {
-        this.classList.toggle('active');
-      });
-      
-      document.getElementById('watermarkToggle').addEventListener('click', function() {
-        this.classList.toggle('active');
-      });
-      
-      document.getElementById('qrCodeToggle').addEventListener('click', function() {
-        this.classList.toggle('active');
-      });
-      
-      document.getElementById('colorSchemeToggle').addEventListener('click', function() {
-        this.classList.toggle('active');
-      });
       
       // Add sample data for demo
       addSampleData();
     });
-    
-    // Template selection
-    let selectedTemplate = 'modern';
-    
-    function selectTemplate(template) {
-      selectedTemplate = template;
-      document.querySelectorAll('.template-option').forEach(opt => {
-        opt.classList.remove('active');
-      });
-      document.querySelector(`.template-option[data-template="${template}"]`).classList.add('active');
-    }
     
     // Function to add a new item row
     function addItemRow(itemData = {}) {
@@ -1054,61 +740,70 @@ IFSC: UTIB0002582</textarea>
       };
     }
     
-    // Function to convert number to words
+    // Function to convert number to words (only rupees part)
     function numberToWords(num) {
       const a = ['', 'one ', 'two ', 'three ', 'four ', 'five ', 'six ', 'seven ', 'eight ', 'nine ', 'ten ', 'eleven ', 'twelve ', 'thirteen ', 'fourteen ', 'fifteen ', 'sixteen ', 'seventeen ', 'eighteen ', 'nineteen '];
       const b = ['', '', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety'];
       
       const number = parseFloat(num);
-      const rupees = Math.floor(number);
-      const paisa = Math.round((number - rupees) * 100);
-      
-      let rupeesWords = '';
-      let paisaWords = '';
+      const rupees = Math.floor(number); // Only rupees part
       
       if (rupees === 0) {
-        rupeesWords = 'Zero';
-      } else if (rupees < 20) {
-        rupeesWords = a[rupees];
-      } else if (rupees < 100) {
-        rupeesWords = b[Math.floor(rupees / 10)] + (rupees % 10 !== 0 ? ' ' + a[rupees % 10] : '');
-      } else if (rupees < 1000) {
-        rupeesWords = a[Math.floor(rupees / 100)] + 'hundred ' + numberToWords(rupees % 100);
-      } else if (rupees < 100000) {
-        rupeesWords = numberToWords(Math.floor(rupees / 1000)) + 'thousand ' + numberToWords(rupees % 1000);
-      } else if (rupees < 10000000) {
-        rupeesWords = numberToWords(Math.floor(rupees / 100000)) + 'lakh ' + numberToWords(rupees % 100000);
-      } else {
-        rupeesWords = numberToWords(Math.floor(rupees / 10000000)) + 'crore ' + numberToWords(rupees % 10000000);
+        return 'Zero Rupees only';
       }
       
-      if (paisa > 0) {
-        if (paisa < 20) {
-          paisaWords = a[paisa];
+      let rupeesWords = '';
+      
+      // Convert crore part
+      const crore = Math.floor(rupees / 10000000);
+      if (crore > 0) {
+        rupeesWords += numberToWords(crore) + 'crore ';
+        rupees %= 10000000;
+      }
+      
+      // Convert lakh part
+      const lakh = Math.floor(rupees / 100000);
+      if (lakh > 0) {
+        if (lakh < 20) {
+          rupeesWords += a[lakh] + 'lakh ';
         } else {
-          paisaWords = b[Math.floor(paisa / 10)] + (paisa % 10 !== 0 ? ' ' + a[paisa % 10] : '');
+          rupeesWords += b[Math.floor(lakh / 10)] + (lakh % 10 !== 0 ? ' ' + a[lakh % 10] : '') + ' lakh ';
+        }
+        rupees %= 100000;
+      }
+      
+      // Convert thousand part
+      const thousand = Math.floor(rupees / 1000);
+      if (thousand > 0) {
+        if (thousand < 20) {
+          rupeesWords += a[thousand] + 'thousand ';
+        } else {
+          const tenThousand = Math.floor(thousand / 10);
+          const unitThousand = thousand % 10;
+          rupeesWords += b[tenThousand] + (unitThousand !== 0 ? ' ' + a[unitThousand] : '') + ' thousand ';
+        }
+        rupees %= 1000;
+      }
+      
+      // Convert hundred part
+      const hundred = Math.floor(rupees / 100);
+      if (hundred > 0) {
+        rupeesWords += a[hundred] + 'hundred ';
+        rupees %= 100;
+      }
+      
+      // Convert tens and units
+      if (rupees > 0) {
+        if (rupees < 20) {
+          rupeesWords += a[rupees];
+        } else {
+          const tens = Math.floor(rupees / 10);
+          const units = rupees % 10;
+          rupeesWords += b[tens] + (units !== 0 ? ' ' + a[units] : '');
         }
       }
       
-      let result = rupeesWords.trim().charAt(0).toUpperCase() + rupeesWords.trim().slice(1) + ' Rupees';
-      
-      if (paisa > 0) {
-        result += ' and ' + paisaWords.trim() + ' Paisa';
-      }
-      
-      return result + ' only';
-    }
-    
-    // Function to generate QR code image
-    async function generateQRCode(pdfDoc, upiId = "myrtilleindia@axisbank", amount = "0") {
-      try {
-        // Create a simple QR code using text representation (in real app, use a QR code library)
-        // For demo, we'll create a simple rectangle with text
-        return null;
-      } catch (error) {
-        console.log('QR code generation skipped:', error);
-        return null;
-      }
+      return rupeesWords.trim().charAt(0).toUpperCase() + rupeesWords.trim().slice(1) + ' Rupees only';
     }
     
     // Function to generate invoice PDF
@@ -1136,259 +831,47 @@ IFSC: UTIB0002582</textarea>
         const helveticaBoldFont = await pdfDoc.embedFont(PDFLib.StandardFonts.HelveticaBold);
         const helveticaObliqueFont = await pdfDoc.embedFont(PDFLib.StandardFonts.HelveticaOblique);
         
-        // Get toggle states
-        const addLogo = document.getElementById('logoToggle').classList.contains('active');
-        const addWatermark = document.getElementById('watermarkToggle').classList.contains('active');
-        const addQRCode = document.getElementById('qrCodeToggle').classList.contains('active');
-        const useColorScheme = document.getElementById('colorSchemeToggle').classList.contains('active');
-        const isPaid = document.getElementById('paidStatus').checked;
-        
-        // Define colors based on template and toggle
-        let primaryColor, secondaryColor, accentColor;
-        
-        switch(selectedTemplate) {
-          case 'modern':
-            primaryColor = useColorScheme ? PDFLib.rgb(0.2, 0.4, 0.8) : PDFLib.rgb(0.1, 0.1, 0.1);
-            secondaryColor = useColorScheme ? PDFLib.rgb(0.9, 0.95, 1) : PDFLib.rgb(0.95, 0.95, 0.95);
-            accentColor = useColorScheme ? PDFLib.rgb(0.1, 0.6, 0.9) : PDFLib.rgb(0.3, 0.3, 0.3);
-            break;
-          case 'classic':
-            primaryColor = PDFLib.rgb(0.3, 0.2, 0.1);
-            secondaryColor = PDFLib.rgb(0.98, 0.96, 0.94);
-            accentColor = PDFLib.rgb(0.6, 0.4, 0.2);
-            break;
-          case 'minimal':
-            primaryColor = PDFLib.rgb(0.2, 0.2, 0.2);
-            secondaryColor = PDFLib.rgb(1, 1, 1);
-            accentColor = PDFLib.rgb(0.5, 0.5, 0.5);
-            break;
-          case 'professional':
-            primaryColor = PDFLib.rgb(0, 0.3, 0.5);
-            secondaryColor = PDFLib.rgb(0.97, 0.98, 0.99);
-            accentColor = PDFLib.rgb(0, 0.5, 0.8);
-            break;
-          default:
-            primaryColor = PDFLib.rgb(0.1, 0.1, 0.1);
-            secondaryColor = PDFLib.rgb(0.95, 0.95, 0.95);
-            accentColor = PDFLib.rgb(0.3, 0.3, 0.3);
-        }
-        
         // Set initial coordinates
-        let y = 800;
+        let y = 820;
         
-        // Add watermark if enabled
-        if (addWatermark) {
-          statusMessage.textContent = "Adding watermark...";
-          progressBar.style.width = "15%";
-          
-          const watermarkText = isPaid ? "PAID" : "UNPAID";
-          const watermarkColor = isPaid ? 
-            PDFLib.rgb(0.2, 0.8, 0.3, 0.1) : 
-            PDFLib.rgb(0.8, 0.2, 0.2, 0.1);
-          
-          page.drawText(watermarkText, {
-            x: 200,
-            y: 400,
-            size: 80,
-            font: helveticaBoldFont,
-            color: watermarkColor,
-            rotate: PDFLib.degrees(45),
-          });
-        }
-        
-        // Add header with logo or text
+        // Add company header - centered
         statusMessage.textContent = "Creating header...";
-        progressBar.style.width = "25%";
+        progressBar.style.width = "20%";
         
-        // Draw header background based on template
-        if (selectedTemplate === 'modern' || selectedTemplate === 'professional') {
-          page.drawRectangle({
-            x: 0,
-            y: 750,
-            width: 595.28,
-            height: 80,
-            color: primaryColor,
-          });
-        }
-        
-        // Try to load logo if enabled
-        let logoImage = null;
-        if (addLogo) {
-          try {
-            // For demo, we'll create a simple text logo
-            // In production, you would load an actual logo image
-            page.drawText("MYRTILLE INDUSTRIES", {
-              x: 50,
-              y: 780,
-              size: 24,
-              font: helveticaBoldFont,
-              color: selectedTemplate === 'modern' || selectedTemplate === 'professional' ? 
-                     PDFLib.rgb(1, 1, 1) : primaryColor,
-            });
-            y = 760;
-          } catch (error) {
-            console.log('Logo not found, using text:', error);
-          }
-        }
-        
-        if (!addLogo) {
-          // Draw company name as text
-          page.drawText("MYRTILLE INDUSTRIES", {
-            x: 50,
-            y: selectedTemplate === 'minimal' ? 780 : 780,
-            size: selectedTemplate === 'minimal' ? 20 : 24,
-            font: helveticaBoldFont,
-            color: selectedTemplate === 'modern' || selectedTemplate === 'professional' ? 
-                   PDFLib.rgb(1, 1, 1) : primaryColor,
-          });
-          
-          y = 760;
-        }
-        
-        // Add company details
-        const companyDetails = [
-          "PLOT-25, DEEPNAGAR, NEAR GUJAR KI THADI, JAIPUR, 302019",
-          "Phone: 9782099489 | Email: myrtilleindia@gmail.com",
-          "GSTIN: 08AMHPY5013C1Z4 | PAN: AMHPY5013C | State: 08-Rajasthan",
-          "Account No.: 921020038756944 | IFSC: UTIB0002582 | Axis Bank, Swej Farm, Jaipur"
-        ];
-        
-        let detailY = y;
-        companyDetails.forEach(detail => {
-          page.drawText(detail, {
-            x: 50,
-            y: detailY,
-            size: 8,
-            font: helveticaFont,
-            color: selectedTemplate === 'modern' || selectedTemplate === 'professional' ? 
-                   PDFLib.rgb(0.9, 0.9, 0.9) : PDFLib.rgb(0.3, 0.3, 0.3),
-          });
-          detailY -= 12;
-        });
-        
-        y = detailY - 30;
-        
-        // Add invoice title and details
-        statusMessage.textContent = "Adding invoice details...";
-        progressBar.style.width = "35%";
-        
-        // Draw invoice title with style based on template
-        const titleBackgroundHeight = selectedTemplate === 'modern' ? 40 : 30;
-        const titleY = y;
-        
-        if (selectedTemplate !== 'minimal') {
-          page.drawRectangle({
-            x: 0,
-            y: titleY,
-            width: 595.28,
-            height: titleBackgroundHeight,
-            color: selectedTemplate === 'modern' || selectedTemplate === 'professional' ? 
-                   accentColor : secondaryColor,
-          });
-        }
-        
-        page.drawText("TAX INVOICE", {
-          x: 50,
-          y: titleY + (selectedTemplate === 'minimal' ? 5 : 12),
-          size: selectedTemplate === 'minimal' ? 18 : 20,
-          font: helveticaBoldFont,
-          color: selectedTemplate === 'minimal' ? primaryColor : PDFLib.rgb(1, 1, 1),
-        });
-        
-        // Add invoice number and dates on right
-        const invoiceNumber = document.getElementById('invoiceNumber').value;
-        const invoiceDate = document.getElementById('invoiceDate').value;
-        const dueDate = document.getElementById('dueDate').value;
-        
-        const detailsRightX = 400;
-        let detailsRightY = titleY + 15;
-        
-        page.drawText(`Invoice No: ${invoiceNumber}`, {
-          x: detailsRightX,
-          y: detailsRightY,
-          size: 10,
-          font: helveticaBoldFont,
-          color: selectedTemplate === 'minimal' ? primaryColor : PDFLib.rgb(1, 1, 1),
-        });
-        
-        detailsRightY -= 15;
-        
-        page.drawText(`Invoice Date: ${formatDate(invoiceDate)}`, {
-          x: detailsRightX,
-          y: detailsRightY,
-          size: 9,
-          font: helveticaFont,
-          color: selectedTemplate === 'minimal' ? PDFLib.rgb(0.3, 0.3, 0.3) : PDFLib.rgb(0.9, 0.9, 0.9),
-        });
-        
-        detailsRightY -= 12;
-        
-        if (dueDate) {
-          page.drawText(`Due Date: ${formatDate(dueDate)}`, {
-            x: detailsRightX,
-            y: detailsRightY,
-            size: 9,
-            font: helveticaFont,
-            color: selectedTemplate === 'minimal' ? PDFLib.rgb(0.3, 0.3, 0.3) : PDFLib.rgb(0.9, 0.9, 0.9),
-          });
-          detailsRightY -= 12;
-        }
-        
-        const poNumber = document.getElementById('poNumber').value;
-        if (poNumber) {
-          page.drawText(`PO Number: ${poNumber}`, {
-            x: detailsRightX,
-            y: detailsRightY,
-            size: 9,
-            font: helveticaFont,
-            color: selectedTemplate === 'minimal' ? PDFLib.rgb(0.3, 0.3, 0.3) : PDFLib.rgb(0.9, 0.9, 0.9),
-          });
-        }
-        
-        y = titleY - titleBackgroundHeight - 30;
-        
-        // Add bill to section
-        const customerName = document.getElementById('customerName').value;
-        const customerAddress = document.getElementById('customerAddress').value;
-        const customerContact = document.getElementById('customerContact').value;
-        const customerEmail = document.getElementById('customerEmail').value;
-        const customerGST = document.getElementById('customerGST').value;
-        const customerState = document.getElementById('customerState').value;
-        
-        page.drawText("BILL TO:", {
-          x: 50,
+        // Company name centered
+        page.drawText("MYRTILLE INDUSTRIES", {
+          x: 200,
           y: y,
-          size: 11,
-          font: helveticaBoldFont,
-          color: primaryColor,
-        });
-        
-        y -= 15;
-        
-        page.drawText(customerName, {
-          x: 50,
-          y: y,
-          size: 10,
+          size: 24,
           font: helveticaBoldFont,
           color: PDFLib.rgb(0.1, 0.1, 0.1),
         });
         
-        y -= 12;
+        y -= 25;
         
-        // Split address if too long
-        const addressLines = splitText(customerAddress, 60);
-        addressLines.forEach(line => {
-          page.drawText(line, {
-            x: 50,
-            y: y,
-            size: 9,
-            font: helveticaFont,
-            color: PDFLib.rgb(0.3, 0.3, 0.3),
-          });
-          y -= 10;
+        // Address centered below company name
+        page.drawText("PLOT-25, DEEPNAGAR, NEAR GUJAR KI THADI, JAIPUR, 302019", {
+          x: 120,
+          y: y,
+          size: 10,
+          font: helveticaFont,
+          color: PDFLib.rgb(0.3, 0.3, 0.3),
         });
         
-        page.drawText(`Contact: ${customerContact}`, {
+        y -= 30;
+        
+        // Draw line separator
+        page.drawLine({
+          start: { x: 50, y: y },
+          end: { x: 545, y: y },
+          thickness: 1,
+          color: PDFLib.rgb(0.8, 0.8, 0.8),
+        });
+        
+        y -= 20;
+        
+        // Contact details on left, GST/PAN on right
+        page.drawText("Phone: 9782099489", {
           x: 50,
           y: y,
           size: 9,
@@ -1396,42 +879,175 @@ IFSC: UTIB0002582</textarea>
           color: PDFLib.rgb(0.3, 0.3, 0.3),
         });
         
-        y -= 10;
+        page.drawText("Email: myrtilleindia@gmail.com", {
+          x: 50,
+          y: y - 12,
+          size: 9,
+          font: helveticaFont,
+          color: PDFLib.rgb(0.3, 0.3, 0.3),
+        });
         
-        if (customerEmail) {
-          page.drawText(`Email: ${customerEmail}`, {
+        page.drawText("GSTIN: 08AMHPY5013C1Z4", {
+          x: 350,
+          y: y,
+          size: 9,
+          font: helveticaFont,
+          color: PDFLib.rgb(0.3, 0.3, 0.3),
+        });
+        
+        page.drawText("PAN: AMHPY5013C", {
+          x: 350,
+          y: y - 12,
+          size: 9,
+          font: helveticaFont,
+          color: PDFLib.rgb(0.3, 0.3, 0.3),
+        });
+        
+        y -= 40;
+        
+        // Invoice title
+        page.drawText("TAX INVOICE", {
+          x: 250,
+          y: y,
+          size: 18,
+          font: helveticaBoldFont,
+          color: PDFLib.rgb(0.1, 0.1, 0.1),
+        });
+        
+        y -= 40;
+        
+        // Bill To section on left
+        const customerName = document.getElementById('customerName').value;
+        const customerAddress = document.getElementById('customerAddress').value;
+        const customerContact = document.getElementById('customerContact').value;
+        const customerEmail = document.getElementById('customerEmail').value;
+        const customerGST = document.getElementById('customerGST').value;
+        
+        page.drawText("BILL TO:", {
+          x: 50,
+          y: y,
+          size: 11,
+          font: helveticaBoldFont,
+          color: PDFLib.rgb(0.2, 0.4, 0.8),
+        });
+        
+        let billY = y - 15;
+        
+        page.drawText(customerName, {
+          x: 50,
+          y: billY,
+          size: 10,
+          font: helveticaBoldFont,
+          color: PDFLib.rgb(0.1, 0.1, 0.1),
+        });
+        
+        billY -= 12;
+        
+        // Split address if too long
+        const addressLines = splitText(customerAddress, 40);
+        addressLines.forEach(line => {
+          page.drawText(line, {
             x: 50,
-            y: y,
+            y: billY,
             size: 9,
             font: helveticaFont,
             color: PDFLib.rgb(0.3, 0.3, 0.3),
           });
-          y -= 10;
+          billY -= 10;
+        });
+        
+        if (customerContact) {
+          page.drawText(`Contact: ${customerContact}`, {
+            x: 50,
+            y: billY,
+            size: 9,
+            font: helveticaFont,
+            color: PDFLib.rgb(0.3, 0.3, 0.3),
+          });
+          billY -= 10;
+        }
+        
+        if (customerEmail) {
+          page.drawText(`Email: ${customerEmail}`, {
+            x: 50,
+            y: billY,
+            size: 9,
+            font: helveticaFont,
+            color: PDFLib.rgb(0.3, 0.3, 0.3),
+          });
+          billY -= 10;
         }
         
         if (customerGST) {
           page.drawText(`GSTIN: ${customerGST}`, {
             x: 50,
-            y: y,
+            y: billY,
             size: 9,
             font: helveticaFont,
             color: PDFLib.rgb(0.3, 0.3, 0.3),
           });
-          y -= 10;
         }
         
-        if (customerState) {
-          page.drawText(`State Code: ${customerState}`, {
-            x: 50,
-            y: y,
+        // Invoice details on right
+        const invoiceNumber = document.getElementById('invoiceNumber').value;
+        const invoiceDate = document.getElementById('invoiceDate').value;
+        const dueDate = document.getElementById('dueDate').value;
+        const poNumber = document.getElementById('poNumber').value;
+        
+        let invoiceY = y;
+        
+        page.drawText("INVOICE DETAILS:", {
+          x: 350,
+          y: invoiceY,
+          size: 11,
+          font: helveticaBoldFont,
+          color: PDFLib.rgb(0.2, 0.4, 0.8),
+        });
+        
+        invoiceY -= 15;
+        
+        page.drawText(`Invoice No: ${invoiceNumber}`, {
+          x: 350,
+          y: invoiceY,
+          size: 9,
+          font: helveticaFont,
+          color: PDFLib.rgb(0.3, 0.3, 0.3),
+        });
+        
+        invoiceY -= 12;
+        
+        page.drawText(`Invoice Date: ${formatDate(invoiceDate)}`, {
+          x: 350,
+          y: invoiceY,
+          size: 9,
+          font: helveticaFont,
+          color: PDFLib.rgb(0.3, 0.3, 0.3),
+        });
+        
+        invoiceY -= 12;
+        
+        if (dueDate) {
+          page.drawText(`Due Date: ${formatDate(dueDate)}`, {
+            x: 350,
+            y: invoiceY,
             size: 9,
             font: helveticaFont,
             color: PDFLib.rgb(0.3, 0.3, 0.3),
           });
-          y -= 10;
+          invoiceY -= 12;
         }
         
-        y -= 30;
+        if (poNumber) {
+          page.drawText(`PO Number: ${poNumber}`, {
+            x: 350,
+            y: invoiceY,
+            size: 9,
+            font: helveticaFont,
+            color: PDFLib.rgb(0.3, 0.3, 0.3),
+          });
+        }
+        
+        y = Math.min(billY, invoiceY) - 30;
         
         // Add items table
         statusMessage.textContent = "Adding invoice items...";
@@ -1440,7 +1056,6 @@ IFSC: UTIB0002582</textarea>
         const tableHeaders = ["#", "Item Description", "HSN/SAC", "Qty", "Unit Price", "GST %", "Amount"];
         const columnWidths = [25, 180, 60, 40, 70, 50, 80];
         const tableStartY = y;
-        let tableEndY = y;
         
         // Draw table header background
         page.drawRectangle({
@@ -1448,8 +1063,8 @@ IFSC: UTIB0002582</textarea>
           y: y - 5,
           width: 505,
           height: 25,
-          color: selectedTemplate === 'minimal' ? PDFLib.rgb(0.95, 0.95, 0.95) : accentColor,
-          borderColor: primaryColor,
+          color: PDFLib.rgb(0.95, 0.95, 0.95),
+          borderColor: PDFLib.rgb(0.7, 0.7, 0.7),
           borderWidth: 1,
         });
         
@@ -1461,13 +1076,12 @@ IFSC: UTIB0002582</textarea>
             y: y,
             size: 9,
             font: helveticaBoldFont,
-            color: selectedTemplate === 'minimal' ? primaryColor : PDFLib.rgb(1, 1, 1),
+            color: PDFLib.rgb(0.1, 0.1, 0.1),
           });
           x += columnWidths[index];
         });
         
         y -= 25;
-        tableEndY = y;
         
         // Add table rows
         const rows = document.querySelectorAll('#itemsTableBody tr');
@@ -1489,7 +1103,7 @@ IFSC: UTIB0002582</textarea>
           const rowHeight = 20 + (itemLines.length - 1) * 10;
           
           // Draw row background for alternate rows
-          if (index % 2 === 0 && selectedTemplate !== 'minimal') {
+          if (index % 2 === 0) {
             page.drawRectangle({
               x: 45,
               y: y - rowHeight + 5,
@@ -1568,39 +1182,91 @@ IFSC: UTIB0002582</textarea>
           });
           
           y -= rowHeight;
-          tableEndY = y;
         });
         
         // Draw table bottom border
         page.drawLine({
-          start: { x: 45, y: tableEndY + 5 },
-          end: { x: 550, y: tableEndY + 5 },
+          start: { x: 45, y: y + 5 },
+          end: { x: 550, y: y + 5 },
           thickness: 1,
-          color: primaryColor,
+          color: PDFLib.rgb(0.7, 0.7, 0.7),
         });
         
-        y = tableEndY - 30;
+        y -= 30;
         
-        // Add totals section
+        // Payment details on left side
+        const paymentMode = document.getElementById('paymentMode').value;
+        const amountReceived = parseFloat(document.getElementById('amountReceived').value) || 0;
+        const balance = parseFloat(totals.totalAmount) - amountReceived;
+        
+        page.drawText("PAYMENT DETAILS:", {
+          x: 50,
+          y: y,
+          size: 11,
+          font: helveticaBoldFont,
+          color: PDFLib.rgb(0.2, 0.4, 0.8),
+        });
+        
+        let paymentY = y - 15;
+        
+        page.drawText(`Payment Mode: ${paymentMode}`, {
+          x: 50,
+          y: paymentY,
+          size: 9,
+          font: helveticaFont,
+          color: PDFLib.rgb(0.3, 0.3, 0.3),
+        });
+        
+        paymentY -= 12;
+        
+        if (paymentMode === "Bank Transfer") {
+          const bankDetails = [
+            "Account Name: Myrtille Industries",
+            "Account No.: 921020038756944",
+            "Bank: Axis Bank, Swej Farm, Jaipur",
+            "IFSC: UTIB0002582"
+          ];
+          
+          bankDetails.forEach(line => {
+            page.drawText(line, {
+              x: 50,
+              y: paymentY,
+              size: 9,
+              font: helveticaFont,
+              color: PDFLib.rgb(0.3, 0.3, 0.3),
+            });
+            paymentY -= 10;
+          });
+        }
+        
+        // Terms and conditions (one line)
+        const terms = document.getElementById('terms').value;
+        const termsLine = splitText(terms, 70)[0];
+        
+        page.drawText(`Terms: ${termsLine}`, {
+          x: 50,
+          y: paymentY - 20,
+          size: 8,
+          font: helveticaFont,
+          color: PDFLib.rgb(0.4, 0.4, 0.4),
+        });
+        
+        // Totals box on right side
         statusMessage.textContent = "Calculating totals...";
         progressBar.style.width = "70%";
         
-        const amountReceived = parseFloat(document.getElementById('amountReceived').value) || 0;
-        const balance = parseFloat(totals.totalAmount) - amountReceived;
-        const paymentMode = document.getElementById('paymentMode').value;
-        
-        // Draw totals box
         const totalsBoxWidth = 250;
         const totalsBoxX = 550 - totalsBoxWidth;
-        const totalsBoxHeight = 150;
+        const totalsBoxHeight = 170;
         
+        // Draw totals box
         page.drawRectangle({
           x: totalsBoxX - 10,
           y: y - totalsBoxHeight,
           width: totalsBoxWidth,
           height: totalsBoxHeight,
           color: PDFLib.rgb(0.98, 0.98, 0.98),
-          borderColor: primaryColor,
+          borderColor: PDFLib.rgb(0.7, 0.7, 0.7),
           borderWidth: 1,
         });
         
@@ -1623,18 +1289,17 @@ IFSC: UTIB0002582</textarea>
         totalsData.push(
           ["Total Amount", `Rs. ${totals.totalAmount}`],
           ["Amount Received", `- Rs. ${amountReceived.toFixed(2)}`],
-          ["Balance Due", `Rs. ${balance.toFixed(2)}`]
         );
         
         totalsData.forEach(([label, value], index) => {
-          const isTotal = label === "Total Amount" || label === "Balance Due";
+          const isTotal = label === "Total Amount";
           
           page.drawText(label, {
             x: totalsBoxX,
             y: totalsY,
             size: isTotal ? 10 : 9,
             font: isTotal ? helveticaBoldFont : helveticaFont,
-            color: isTotal ? primaryColor : PDFLib.rgb(0.3, 0.3, 0.3),
+            color: isTotal ? PDFLib.rgb(0.1, 0.1, 0.1) : PDFLib.rgb(0.3, 0.3, 0.3),
           });
           
           page.drawText(value, {
@@ -1642,7 +1307,7 @@ IFSC: UTIB0002582</textarea>
             y: totalsY,
             size: isTotal ? 10 : 9,
             font: isTotal ? helveticaBoldFont : helveticaFont,
-            color: isTotal ? primaryColor : PDFLib.rgb(0.3, 0.3, 0.3),
+            color: isTotal ? PDFLib.rgb(0.1, 0.1, 0.1) : PDFLib.rgb(0.3, 0.3, 0.3),
           });
           
           totalsY -= isTotal ? 15 : 12;
@@ -1659,131 +1324,98 @@ IFSC: UTIB0002582</textarea>
           }
         });
         
-        y = totalsY - 20;
+        // Balance Due in bold
+        page.drawText("Balance Due", {
+          x: totalsBoxX,
+          y: totalsY,
+          size: 10,
+          font: helveticaBoldFont,
+          color: PDFLib.rgb(0.9, 0.2, 0.2),
+        });
         
-        // Add amount in words on left side
+        page.drawText(`Rs. ${balance.toFixed(2)}`, {
+          x: totalsBoxX + 150,
+          y: totalsY,
+          size: 10,
+          font: helveticaBoldFont,
+          color: PDFLib.rgb(0.9, 0.2, 0.2),
+        });
+        
+        totalsY -= 25;
+        
+        // Amount in words (only rupees part)
         const amountWords = numberToWords(totals.totalAmount);
-        const wordsLines = splitText(`Amount in Words: ${amountWords}`, 70);
+        const wordsLines = splitText(`Amount in Words: ${amountWords}`, 40);
         
-        let wordsY = y;
         wordsLines.forEach(line => {
           page.drawText(line, {
-            x: 50,
-            y: wordsY,
+            x: totalsBoxX,
+            y: totalsY,
+            size: 8,
+            font: helveticaFont,
+            color: PDFLib.rgb(0.3, 0.3, 0.3),
+          });
+          totalsY -= 10;
+        });
+        
+        y = paymentY - 40;
+        
+        // Add signature section
+        statusMessage.textContent = "Adding signature...";
+        progressBar.style.width = "90%";
+        
+        // Try to load signature image
+        try {
+          // In production, you would load an actual signature image
+          // For demo, we'll create a signature line
+          page.drawLine({
+            start: { x: 400, y: y },
+            end: { x: 550, y: y },
+            thickness: 1,
+            color: PDFLib.rgb(0.1, 0.1, 0.1),
+          });
+          
+          page.drawText("For Myrtille Industries", {
+            x: 400,
+            y: y - 15,
+            size: 10,
+            font: helveticaBoldFont,
+            color: PDFLib.rgb(0.1, 0.1, 0.1),
+          });
+          
+          page.drawText("Authorized Signatory", {
+            x: 400,
+            y: y - 30,
             size: 9,
             font: helveticaFont,
             color: PDFLib.rgb(0.3, 0.3, 0.3),
           });
-          wordsY -= 12;
-        });
-        
-        y = wordsY - 20;
-        
-        // Add payment details
-        statusMessage.textContent = "Adding payment details...";
-        progressBar.style.width = "85%";
-        
-        page.drawText("PAYMENT DETAILS:", {
-          x: 50,
-          y: y,
-          size: 10,
-          font: helveticaBoldFont,
-          color: primaryColor,
-        });
-        
-        y -= 15;
-        
-        page.drawText(`Payment Mode: ${paymentMode}`, {
-          x: 50,
-          y: y,
-          size: 9,
-          font: helveticaFont,
-          color: PDFLib.rgb(0.3, 0.3, 0.3),
-        });
-        
-        y -= 12;
-        
-        if (paymentMode === "Bank Transfer") {
-          const bankDetails = document.getElementById('bankDetails').value;
-          const bankLines = splitText(bankDetails, 60);
+        } catch (error) {
+          console.log('Signature image not found, using text');
           
-          bankLines.forEach(line => {
-            page.drawText(line, {
-              x: 50,
-              y: y,
-              size: 9,
-              font: helveticaFont,
-              color: PDFLib.rgb(0.3, 0.3, 0.3),
-            });
-            y -= 10;
+          page.drawLine({
+            start: { x: 400, y: y },
+            end: { x: 550, y: y },
+            thickness: 1,
+            color: PDFLib.rgb(0.1, 0.1, 0.1),
           });
-        }
-        
-        y -= 20;
-        
-        // Add terms and conditions
-        const terms = document.getElementById('terms').value;
-        const termsLines = splitText(`Terms & Conditions: ${terms}`, 90);
-        
-        let termsY = y;
-        termsLines.forEach(line => {
-          page.drawText(line, {
-            x: 50,
-            y: termsY,
-            size: 8,
+          
+          page.drawText("For Myrtille Industries", {
+            x: 400,
+            y: y - 15,
+            size: 10,
+            font: helveticaBoldFont,
+            color: PDFLib.rgb(0.1, 0.1, 0.1),
+          });
+          
+          page.drawText("Authorized Signatory", {
+            x: 400,
+            y: y - 30,
+            size: 9,
             font: helveticaFont,
-            color: PDFLib.rgb(0.4, 0.4, 0.4),
-          });
-          termsY -= 10;
-        });
-        
-        // Add notes if any
-        const notes = document.getElementById('notes').value;
-        if (notes) {
-          const notesLines = splitText(`Notes: ${notes}`, 90);
-          
-          notesLines.forEach(line => {
-            page.drawText(line, {
-              x: 50,
-              y: termsY,
-              size: 8,
-              font: helveticaFont,
-              color: PDFLib.rgb(0.4, 0.4, 0.4),
-            });
-            termsY -= 10;
+            color: PDFLib.rgb(0.3, 0.3, 0.3),
           });
         }
-        
-        // Add signature section
-        statusMessage.textContent = "Adding signature...";
-        progressBar.style.width = "95%";
-        
-        // Calculate signature position
-        let signatureY = termsY - 50;
-        
-        // Draw signature line
-        page.drawLine({
-          start: { x: 400, y: signatureY },
-          end: { x: 550, y: signatureY },
-          thickness: 1,
-          color: PDFLib.rgb(0.5, 0.5, 0.5),
-        });
-        
-        page.drawText("For Myrtille Industries", {
-          x: 400,
-          y: signatureY - 15,
-          size: 10,
-          font: helveticaBoldFont,
-          color: primaryColor,
-        });
-        
-        page.drawText("Authorized Signatory", {
-          x: 400,
-          y: signatureY - 30,
-          size: 9,
-          font: helveticaFont,
-          color: PDFLib.rgb(0.3, 0.3, 0.3),
-        });
         
         // Add footer
         page.drawText("Thank you for your business!", {
@@ -1791,7 +1423,7 @@ IFSC: UTIB0002582</textarea>
           y: 30,
           size: 10,
           font: helveticaObliqueFont,
-          color: accentColor,
+          color: PDFLib.rgb(0.2, 0.4, 0.8),
         });
         
         page.drawText("Software Generated Invoice | Myrtille Industries Invoice System", {
@@ -1811,7 +1443,7 @@ IFSC: UTIB0002582</textarea>
         
         // Generate filename
         const invoiceNumberClean = invoiceNumber.replace(/[^a-zA-Z0-9]/g, '_');
-        const filename = `Myrtille_Invoice_${invoiceNumberClean}_${selectedTemplate}.pdf`;
+        const filename = `Myrtille_Invoice_${invoiceNumberClean}.pdf`;
         
         // Save file
         saveAs(blob, filename);
@@ -1881,24 +1513,9 @@ IFSC: UTIB0002582</textarea>
         document.getElementById('itemsTableBody').innerHTML = '';
         addItemRow();
         
-        // Reset toggles
-        document.getElementById('logoToggle').classList.remove('active');
-        document.getElementById('watermarkToggle').classList.remove('active');
-        document.getElementById('qrCodeToggle').classList.remove('active');
-        document.getElementById('colorSchemeToggle').classList.remove('active');
-        document.getElementById('paidStatus').checked = true;
-        
-        // Reset template
-        selectTemplate('modern');
-        
         // Add sample data
         addSampleData();
       }
-    }
-    
-    // Function to save as template
-    function saveTemplate() {
-      alert('Template saved! In a real application, this would save your current form data as a template for future use.');
     }
     
     // Function to add sample data for demo
