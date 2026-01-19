@@ -757,53 +757,51 @@
       // Convert crore part
       const crore = Math.floor(rupees / 10000000);
       if (crore > 0) {
-        rupeesWords += numberToWords(crore) + 'crore ';
-        rupees %= 10000000;
+        rupeesWords += numberToWordsForPart(crore) + 'crore ';
       }
       
       // Convert lakh part
-      const lakh = Math.floor(rupees / 100000);
+      const lakh = Math.floor((rupees % 10000000) / 100000);
       if (lakh > 0) {
-        if (lakh < 20) {
-          rupeesWords += a[lakh] + 'lakh ';
-        } else {
-          rupeesWords += b[Math.floor(lakh / 10)] + (lakh % 10 !== 0 ? ' ' + a[lakh % 10] : '') + ' lakh ';
-        }
-        rupees %= 100000;
+        rupeesWords += numberToWordsForPart(lakh) + 'lakh ';
       }
       
       // Convert thousand part
-      const thousand = Math.floor(rupees / 1000);
+      const thousand = Math.floor((rupees % 100000) / 1000);
       if (thousand > 0) {
-        if (thousand < 20) {
-          rupeesWords += a[thousand] + 'thousand ';
-        } else {
-          const tenThousand = Math.floor(thousand / 10);
-          const unitThousand = thousand % 10;
-          rupeesWords += b[tenThousand] + (unitThousand !== 0 ? ' ' + a[unitThousand] : '') + ' thousand ';
-        }
-        rupees %= 1000;
+        rupeesWords += numberToWordsForPart(thousand) + 'thousand ';
       }
       
       // Convert hundred part
-      const hundred = Math.floor(rupees / 100);
+      const hundred = Math.floor((rupees % 1000) / 100);
       if (hundred > 0) {
-        rupeesWords += a[hundred] + 'hundred ';
-        rupees %= 100;
+        rupeesWords += numberToWordsForPart(hundred) + 'hundred ';
       }
       
       // Convert tens and units
-      if (rupees > 0) {
-        if (rupees < 20) {
-          rupeesWords += a[rupees];
-        } else {
-          const tens = Math.floor(rupees / 10);
-          const units = rupees % 10;
-          rupeesWords += b[tens] + (units !== 0 ? ' ' + a[units] : '');
+      const tensAndUnits = rupees % 100;
+      if (tensAndUnits > 0) {
+        if (rupeesWords !== '') {
+          rupeesWords += 'and ';
         }
+        rupeesWords += numberToWordsForPart(tensAndUnits);
       }
       
       return rupeesWords.trim().charAt(0).toUpperCase() + rupeesWords.trim().slice(1) + ' Rupees only';
+    }
+    
+    // Helper function for number to words conversion
+    function numberToWordsForPart(num) {
+      const a = ['', 'one ', 'two ', 'three ', 'four ', 'five ', 'six ', 'seven ', 'eight ', 'nine ', 'ten ', 'eleven ', 'twelve ', 'thirteen ', 'fourteen ', 'fifteen ', 'sixteen ', 'seventeen ', 'eighteen ', 'nineteen '];
+      const b = ['', '', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety'];
+      
+      if (num < 20) {
+        return a[num];
+      } else {
+        const tens = Math.floor(num / 10);
+        const units = num % 10;
+        return b[tens] + (units !== 0 ? ' ' + a[units] : '');
+      }
     }
     
     // Function to generate invoice PDF
@@ -1364,58 +1362,29 @@
         statusMessage.textContent = "Adding signature...";
         progressBar.style.width = "90%";
         
-        // Try to load signature image
-        try {
-          // In production, you would load an actual signature image
-          // For demo, we'll create a signature line
-          page.drawLine({
-            start: { x: 400, y: y },
-            end: { x: 550, y: y },
-            thickness: 1,
-            color: PDFLib.rgb(0.1, 0.1, 0.1),
-          });
-          
-          page.drawText("For Myrtille Industries", {
-            x: 400,
-            y: y - 15,
-            size: 10,
-            font: helveticaBoldFont,
-            color: PDFLib.rgb(0.1, 0.1, 0.1),
-          });
-          
-          page.drawText("Authorized Signatory", {
-            x: 400,
-            y: y - 30,
-            size: 9,
-            font: helveticaFont,
-            color: PDFLib.rgb(0.3, 0.3, 0.3),
-          });
-        } catch (error) {
-          console.log('Signature image not found, using text');
-          
-          page.drawLine({
-            start: { x: 400, y: y },
-            end: { x: 550, y: y },
-            thickness: 1,
-            color: PDFLib.rgb(0.1, 0.1, 0.1),
-          });
-          
-          page.drawText("For Myrtille Industries", {
-            x: 400,
-            y: y - 15,
-            size: 10,
-            font: helveticaBoldFont,
-            color: PDFLib.rgb(0.1, 0.1, 0.1),
-          });
-          
-          page.drawText("Authorized Signatory", {
-            x: 400,
-            y: y - 30,
-            size: 9,
-            font: helveticaFont,
-            color: PDFLib.rgb(0.3, 0.3, 0.3),
-          });
-        }
+        // Draw signature line
+        page.drawLine({
+          start: { x: 400, y: y },
+          end: { x: 550, y: y },
+          thickness: 1,
+          color: PDFLib.rgb(0.1, 0.1, 0.1),
+        });
+        
+        page.drawText("For Myrtille Industries", {
+          x: 400,
+          y: y - 15,
+          size: 10,
+          font: helveticaBoldFont,
+          color: PDFLib.rgb(0.1, 0.1, 0.1),
+        });
+        
+        page.drawText("Authorized Signatory", {
+          x: 400,
+          y: y - 30,
+          size: 9,
+          font: helveticaFont,
+          color: PDFLib.rgb(0.3, 0.3, 0.3),
+        });
         
         // Add footer
         page.drawText("Thank you for your business!", {
