@@ -365,9 +365,9 @@
                 <th>Item Description</th>
                 <th>HSN/SAC</th>
                 <th>Qty</th>
-                <th>Price/Unit (₹)</th>
+                <th>Price/Unit (Rs.)</th>
                 <th>GST %</th>
-                <th>Amount (₹)</th>
+                <th>Amount (Rs.)</th>
                 <th>Actions</th>
               </tr>
             </thead>
@@ -382,12 +382,12 @@
           
           <div class="form-row" style="margin-top: 20px;">
             <div class="form-group">
-              <label for="discount">Discount (₹)</label>
+              <label for="discount">Discount (Rs.)</label>
               <input type="number" id="discount" value="0" min="0" step="0.01">
             </div>
             
             <div class="form-group">
-              <label for="shipping">Shipping Charges (₹)</label>
+              <label for="shipping">Shipping Charges (Rs.)</label>
               <input type="number" id="shipping" value="0" min="0" step="0.01">
             </div>
           </div>
@@ -402,7 +402,7 @@
           
           <div class="form-row">
             <div class="form-group">
-              <label for="amountReceived">Amount Received (₹)</label>
+              <label for="amountReceived">Amount Received (Rs.)</label>
               <input type="number" id="amountReceived" value="0" min="0" step="0.01">
             </div>
             
@@ -496,7 +496,7 @@
             <option value="28" ${itemData.gst === 28 ? 'selected' : ''}>28%</option>
           </select>
         </td>
-        <td class="item-amount">₹ 0.00</td>
+        <td class="item-amount">Rs. 0.00</td>
         <td>
           <div class="action-buttons">
             <button type="button" class="action-btn" style="background:#3498db;color:white;" onclick="calculateItemAmount(this)">Calc</button>
@@ -526,7 +526,7 @@
       const gstAmount = subtotal * (gst / 100);
       const total = subtotal + gstAmount;
       
-      row.querySelector('.item-amount').textContent = `₹ ${total.toFixed(2)}`;
+      row.querySelector('.item-amount').textContent = `Rs. ${total.toFixed(2)}`;
       updateRowNumbers();
     }
     
@@ -913,14 +913,14 @@
           page.drawText(quantity, { x: x, y: y, size: 9, font: helvetica, color: PDFLib.rgb(0.1, 0.1, 0.1) });
           x += columnWidths[3];
           
-          page.drawText(`₹ ${price.toFixed(2)}`, { x: x, y: y, size: 9, font: helvetica, color: PDFLib.rgb(0.1, 0.1, 0.1) });
+          page.drawText(`Rs. ${price.toFixed(2)}`, { x: x, y: y, size: 9, font: helvetica, color: PDFLib.rgb(0.1, 0.1, 0.1) });
           x += columnWidths[4];
           
           page.drawText(`${gst}%`, { x: x, y: y, size: 9, font: helvetica, color: PDFLib.rgb(0.1, 0.1, 0.1) });
           x += columnWidths[5];
           
           const amount = (parseFloat(quantity) * price) * (1 + parseFloat(gst)/100);
-          page.drawText(`₹ ${amount.toFixed(2)}`, { x: x, y: y, size: 9, font: helvetica, color: PDFLib.rgb(0.1, 0.1, 0.1) });
+          page.drawText(`Rs. ${amount.toFixed(2)}`, { x: x, y: y, size: 9, font: helvetica, color: PDFLib.rgb(0.1, 0.1, 0.1) });
           
           y -= 25;
         });
@@ -1006,22 +1006,22 @@
         });
         
         const totalsData = [
-          ["Sub Total", `₹ ${totals.subtotal}`],
-          ["Discount", `- ₹ ${totals.discount}`],
-          ["Shipping", `+ ₹ ${totals.shipping}`],
+          ["Sub Total", `Rs. ${totals.subtotal}`],
+          ["Discount", `- Rs. ${totals.discount}`],
+          ["Shipping", `+ Rs. ${totals.shipping}`],
         ];
         
         if (totals.isSameState) {
-          totalsData.push(["CGST @9%", `₹ ${totals.cgst}`]);
-          totalsData.push(["SGST @9%", `₹ ${totals.sgst}`]);
+          totalsData.push(["CGST @9%", `Rs. ${totals.cgst}`]);
+          totalsData.push(["SGST @9%", `Rs. ${totals.sgst}`]);
         } else {
-          totalsData.push(["IGST @18%", `₹ ${totals.igst}`]);
+          totalsData.push(["IGST @18%", `Rs. ${totals.igst}`]);
         }
         
         totalsData.push(
-          ["Total Amount", `₹ ${totals.totalAmount}`],
-          ["Amount Received", `- ₹ ${totals.amountReceived}`],
-          ["Balance Due", `₹ ${totals.balanceDue}`]
+          ["Total Amount", `Rs. ${totals.totalAmount}`],
+          ["Amount Received", `- Rs. ${totals.amountReceived}`],
+          ["Balance Due", `Rs. ${totals.balanceDue}`]
         );
         
         totalsData.forEach(([label, value], i) => {
