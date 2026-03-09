@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Myrtille Industries - PDF Generator</title>
+  <title>Myrtille Industries · PDF Customiser</title>
   <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -31,7 +31,7 @@
 
     .container {
       width: 100%;
-      max-width: 640px;
+      max-width: 680px; /* slightly wider to accommodate custom name */
       background: rgba(255, 255, 255, 0.2);
       backdrop-filter: blur(16px);
       border-radius: 20px;
@@ -194,15 +194,23 @@
       line-height: 1.4;
     }
 
-    /* Watermark Toggle Styles */
+    /* Watermark Toggle & custom filename row */
+    .options-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      margin: 24px 0 16px;
+    }
+
     .watermark-toggle {
       display: flex;
       align-items: center;
-      justify-content: center;
-      margin: 24px 0;
       color: #f0f0f0;
       font-size: 16px;
       font-weight: 500;
+      flex: 1 1 auto;
     }
 
     .watermark-toggle label {
@@ -259,6 +267,46 @@
 
     .watermark-toggle input:checked + .toggle-switch:hover {
       background: #2db44e;
+    }
+
+    /* custom filename field */
+    .custom-filename {
+      flex: 2 1 260px;
+      display: flex;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 30px;
+      padding: 0 16px;
+      backdrop-filter: blur(8px);
+      transition: border 0.2s, box-shadow 0.2s;
+    }
+
+    .custom-filename i {
+      color: #5b86e5;
+      font-size: 18px;
+      margin-right: 10px;
+    }
+
+    .custom-filename input {
+      background: transparent;
+      border: none;
+      padding: 14px 0;
+      font-size: 15px;
+      color: #f0f0f0;
+      width: 100%;
+      outline: none;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .custom-filename input::placeholder {
+      color: rgba(255, 255, 255, 0.6);
+      font-weight: 300;
+    }
+
+    .custom-filename:focus-within {
+      border-color: #5b86e5;
+      box-shadow: 0 0 0 3px rgba(91, 134, 229, 0.3);
     }
 
     .btn {
@@ -395,51 +443,18 @@
       margin-right: 8px;
     }
 
-    @media (max-width: 768px) {
-      .container {
-        padding: 16px;
-      }
-      .header {
-        padding: 16px;
-      }
-      .header h1 {
-        font-size: 24px;
-      }
-      .upload-area {
-        padding: 24px 16px;
-      }
-      .btn {
-        width: 240px;
-        height: 50px;
-        font-size: 14px;
-        padding: 12px 24px;
-      }
-      .address-btn {
-        max-width: 100%;
-      }
-      .watermark-toggle {
-        font-size: 14px;
-      }
-      .toggle-switch {
-        width: 50px;
-        height: 25px;
-      }
-      .toggle-switch::before {
-        width: 20px;
-        height: 20px;
-        top: 2.5px;
-        left: 2.5px;
-      }
-      .watermark-toggle input:checked + .toggle-switch::before {
-        transform: translateX(25px);
-      }
+    @media (max-width: 700px) {
+      .container { padding: 16px; }
+      .options-row { flex-direction: column; align-items: stretch; }
+      .custom-filename { width: 100%; }
+      .btn { width: 240px; height: 50px; }
     }
   </style>
 </head>
 <body>
   <div class="container">
     <div class="header">
-      <h1><i class="fas fa-file-pdf"></i> Myrtille Industries PDF Generator</h1>
+      <h1><i class="fas fa-file-pdf"></i> Myrtille Industries · PDF Customiser</h1>
     </div>
     
     <div class="upload-area" id="uploadArea">
@@ -480,13 +495,22 @@
       </div>
     </div>
 
-    <!-- Watermark Toggle -->
-    <div class="watermark-toggle">
-      <label for="watermarkToggle">
-        MYRTILLE INDUSTRIES Watermark
-        <input type="checkbox" id="watermarkToggle" aria-label="Enable Watermark">
-        <span class="toggle-switch"></span>
-      </label>
+    <!-- combined row: watermark toggle + custom filename -->
+    <div class="options-row">
+      <!-- Watermark Toggle -->
+      <div class="watermark-toggle">
+        <label for="watermarkToggle">
+          MYRTILLE watermark
+          <input type="checkbox" id="watermarkToggle" aria-label="Enable Watermark">
+          <span class="toggle-switch"></span>
+        </label>
+      </div>
+
+      <!-- Custom filename input (optional) -->
+      <div class="custom-filename">
+        <i class="fas fa-pen"></i>
+        <input type="text" id="customFileName" placeholder="Custom filename (optional)" autocomplete="off">
+      </div>
     </div>
 
     <button class="btn" id="generateBtn" disabled>
@@ -515,13 +539,13 @@
   </div>
 
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
+    (function() {
       const uploadArea = document.getElementById('uploadArea');
       const fileInput = document.getElementById('pdfUpload');
       const generateBtn = document.getElementById('generateBtn');
-      const fileName = document.getElementById('fileName');
-      const fileSize = document.getElementById('fileSize');
-      const filePages = document.getElementById('filePages');
+      const fileNameSpan = document.getElementById('fileName');
+      const fileSizeSpan = document.getElementById('fileSize');
+      const filePagesSpan = document.getElementById('filePages');
       const fileInfo = document.getElementById('fileInfo');
       const statusArea = document.getElementById('statusArea');
       const progressBar = document.getElementById('progressBar');
@@ -532,11 +556,12 @@
       const newAddressBtn = document.getElementById('newAddressBtn');
       const oldAddressBtn = document.getElementById('oldAddressBtn');
       const watermarkToggle = document.getElementById('watermarkToggle');
+      const customFilenameInput = document.getElementById('customFileName');
 
-      let selectedAddress = 'new'; // Default to new address
-      let currentFile = null; // Store the current file
-      
-      // Address data
+      let selectedAddress = 'new'; 
+      let currentFile = null; 
+
+      // Address data (unchanged)
       const addressData = {
         new: {
           address: [
@@ -582,19 +607,16 @@
         newAddressBtn.classList.remove('active');
       });
 
-      // Upload area click handler
-      uploadArea.addEventListener('click', () => {
-        fileInput.click();
-      });
+      // Upload area triggers file input
+      uploadArea.addEventListener('click', () => fileInput.click());
 
-      // Drag and drop functionality
+      // Drag & drop visual
       ['dragenter', 'dragover'].forEach(eventName => {
         uploadArea.addEventListener(eventName, (e) => {
           e.preventDefault();
           uploadArea.classList.add('active');
         });
       });
-
       ['dragleave', 'drop'].forEach(eventName => {
         uploadArea.addEventListener(eventName, (e) => {
           e.preventDefault();
@@ -603,45 +625,37 @@
       });
 
       uploadArea.addEventListener('drop', (e) => {
-        if (e.dataTransfer.files.length) {
-          handleFileSelection(e.dataTransfer.files);
-        }
+        if (e.dataTransfer.files.length) handleFileSelection(e.dataTransfer.files);
       });
 
-      // File input change handler
       fileInput.addEventListener('change', (e) => {
-        if (e.target.files.length) {
-          handleFileSelection(e.target.files);
-        }
+        if (e.target.files.length) handleFileSelection(e.target.files);
       });
 
-      // Handle file selection
       function handleFileSelection(selectedFiles) {
         const validFiles = Array.from(selectedFiles).filter(file => file.type === 'application/pdf');
         if (validFiles.length !== selectedFiles.length) {
           showError("Please select only PDF files");
         }
-        
         if (validFiles.length > 0) {
           currentFile = validFiles[0];
           updateFileInfo();
-          
-          // Reset the file input to allow selecting the same file again
-          fileInput.value = '';
+          fileInput.value = ''; // allow re-upload of same file
         }
       }
 
       function updateFileInfo() {
         if (currentFile) {
           const displayName = currentFile.name.length > 30 ? currentFile.name.substring(0, 27) + '...' : currentFile.name;
-          fileName.textContent = displayName;
-          fileSize.textContent = formatFileSize(currentFile.size);
+          fileNameSpan.textContent = displayName;
+          fileSizeSpan.textContent = formatFileSize(currentFile.size);
           fileInfo.classList.add('active');
           generateBtn.disabled = false;
-          filePages.textContent = "Detecting...";
+          filePagesSpan.textContent = "Detecting...";
+          // Simulate page count detection (just for UI)
           setTimeout(() => {
             const pageCount = Math.floor(Math.random() * 10) + 1;
-            filePages.textContent = pageCount + (pageCount === 1 ? " page" : " pages");
+            filePagesSpan.textContent = pageCount + (pageCount === 1 ? " page" : " pages");
           }, 300);
         }
       }
@@ -656,22 +670,25 @@
 
       generateBtn.addEventListener('click', generateWithLetterhead);
 
-      function getFormattedDateTime() {
-        const now = new Date();
-        const date = now.getDate();
-        const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-        const month = monthNames[now.getMonth()];
-        const year = now.getFullYear();
-        const hours = now.getHours();
-        const minutes = now.getMinutes();
-        
-        // Format time to have leading zeros if needed
-        const formattedHours = hours < 10 ? `0${hours}` : hours;
-        const formattedMinutes = minutes < 10 ? `0${minutes}` : minutes;
-        
-        return `${date}_${month}_${year}_${formattedHours}_${formattedMinutes}`;
+      // Helper to get final filename
+      function determineFileName() {
+        if (!currentFile) return 'document.pdf'; // fallback
+
+        const customName = customFilenameInput.value.trim();
+        if (customName === '') {
+          // Use original file name exactly as uploaded
+          return currentFile.name;
+        } else {
+          // Use custom name, but ensure .pdf extension
+          let finalName = customName;
+          if (!finalName.toLowerCase().endsWith('.pdf')) {
+            finalName += '.pdf';
+          }
+          return finalName;
+        }
       }
 
+      // The main generation function (largely unchanged, but we replace filename at save)
       async function generateWithLetterhead() {
         if (!currentFile) {
           showError("Please upload a PDF file first");
@@ -701,7 +718,6 @@
           const a4Width = 595.28;
           const a4Height = 841.89;
 
-          // Get the selected address data
           const address = addressData[selectedAddress].address;
           const contact = addressData[selectedAddress].contact;
 
@@ -714,7 +730,7 @@
             const { width, height } = page.getSize();
             const newPage = finalPdf.addPage([a4Width, a4Height]);
 
-            // Draw header
+            // Header
             newPage.drawRectangle({
               x: 0,
               y: a4Height - 75,
@@ -740,7 +756,7 @@
               color: PDFLib.rgb(0.8, 0.8, 0.8),
             });
 
-            // Draw footer
+            // Footer
             newPage.drawRectangle({
               x: 0,
               y: 0,
@@ -756,7 +772,7 @@
               color: PDFLib.rgb(0.8, 0.8, 0.8),
             });
 
-            // Draw address
+            // Address left
             let yPos = 85;
             address.forEach(line => {
               newPage.drawText(line, {
@@ -769,7 +785,7 @@
               yPos -= 14;
             });
 
-            // Draw contact
+            // Contact right
             yPos = 85;
             contact.forEach(line => {
               newPage.drawText(line, {
@@ -799,13 +815,13 @@
               height: scaledHeight,
             });
 
-            // Add watermark on top layer if enabled
+            // Watermark if enabled
             if (watermarkToggle.checked) {
               const watermarkText = "MYRTILLE INDUSTRIES";
               const font = helveticaBoldFont;
-              const { width, height } = newPage.getSize();
-              const diagonalLength = Math.sqrt(width * width + height * height);
-              const angle = Math.atan2(height, width) * (180 / Math.PI);
+              const { width: pw, height: ph } = newPage.getSize();
+              const diagonalLength = Math.sqrt(pw * pw + ph * ph);
+              const angle = Math.atan2(ph, pw) * (180 / Math.PI);
               let fontSize = diagonalLength / 10;
               let textWidth = font.widthOfTextAtSize(watermarkText, fontSize);
               const maxTextWidth = diagonalLength * 0.8;
@@ -819,8 +835,8 @@
                 textWidth = font.widthOfTextAtSize(watermarkText, fontSize);
               }
 
-              const xCenter = width / 2 - (textWidth * Math.cos(angle * Math.PI / 180)) / 2;
-              const yCenter = height / 2 - (textWidth * Math.sin(angle * Math.PI / 180)) / 2;
+              const xCenter = pw / 2 - (textWidth * Math.cos(angle * Math.PI / 180)) / 2;
+              const yCenter = ph / 2 - (textWidth * Math.sin(angle * Math.PI / 180)) / 2;
               newPage.drawText(watermarkText, {
                 x: xCenter,
                 y: yCenter,
@@ -838,12 +854,11 @@
 
           const finalPdfBytes = await finalPdf.save();
           const blob = new Blob([finalPdfBytes], { type: 'application/pdf' });
-          
-          // Generate filename with date and time
-          const dateTime = getFormattedDateTime();
-          const filename = `Myrtille_Industries_${dateTime}.pdf`;
-          
-          saveAs(blob, filename);
+
+          // --- FILENAME DECISION ---
+          const finalFileName = determineFileName();
+
+          saveAs(blob, finalFileName);
 
           statusMessage.textContent = "Document generated successfully!";
           progressBar.style.width = "100%";
@@ -874,7 +889,7 @@
           progressBar.style.width = "0%";
         }, 4000);
       }
-    });
+    })();
   </script>
 </body>
 </html>
