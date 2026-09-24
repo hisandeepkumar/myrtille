@@ -594,7 +594,7 @@
           <div class="address-title">New Address</div>
           <div class="address-details">
             PLOT NO 25, DEEPNAGAR<br>
-            NEAR GUJAR KI THADI<br>
+            NEAR GUJAR KI THADI, Jaipur<br>
             Jaipur, Rajasthan 302019
           </div>
         </div>
@@ -742,9 +742,9 @@
   const addressData = {
     new: {
       address: [
-        "Building No./Flat No.: PLOT NO 25",
-        "Road/Street: DEEPNAGAR, NEAR GUJAR KI THADI",
-        "City/Town/Village: Jaipur",
+        "Address-",
+        "PLOT NO 25, DEEPNAGAR",
+        "NEAR GUJAR KI THADI, Jaipur",
         "District: Jaipur",
         "State: Rajasthan",
         "PIN Code: 302019"
@@ -824,7 +824,6 @@
     });
   }
 
-  /* Try to fetch a local PNG file (silent failure) */
   async function tryLoadPng(fileName){
     try {
       const res = await fetch(encodeURI(fileName), { cache: 'no-store' });
@@ -838,7 +837,6 @@
     }
   }
 
-  /* Add a clickable link annotation on a pdf-lib page */
   function addLinkAnnotation(pdfDoc, page, x, y, width, height, url){
     try {
       const annotDict = {
@@ -966,7 +964,6 @@
       const helveticaFont     = await finalPdf.embedFont(StandardFonts.Helvetica);
       const helveticaBoldFont = await finalPdf.embedFont(StandardFonts.HelveticaBold);
 
-      /* ---- load optional letterhead images ---- */
       setProgress(15, 'Loading letterhead assets…');
       const logoBytes = await tryLoadPng(LOGO_FILE);
       const sealBytes = await tryLoadPng(SEAL_FILE);
@@ -990,7 +987,6 @@
       const address = addressData[selectedAddress].address;
       const contact = addressData[selectedAddress].contact;
 
-      /* ---- header logo dimensions ---- */
       let logoW = 0, logoH = 0;
       if (logoImage){
         const r = logoImage.width / logoImage.height;
@@ -1020,17 +1016,14 @@
         const groupW = (logoImage ? logoW + gap : 0) + textW;
         const groupX = (a4Width - groupW) / 2;
 
-        /* Logo — just LEFT of "MYRTILLE INDUSTRIES" */
         if (logoImage){
           const logoY = a4Height - 75 + (75 - logoH) / 2;
           newPage.drawImage(logoImage, {
             x: groupX, y: logoY, width: logoW, height: logoH
           });
-          /* clickable link */
           addLinkAnnotation(finalPdf, newPage, groupX, logoY, logoW, logoH, WEBSITE_URL);
         }
 
-        /* Company name */
         const textX = groupX + (logoImage ? logoW + gap : 0);
         newPage.drawText(companyName, {
           x: textX,
@@ -1060,57 +1053,64 @@
           color: rgb(0.8, 0.8, 0.8)
         });
 
-        /* Address — left */
-        let yPos = 85;
+        /* ---------- Address — left (vertically centred) ---------- */
+        const addrLineGap = 13;
+        const addrTotal   = (address.length - 1) * addrLineGap;
+        let addrY = 50 + addrTotal / 2;
         let maxAddrW = 0;
-        address.forEach(line => {
+
+        address.forEach((line, i) => {
           const w = helveticaFont.widthOfTextAtSize(line, 10);
           if (w > maxAddrW) maxAddrW = w;
           newPage.drawText(line, {
-            x: 40, y: yPos, size: 10,
+            x: 40, y: addrY, size: 10,
             color: rgb(0.102, 0.322, 0.463),
             font: helveticaFont
           });
-          yPos -= 14;
+          addrY -= addrLineGap;
         });
 
-        /* Contact — right */
-        yPos = 85;
+        /* ---------- Contact — right (vertically centred) ---------- */
+        const contactGap  = 12;
+        const contactTot  = (contact.length - 1) * contactGap;
+        let contactY = 50 + contactTot / 2;
+        const contactRightX = a4Width - 40;
         let maxContactW = 0;
+
         contact.forEach(line => {
           const w = helveticaFont.widthOfTextAtSize(line, 10);
           if (w > maxContactW) maxContactW = w;
           newPage.drawText(line, {
-            x: a4Width - 180, y: yPos, size: 10,
+            x: contactRightX - w, y: contactY, size: 10,
             color: rgb(0.102, 0.322, 0.463),
             font: helveticaFont
           });
-          yPos -= 14;
+          contactY -= contactGap;
         });
 
-        /* Seal image — centred in the EMPTY MIDDLE space of footer */
+        /* ---------- SEAL — true center of footer ---------- */
         if (sealImage){
-          const leftBound  = 40 + maxAddrW + 12;
-          const rightBound = a4Width - 180 - 12;
-          const availableW = Math.max(60, rightBound - leftBound);
-          const maxH = 70;
-
+          const maxH = 58;
           const ratio = sealImage.width / sealImage.height;
-          let finalSealH = maxH;
-          let finalSealW = finalSealH * ratio;
-          if (finalSealW > availableW){
-            finalSealW = availableW;
-            finalSealH = finalSealW / ratio;
+          let sealH = maxH;
+          let sealW = sealH * ratio;
+
+          const addrEndX      = 40 + maxAddrW + 14;
+          const contactStartX = contactRightX - maxContactW - 14;
+          const maxSealW      = Math.min(contactStartX - addrEndX, 140);
+
+          if (sealW > maxSealW){
+            sealW = Math.max(20, maxSealW);
+            sealH = sealW / ratio;
           }
 
-          const sealX = leftBound + (availableW - finalSealW) / 2;
-          const sealY = (100 - finalSealH) / 2;
+          const sealX = (a4Width - sealW) / 2;
+          const sealY = (100 - sealH) / 2;
 
           newPage.drawImage(sealImage, {
-            x: sealX, y: sealY, width: finalSealW, height: finalSealH
+            x: sealX, y: sealY, width: sealW, height: sealH
           });
-          /* clickable link */
-          addLinkAnnotation(finalPdf, newPage, sealX, sealY, finalSealW, finalSealH, WEBSITE_URL);
+          addLinkAnnotation(finalPdf, newPage, sealX, sealY, sealW, sealH, WEBSITE_URL);
         }
 
         /* ================= EMBED ORIGINAL CONTENT ================= */
