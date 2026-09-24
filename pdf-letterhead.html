@@ -651,7 +651,7 @@
       <div class="sig-picker">
         <label class="file-btn" for="sigInput"><i class="fas fa-image"></i> Signature image</label>
         <input id="sigInput" type="file" accept="image/*" hidden>
-        <span class="sig-info" id="sigInfo">Default signature</span>
+        <span class="sig-info" id="sigInfo">Loading default signature…</span>
       </div>
 
       <div class="width-control">
@@ -728,9 +728,10 @@
   let signatureWidth    = 189;
   let signatureSourceUrl = null;
 
-  const WEBSITE_URL = 'https://www.myrtille.in';
-  const LOGO_FILE   = 'MYRTILLE INDUSTRIES LOGO PNG FILE.png';
-  const SEAL_FILE   = 'myrtille_logo_seal.png';
+  const WEBSITE_URL    = 'https://www.myrtille.in';
+  const LOGO_FILE      = 'MYRTILLE INDUSTRIES LOGO PNG FILE.png';
+  const SEAL_FILE      = 'myrtille_logo_seal.png';
+  const SIGNATURE_FILE = 'myrtille_signature.png';
 
   const FALLBACK_SIG = "data:image/svg+xml;base64," + btoa(
     "<svg xmlns='http://www.w3.org/2000/svg' width='400' height='150'>" +
@@ -834,6 +835,24 @@
     } catch (e){
       console.warn('[letterhead] could not load:', fileName, e);
       return null;
+    }
+  }
+
+  /* ---------- LOAD DEFAULT SIGNATURE ---------- */
+  async function loadDefaultSignature(){
+    if (signatureSourceUrl) return; // user already chose one
+    try {
+      const res = await fetch(encodeURI(SIGNATURE_FILE), { cache: 'no-store' });
+      if (!res.ok) throw new Error('not found');
+      const blob = await res.blob();
+      if (!blob.size) throw new Error('empty');
+      signatureSourceUrl = URL.createObjectURL(blob);
+      sigInfo.textContent = SIGNATURE_FILE + ' (' + formatFileSize(blob.size) + ')';
+      console.log('[signature] loaded default:', SIGNATURE_FILE);
+    } catch (e){
+      signatureSourceUrl = FALLBACK_SIG;
+      sigInfo.textContent = 'Fallback signature (' + SIGNATURE_FILE + ' not found)';
+      console.warn('[signature] could not load', SIGNATURE_FILE, '— using fallback');
     }
   }
 
@@ -1053,13 +1072,13 @@
           color: rgb(0.8, 0.8, 0.8)
         });
 
-        /* ---------- Address — left (vertically centred) ---------- */
+        /* ---------- Address — left ---------- */
         const addrLineGap = 13;
         const addrTotal   = (address.length - 1) * addrLineGap;
         let addrY = 50 + addrTotal / 2;
         let maxAddrW = 0;
 
-        address.forEach((line, i) => {
+        address.forEach(line => {
           const w = helveticaFont.widthOfTextAtSize(line, 10);
           if (w > maxAddrW) maxAddrW = w;
           newPage.drawText(line, {
@@ -1070,7 +1089,7 @@
           addrY -= addrLineGap;
         });
 
-        /* ---------- Contact — right (vertically centred) ---------- */
+        /* ---------- Contact — right ---------- */
         const contactGap  = 12;
         const contactTot  = (contact.length - 1) * contactGap;
         let contactY = 50 + contactTot / 2;
@@ -1192,6 +1211,10 @@
     stepPill1.classList.add('done');
     stepPill2.classList.add('active');
     downloadBtn.disabled = true;
+
+    /* load default signature BEFORE rendering previews,
+       so the first click already uses myrtille_signature.png */
+    await loadDefaultSignature();
 
     try{
       await renderPreviews(bytes);
@@ -1418,6 +1441,7 @@
     });
   });
 
+  /* user override */
   sigInput.addEventListener('change', (e) => {
     if (!e.target.files || !e.target.files.length) return;
     const f = e.target.files[0];
