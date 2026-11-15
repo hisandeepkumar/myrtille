@@ -148,7 +148,6 @@
     border:1px solid rgba(255,255,255,.28);
     border-radius:12px;
     padding:14px 18px;
-    cursor:pointer;
     transition:all .3s ease;
     font-size:14px;
     font-weight:500;
@@ -159,6 +158,7 @@
     width:100%;
     max-width:280px;
     user-select:none;
+    cursor:default;
   }
   .address-btn i{ margin-right:12px; font-size:20px; color:#8fb3ff; margin-top:2px; }
   .address-btn.active{
@@ -166,7 +166,6 @@
     border-color:#5b86e5;
     box-shadow:0 0 15px rgba(91,134,229,.4);
   }
-  .address-btn:hover:not(.active){ background:rgba(255,255,255,.16); }
   .address-btn .address-title{ font-weight:600; margin-bottom:4px; color:#8fb3ff; }
   .address-btn .address-details{ font-size:11.5px; opacity:.85; line-height:1.5; }
 
@@ -588,25 +587,14 @@
     </div>
 
     <div class="address-selector">
-      <div class="address-btn active" id="newAddressBtn">
+      <div class="address-btn active">
         <i class="fas fa-home"></i>
         <div>
-          <div class="address-title">New Address</div>
+          <div class="address-title">Address</div>
           <div class="address-details">
             PLOT NO 25, DEEPNAGAR<br>
             NEAR GUJAR KI THADI, Jaipur<br>
             Jaipur, Rajasthan 302019
-          </div>
-        </div>
-      </div>
-      <div class="address-btn" id="oldAddressBtn">
-        <i class="fas fa-building"></i>
-        <div>
-          <div class="address-title">Old Address</div>
-          <div class="address-details">
-            92 SURAJ NAGAR (E)<br>
-            CIVIL LINES SODALA<br>
-            Jaipur, Rajasthan
           </div>
         </div>
       </div>
@@ -700,8 +688,6 @@
   const fileNameSpan    = document.getElementById('fileName');
   const fileSizeSpan    = document.getElementById('fileSize');
   const filePagesSpan   = document.getElementById('filePages');
-  const newAddressBtn   = document.getElementById('newAddressBtn');
-  const oldAddressBtn   = document.getElementById('oldAddressBtn');
   const watermarkToggle = document.getElementById('watermarkToggle');
   const customFilenameInput = document.getElementById('customFileName');
   const generateBtn     = document.getElementById('generateBtn');
@@ -721,7 +707,6 @@
   /* ---------- STATE ---------- */
   let currentFile       = null;
   let currentFileBytes  = null;
-  let selectedAddress   = 'new';
   let basePdfBytes      = null;
   let finalFileName     = 'document.pdf';
   let pageData          = [];
@@ -729,6 +714,7 @@
   let signatureSourceUrl = null;
 
   const WEBSITE_URL    = 'https://www.myrtille.in';
+  const SIGNATURE_VERIFY_URL = 'https://myrtille.in/signature_verified.html';
   const LOGO_FILE      = 'MYRTILLE INDUSTRIES LOGO PNG FILE.png';
   const SEAL_FILE      = 'myrtille_logo_seal.png';
   const SIGNATURE_FILE = 'myrtille_signature.png';
@@ -739,7 +725,7 @@
     "stroke='#111827' stroke-width='6' fill='none' stroke-linecap='round' /></svg>"
   );
 
-  /* ---------- ADDRESS DATA ---------- */
+  /* ---------- ADDRESS DATA (only new address) ---------- */
   const addressData = {
     new: {
       address: [
@@ -756,21 +742,6 @@
         "Email ID: contact@myrtille.in",
         "Website: www.myrtille.in",
         "GST: 08AMHPY5013C1Z4",
-        "URN: UDYAM-RJ-17-0084962"
-      ]
-    },
-    old: {
-      address: [
-        "92 SURAJ NAGAR (E)",
-        "CIVIL LINES SODALA",
-        "JAIPUR (RAJ)"
-      ],
-      contact: [
-        "Mobile: +91 9782099489",
-        "Email: anilyadav.bme@gmail.com",
-        "Email ID: contact@myrtille.in",
-        "Website: www.myrtille.in",
-        "GST: 08AMHPY5013C",
         "URN: UDYAM-RJ-17-0084962"
       ]
     }
@@ -840,7 +811,7 @@
 
   /* ---------- LOAD DEFAULT SIGNATURE ---------- */
   async function loadDefaultSignature(){
-    if (signatureSourceUrl) return; // user already chose one
+    if (signatureSourceUrl) return;
     try {
       const res = await fetch(encodeURI(SIGNATURE_FILE), { cache: 'no-store' });
       if (!res.ok) throw new Error('not found');
@@ -884,18 +855,6 @@
       console.warn('[letterhead] link annotation failed:', e);
     }
   }
-
-  /* ---------- ADDRESS SELECTION ---------- */
-  newAddressBtn.addEventListener('click', () => {
-    selectedAddress = 'new';
-    newAddressBtn.classList.add('active');
-    oldAddressBtn.classList.remove('active');
-  });
-  oldAddressBtn.addEventListener('click', () => {
-    selectedAddress = 'old';
-    oldAddressBtn.classList.add('active');
-    newAddressBtn.classList.remove('active');
-  });
 
   /* ---------- FILE UPLOAD ---------- */
   uploadArea.addEventListener('click', () => fileInput.click());
@@ -1003,8 +962,8 @@
       const a4Width  = 595.28;
       const a4Height = 841.89;
 
-      const address = addressData[selectedAddress].address;
-      const contact = addressData[selectedAddress].contact;
+      const address = addressData.new.address;
+      const contact = addressData.new.contact;
 
       let logoW = 0, logoH = 0;
       if (logoImage){
@@ -1212,8 +1171,6 @@
     stepPill2.classList.add('active');
     downloadBtn.disabled = true;
 
-    /* load default signature BEFORE rendering previews,
-       so the first click already uses myrtille_signature.png */
     await loadDefaultSignature();
 
     try{
@@ -1516,6 +1473,10 @@
             height: pdfH,
             opacity: 1
           });
+
+          // 🔗 Make the placed signature clickable → signature verify page
+          addLinkAnnotation(pdfDoc, page, s.x_pdf, yBottom, pdfW, pdfH, SIGNATURE_VERIFY_URL);
+
           placed++;
         }
       }
