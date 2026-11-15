@@ -9,11 +9,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
@@ -60,10 +56,7 @@
       gap: 12px;
     }
 
-    .header h1 i {
-      color: #5b86e5;
-      font-size: 28px;
-    }
+    .header h1 i { color: #5b86e5; font-size: 28px; }
 
     .upload-area {
       border: 2px dashed rgba(255, 255, 255, 0.4);
@@ -84,37 +77,13 @@
       box-shadow: 0 8px 24px rgba(91, 134, 229, 0.3), inset 0 2px 4px rgba(255, 255, 255, 0.3);
     }
 
-    .upload-area i {
-      font-size: 40px;
-      color: #5b86e5;
-      margin-bottom: 15px;
-      transition: all 0.3s;
-    }
-
-    .upload-area:hover i, .upload-area.active i {
-      transform: scale(1.1);
-    }
-
-    .upload-area h3 {
-      color: #f0f0f0;
-      margin-bottom: 10px;
-      font-size: 1.6rem;
-      font-weight: 500;
-    }
-
-    .upload-area p {
-      color: rgba(255, 255, 255, 0.8);
-      font-size: 1.1rem;
-    }
+    .upload-area i { font-size: 40px; color: #5b86e5; margin-bottom: 15px; transition: all 0.3s; }
+    .upload-area:hover i, .upload-area.active i { transform: scale(1.1); }
+    .upload-area h3 { color: #f0f0f0; margin-bottom: 10px; font-size: 1.6rem; font-weight: 500; }
+    .upload-area p { color: rgba(255, 255, 255, 0.8); font-size: 1.1rem; }
 
     .upload-area input[type="file"] {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      opacity: 0;
-      cursor: pointer;
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer;
     }
 
     .file-info {
@@ -129,18 +98,9 @@
       text-align: left;
     }
 
-    .file-info.active {
-      display: block;
-    }
-
-    .file-info p {
-      margin: 8px 0;
-    }
-
-    .file-info span {
-      font-weight: 500;
-      color: #5b86e5;
-    }
+    .file-info.active { display: block; }
+    .file-info p { margin: 8px 0; }
+    .file-info span { font-weight: 500; color: #5b86e5; }
 
     .btn {
       background: rgba(255, 255, 255, 0.2);
@@ -178,9 +138,7 @@
       transition: all 0.6s ease;
     }
 
-    .btn:hover::before {
-      left: 150%;
-    }
+    .btn:hover::before { left: 150%; }
 
     .btn:hover {
       background: rgba(255, 255, 255, 0.3);
@@ -188,16 +146,8 @@
       box-shadow: 0 12px 32px rgba(91, 134, 229, 0.5), 0 6px 16px rgba(0, 0, 0, 0.3), inset 0 2px 4px rgba(255, 255, 255, 0.4), inset 0 -2px 4px rgba(0, 0, 0, 0.1);
     }
 
-    .btn:disabled {
-      background: rgba(255, 255, 255, 0.1);
-      cursor: not-allowed;
-      box-shadow: none;
-      transform: none;
-    }
-
-    .btn:disabled::before {
-      display: none;
-    }
+    .btn:disabled { background: rgba(255, 255, 255, 0.1); cursor: not-allowed; box-shadow: none; transform: none; }
+    .btn:disabled::before { display: none; }
 
     .status-area {
       display: none;
@@ -208,27 +158,11 @@
       border: 1px solid rgba(255, 255, 255, 0.2);
     }
 
-    .status-area.active {
-      display: block;
-    }
+    .status-area.active { display: block; }
 
-    .status-header {
-      display: flex;
-      align-items: center;
-      margin-bottom: 16px;
-    }
-
-    .status-header i {
-      margin-right: 12px;
-      color: #5b86e5;
-      font-size: 20px;
-    }
-
-    .status-header h3 {
-      font-size: 18px;
-      font-weight: 500;
-      color: #f0f0f0;
-    }
+    .status-header { display: flex; align-items: center; margin-bottom: 16px; }
+    .status-header i { margin-right: 12px; color: #5b86e5; font-size: 20px; }
+    .status-header h3 { font-size: 18px; font-weight: 500; color: #f0f0f0; }
 
     .progress-container {
       background: rgba(255, 255, 255, 0.1);
@@ -245,11 +179,7 @@
       border-radius: 4px;
     }
 
-    .status-message {
-      margin-top: 12px;
-      font-size: 14px;
-      color: rgba(255, 255, 255, 0.8);
-    }
+    .status-message { margin-top: 12px; font-size: 14px; color: rgba(255, 255, 255, 0.8); }
 
     .success-message, .error-message {
       display: none;
@@ -260,21 +190,66 @@
       margin-top: 24px;
     }
 
-    .success-message {
-      background: rgba(52, 199, 89, 0.2);
-      color: #34c759;
-      border: 1px solid rgba(52, 199, 89, 0.3);
+    .success-message { background: rgba(52, 199, 89, 0.2); color: #34c759; border: 1px solid rgba(52, 199, 89, 0.3); }
+    .error-message { background: rgba(255, 59, 48, 0.2); color: #ff3b30; border: 1px solid rgba(255, 59, 48, 0.3); }
+    .success-message i, .error-message i { margin-right: 8px; }
+
+    /* Signatory Selector */
+    .signatory-selector {
+      margin: 24px 0;
+      padding: 16px;
+      background: rgba(91, 134, 229, 0.08);
+      border: 1px solid rgba(91, 134, 229, 0.3);
+      border-radius: 12px;
     }
 
-    .error-message {
-      background: rgba(255, 59, 48, 0.2);
-      color: #ff3b30;
-      border: 1px solid rgba(255, 59, 48, 0.3);
+    .signatory-label {
+      font-weight: 700;
+      font-size: 13px;
+      color: #5b86e5;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
 
-    .success-message i, .error-message i {
-      margin-right: 8px;
+    .signatory-buttons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
     }
+
+    .signatory-btn {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      border-radius: 12px;
+      padding: 14px 12px;
+      cursor: pointer;
+      color: #f0f0f0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: all 0.3s ease;
+      font-family: inherit;
+      text-align: left;
+      width: 100%;
+    }
+
+    .signatory-btn:hover:not(.active) { background: rgba(255, 255, 255, 0.15); }
+
+    .signatory-btn.active {
+      background: rgba(91, 134, 229, 0.35);
+      border-color: #5b86e5;
+      box-shadow: 0 0 15px rgba(91, 134, 229, 0.4);
+    }
+
+    .signatory-btn i { font-size: 22px; color: #5b86e5; flex-shrink: 0; }
+    .signatory-btn.active i { color: #fff; }
+
+    .signatory-name { font-weight: 700; font-size: 14px; }
+    .signatory-desc { font-size: 11px; opacity: 0.7; margin-top: 2px; }
 
     /* Toggle Buttons Styles */
     .toggle-container {
@@ -304,21 +279,10 @@
       box-shadow: 0 0 15px rgba(91, 134, 229, 0.4);
     }
 
-    .toggle-btn:hover:not(.active) {
-      background: rgba(255, 255, 255, 0.15);
-    }
+    .toggle-btn:hover:not(.active) { background: rgba(255, 255, 255, 0.15); }
 
-    .toggle-btn .toggle-label {
-      font-weight: 600;
-      font-size: 14px;
-      color: #5b86e5;
-    }
-
-    .toggle-btn .toggle-description {
-      font-size: 12px;
-      opacity: 0.8;
-      margin-top: 4px;
-    }
+    .toggle-btn .toggle-label { font-weight: 600; font-size: 14px; color: #5b86e5; }
+    .toggle-btn .toggle-description { font-size: 12px; opacity: 0.8; margin-top: 4px; }
 
     .toggle-switch-small {
       width: 40px;
@@ -328,6 +292,8 @@
       border-radius: 10px;
       position: relative;
       transition: background 0.3s ease, border-color 0.3s ease;
+      flex-shrink: 0;
+      margin-left: 10px;
     }
 
     .toggle-switch-small::before {
@@ -343,38 +309,17 @@
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
     }
 
-    .toggle-btn.active .toggle-switch-small {
-      background: #34c759;
-      border-color: #34c759;
-    }
-
-    .toggle-btn.active .toggle-switch-small::before {
-      transform: translateX(20px);
-      background: #ffffff;
-    }
+    .toggle-btn.active .toggle-switch-small { background: #34c759; border-color: #34c759; }
+    .toggle-btn.active .toggle-switch-small::before { transform: translateX(20px); background: #ffffff; }
 
     @media (max-width: 768px) {
-      .container {
-        padding: 16px;
-      }
-      .header {
-        padding: 16px;
-      }
-      .header h1 {
-        font-size: 24px;
-      }
-      .upload-area {
-        padding: 24px 16px;
-      }
-      .btn {
-        width: 240px;
-        height: 50px;
-        font-size: 14px;
-        padding: 12px 24px;
-      }
-      .toggle-container {
-        grid-template-columns: 1fr;
-      }
+      .container { padding: 16px; }
+      .header { padding: 16px; }
+      .header h1 { font-size: 24px; }
+      .upload-area { padding: 24px 16px; }
+      .btn { width: 240px; height: 50px; font-size: 14px; padding: 12px 24px; }
+      .toggle-container { grid-template-columns: 1fr; }
+      .signatory-buttons { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -395,6 +340,29 @@
       <p>File: <span id="fileName">-</span></p>
       <p>Size: <span id="fileSize">-</span></p>
       <p>Pages: <span id="filePages">-</span></p>
+    </div>
+
+    <!-- Signatory Selector -->
+    <div class="signatory-selector">
+      <div class="signatory-label">
+        <i class="fas fa-user-tie"></i> Select Authorised Signatory
+      </div>
+      <div class="signatory-buttons">
+        <button type="button" class="signatory-btn active" data-signatory="anil">
+          <i class="fas fa-user-tie"></i>
+          <div>
+            <div class="signatory-name">Anil Yadav</div>
+            <div class="signatory-desc">Authorised Signatory</div>
+          </div>
+        </button>
+        <button type="button" class="signatory-btn" data-signatory="sandeep">
+          <i class="fas fa-user-tie"></i>
+          <div>
+            <div class="signatory-name">Sandeep Yadav</div>
+            <div class="signatory-desc">Authorised Signatory</div>
+          </div>
+        </button>
+      </div>
     </div>
 
     <!-- Toggle Buttons -->
@@ -488,7 +456,6 @@
     -webkit-tap-highlight-color:transparent;
   "
 >
-  <!-- glow ring -->
   <span
     style="
       position:absolute;
@@ -501,7 +468,6 @@
     "
   ></span>
 
-  <!-- arrow -->
   <svg
     width="22"
     height="22"
@@ -523,7 +489,6 @@
     />
   </svg>
 
-  <!-- inline keyframes -->
   <style>
     @keyframes spin{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
   </style>
@@ -551,12 +516,49 @@
       const pageNumberToggle = document.getElementById('pageNumberToggle');
       const headerToggle = document.getElementById('headerToggle');
 
+      // Signatory buttons
+      const signatoryBtns = document.querySelectorAll('.signatory-btn');
+
       let currentFile = null;
 
-      // 🔹 Signature click → redirect URL (only when real myrtille_signature.png used)
-      const SIGNATURE_VERIFY_URL = 'https://myrtille.in/signature_verified.html';
+      /* ---------- SIGNATORY CONFIG ---------- */
+      const SIGNATORIES = {
+        anil: {
+          name: 'ANIL YADAV',
+          signatureFile: 'myrtille_signature.png',
+          verifyUrl: 'https://myrtille.in/signature_verified.html'
+        },
+        sandeep: {
+          name: 'SANDEEP YADAV',
+          signatureFile: 'sandeep_signature.png',
+          verifyUrl: 'https://myrtille.in/sandeep_signature.html'
+        }
+      };
 
-      // 🔹 Helper: attach a clickable link annotation over a rectangle
+      const STORAGE_KEY = 'myrtille_signatory';
+      let currentSignatory = 'anil';
+
+      // Load saved selection
+      (function initSignatory() {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved && SIGNATORIES[saved]) currentSignatory = saved;
+        signatoryBtns.forEach(btn => {
+          btn.classList.toggle('active', btn.dataset.signatory === currentSignatory);
+        });
+      })();
+
+      // Signatory button events
+      signatoryBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const key = btn.dataset.signatory;
+          if (!SIGNATORIES[key]) return;
+          currentSignatory = key;
+          localStorage.setItem(STORAGE_KEY, key);
+          signatoryBtns.forEach(b => b.classList.toggle('active', b === btn));
+        });
+      });
+
+      /* ---------- LINK ANNOTATION HELPER ---------- */
       function addLinkAnnotation(pdfDoc, page, x, y, width, height, url) {
         try {
           const PDFName = PDFLib.PDFName;
@@ -591,28 +593,14 @@
       }
 
       // Toggle button event listeners
-      dateTimeToggle.addEventListener('click', () => {
-        dateTimeToggle.classList.toggle('active');
-      });
-
-      signatureSealToggle.addEventListener('click', () => {
-        signatureSealToggle.classList.toggle('active');
-      });
-
-      pageNumberToggle.addEventListener('click', () => {
-        pageNumberToggle.classList.toggle('active');
-      });
-
-      headerToggle.addEventListener('click', () => {
-        headerToggle.classList.toggle('active');
-      });
+      dateTimeToggle.addEventListener('click', () => dateTimeToggle.classList.toggle('active'));
+      signatureSealToggle.addEventListener('click', () => signatureSealToggle.classList.toggle('active'));
+      pageNumberToggle.addEventListener('click', () => pageNumberToggle.classList.toggle('active'));
+      headerToggle.addEventListener('click', () => headerToggle.classList.toggle('active'));
 
       // Upload area click handler
-      uploadArea.addEventListener('click', () => {
-        fileInput.click();
-      });
+      uploadArea.addEventListener('click', () => fileInput.click());
 
-      // Drag and drop functionality
       ['dragenter', 'dragover'].forEach(eventName => {
         uploadArea.addEventListener(eventName, (e) => {
           e.preventDefault();
@@ -628,30 +616,20 @@
       });
 
       uploadArea.addEventListener('drop', (e) => {
-        if (e.dataTransfer.files.length) {
-          handleFileSelection(e.dataTransfer.files);
-        }
+        if (e.dataTransfer.files.length) handleFileSelection(e.dataTransfer.files);
       });
 
-      // File input change handler
       fileInput.addEventListener('change', (e) => {
-        if (e.target.files.length) {
-          handleFileSelection(e.target.files);
-        }
+        if (e.target.files.length) handleFileSelection(e.target.files);
       });
 
-      // Handle file selection
       function handleFileSelection(selectedFiles) {
         const validFiles = Array.from(selectedFiles).filter(file => file.type === 'application/pdf');
-        if (validFiles.length !== selectedFiles.length) {
-          showError("Please select only PDF files");
-        }
+        if (validFiles.length !== selectedFiles.length) showError("Please select only PDF files");
 
         if (validFiles.length > 0) {
           currentFile = validFiles[0];
           updateFileInfo();
-
-          // Reset the file input to allow selecting the same file again
           fileInput.value = '';
         }
       }
@@ -680,21 +658,6 @@
       }
 
       generateBtn.addEventListener('click', generateWithLetterhead);
-
-      function getFormattedDateTime() {
-        const now = new Date();
-        const date = now.getDate();
-        const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-        const month = monthNames[now.getMonth()];
-        const year = now.getFullYear();
-        const hours = now.getHours();
-        const minutes = now.getMinutes();
-
-        const formattedHours = hours < 10 ? `0${hours}` : hours;
-        const formattedMinutes = minutes < 10 ? `0${minutes}` : minutes;
-
-        return `${date}_${month}_${year}_${formattedHours}_${formattedMinutes}`;
-      }
 
       function getCurrentDateTimeString() {
         const now = new Date();
@@ -727,6 +690,9 @@
           return;
         }
 
+        // Capture signatory info at click time
+        const signatoryInfo = SIGNATORIES[currentSignatory];
+
         successMessage.style.display = 'none';
         errorMessage.style.display = 'none';
         statusArea.classList.add('active');
@@ -750,14 +716,12 @@
           const a4Width = 595.28;
           const a4Height = 841.89;
 
-          // Try to load the signature image from the server
+          // Load the signature image for the selected signatory
           let signatureImage;
           let signatureAspectRatio = 1;
-          // 🔹 flag: true only when real myrtille_signature.png loaded successfully
           let signatureLoadedFromFile = false;
           try {
-            const signatureImageUrl = 'myrtille_signature.png';
-            const signatureImageBytes = await fetch(signatureImageUrl)
+            const signatureImageBytes = await fetch(signatoryInfo.signatureFile)
               .then(res => {
                 if (!res.ok) throw new Error('Signature image not found');
                 return res.arrayBuffer();
@@ -789,7 +753,6 @@
               headerImage = await finalPdf.embedPng(headerImageBytes);
               const headerDims = headerImage.scale(1);
               headerAspectRatio = headerDims.width / headerDims.height;
-
               headerHeight = (a4Width - 40) / headerAspectRatio;
               headerHeight = Math.min(headerHeight, 120);
             } catch (error) {
@@ -810,7 +773,7 @@
             const { width, height } = page.getSize();
             const newPage = finalPdf.addPage([a4Width, a4Height]);
 
-            // Draw header if enabled
+            // Draw header
             if (headerImage && headerToggle.classList.contains('active')) {
               newPage.drawImage(headerImage, {
                 x: 0,
@@ -827,36 +790,28 @@
               });
             }
 
-            // Draw footer with white background
+            // Footer white background
             newPage.drawRectangle({
-              x: 0,
-              y: 0,
-              width: a4Width,
-              height: footerHeight,
+              x: 0, y: 0, width: a4Width, height: footerHeight,
               color: PDFLib.rgb(1, 1, 1),
             });
 
-            // Left side footer text
+            // Left footer
             newPage.drawText("MYRTILLE INDUSTRIES", {
-              x: 40,
-              y: 90,
-              size: 14,
+              x: 40, y: 90, size: 14,
               color: PDFLib.rgb(0.1, 0.1, 0.1),
               font: helveticaBoldFont,
             });
 
             newPage.drawText("Authorised signatory name", {
-              x: 40,
-              y: 70,
-              size: 10,
+              x: 40, y: 70, size: 10,
               color: PDFLib.rgb(0.3, 0.3, 0.3),
               font: helveticaFont,
             });
 
-            newPage.drawText("ANIL YADAV", {
-              x: 40,
-              y: 55,
-              size: 12,
+            // 🔹 Dynamic signatory name
+            newPage.drawText(signatoryInfo.name, {
+              x: 40, y: 55, size: 12,
               color: PDFLib.rgb(0, 0, 0),
               font: helveticaBoldFont,
             });
@@ -873,15 +828,13 @@
               });
 
               newPage.drawText(signatureSealText, {
-                x: 40,
-                y: 40,
-                size: 10,
+                x: 40, y: 40, size: 10,
                 color: PDFLib.rgb(0.1, 0.1, 0.1),
                 font: helveticaBoldFont,
               });
             }
 
-            // Middle signature image
+            // Middle signature
             const signatureWidth = 200;
             const signatureHeight = signatureWidth / signatureAspectRatio;
             const finalSignatureHeight = Math.min(signatureHeight, 80);
@@ -891,58 +844,45 @@
             const sigY = 25;
 
             newPage.drawImage(signatureImage, {
-              x: sigX,
-              y: sigY,
+              x: sigX, y: sigY,
               width: finalSignatureWidth,
               height: finalSignatureHeight,
             });
 
-            // 🔹 Clickable link over the signature (only when real signature file used)
+            // 🔹 Clickable link — based on selected signatory
             if (signatureLoadedFromFile) {
               addLinkAnnotation(
-                finalPdf,
-                newPage,
-                sigX,
-                sigY,
-                finalSignatureWidth,
-                finalSignatureHeight,
-                SIGNATURE_VERIFY_URL
+                finalPdf, newPage,
+                sigX, sigY,
+                finalSignatureWidth, finalSignatureHeight,
+                signatoryInfo.verifyUrl
               );
             }
 
-            // Right side footer text
+            // Right footer
             const rightSideX = a4Width - 200;
 
             newPage.drawText("GST: 08AMHPY5013C1Z4", {
-              x: rightSideX,
-              y: 90,
-              size: 10,
+              x: rightSideX, y: 90, size: 10,
               color: PDFLib.rgb(0.1, 0.1, 0.1),
               font: helveticaFont,
             });
 
             newPage.drawText("URN: UDYAM-RJ-17-0084962", {
-              x: rightSideX,
-              y: 70,
-              size: 10,
+              x: rightSideX, y: 70, size: 10,
               color: PDFLib.rgb(0.1, 0.1, 0.1),
               font: helveticaFont,
             });
 
             newPage.drawText("PAN CARD NO.- AMHPY5013C", {
-              x: rightSideX,
-              y: 50,
-              size: 10,
+              x: rightSideX, y: 50, size: 10,
               color: PDFLib.rgb(0.1, 0.1, 0.1),
               font: helveticaFont,
             });
 
             if (dateTimeToggle.classList.contains('active')) {
-              const dateTimeStr = getCurrentDateTimeString();
-              newPage.drawText(dateTimeStr, {
-                x: rightSideX,
-                y: 30,
-                size: 10,
+              newPage.drawText(getCurrentDateTimeString(), {
+                x: rightSideX, y: 30, size: 10,
                 color: PDFLib.rgb(0.1, 0.1, 0.1),
                 font: helveticaBoldFont,
               });
@@ -962,14 +902,13 @@
 
               newPage.drawText(pageNumText, {
                 x: a4Width - pageNumWidth - 20,
-                y: 13,
-                size: 10,
+                y: 13, size: 10,
                 color: PDFLib.rgb(1, 1, 1),
                 font: helveticaBoldFont,
               });
             }
 
-            // Embed original page content
+            // Embed original page
             const embeddedPage = await finalPdf.embedPage(page);
             const contentAreaWidth = a4Width - 80;
             const contentAreaHeight = a4Height - headerHeight - footerHeight - 40;
@@ -980,8 +919,7 @@
             const y = footerHeight + (a4Height - headerHeight - footerHeight - scaledHeight) / 2;
 
             newPage.drawPage(embeddedPage, {
-              x: x,
-              y: y,
+              x: x, y: y,
               width: scaledWidth,
               height: scaledHeight,
             });
@@ -993,9 +931,7 @@
           const finalPdfBytes = await finalPdf.save();
           const blob = new Blob([finalPdfBytes], { type: 'application/pdf' });
 
-          const originalFileName = currentFile.name;
-          const finalFileName = generateFinalFilename(originalFileName);
-
+          const finalFileName = generateFinalFilename(currentFile.name);
           saveAs(blob, finalFileName);
 
           statusMessage.textContent = "Document generated successfully!";
