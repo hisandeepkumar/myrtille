@@ -146,9 +146,46 @@ document.addEventListener('DOMContentLoaded', ()=> {
   let pageData = [];
   let originalFilename = ''; // Store the original filename
 
+  // 🔹 only when the DEFAULT signature (default_signature.png) is used,
+  //    placed signatures get a clickable link in the final PDF.
+  let isDefaultSignature = false;
+
+  const SIGNATURE_VERIFY_URL = 'https://myrtille.in/signature_verified.html';
+
   const FALLBACK = `data:image/svg+xml;base64,${btoa("<svg xmlns='http://www.w3.org/2000/svg' width='400' height='150'><path d='M10 90 C 60 10, 140 10, 190 90 S 330 170, 390 90' stroke='#111827' stroke-width='6' fill='none' stroke-linecap='round' /></svg>")}`;
 
   function fmt(bytes){ if(!bytes) return ''; if(bytes<1024) return bytes+' B'; if(bytes<1024*1024) return (bytes/1024).toFixed(2)+' KB'; return (bytes/(1024*1024)).toFixed(2)+' MB'; }
+
+  /* ---------- PDF LINK ANNOTATION HELPER ---------- */
+  function addLinkAnnotation(pdfDoc, page, x, y, width, height, url){
+    try {
+      const { PDFName, PDFArray, PDFString } = PDFLib;
+      const annotDict = {
+        Type: 'Annot',
+        Subtype: 'Link',
+        Rect: [x, y, x + width, y + height],
+        Border: [0, 0, 0],
+        F: 4,
+        A: {
+          Type: 'Action',
+          S: 'URI',
+          URI: PDFString.of(url)
+        }
+      };
+
+      const annotRef = pdfDoc.context.register(pdfDoc.context.obj(annotDict));
+      const key = PDFName.of('Annots');
+      let annots = page.node.lookupMaybe(key, PDFArray);
+
+      if (annots){
+        annots.push(annotRef);
+      } else {
+        page.node.set(key, pdfDoc.context.obj([annotRef]));
+      }
+    } catch (e){
+      console.warn('[signature-link] annotation failed:', e);
+    }
+  }
 
   // silently try to load default_signature.png if present
   async function loadDefaultIfExists(){
@@ -159,9 +196,11 @@ document.addEventListener('DOMContentLoaded', ()=> {
       const b = await r.blob();
       selectedImageFile = new File([b],'default_signature.png',{type:b.type});
       signatureImgUrl = URL.createObjectURL(b);
+      isDefaultSignature = true;  // 🔹 enable link-in-PDF only for this image
       sigInfo.textContent = `Loaded default_signature.png (${fmt(b.size)})`;
     }catch(e){
       signatureImgUrl = FALLBACK;
+      isDefaultSignature = false; // fallback SVG — no link
       sigInfo.textContent = `Using fallback signature`;
       console.warn('default_signature.png not found — using fallback.');
     }
@@ -180,6 +219,7 @@ document.addEventListener('DOMContentLoaded', ()=> {
     if(!f.type.startsWith('image/')) { alert('Select an image (PNG/JPEG/SVG)'); return; }
     selectedImageFile = f;
     signatureImgUrl = URL.createObjectURL(f);
+    isDefaultSignature = false; // 🔹 custom upload — disable link
     sigInfo.textContent = `Signature: ${f.name} (${fmt(f.size)})`;
   });
 
@@ -459,6 +499,11 @@ document.addEventListener('DOMContentLoaded', ()=> {
           const pdfH = (pdfW / imgW) * imgH;
           const yBottom = pd.pdfSize.height - s.top_pdf - pdfH;
           page.drawImage(embedded, { x: s.x_pdf, y: yBottom, width: pdfW, height: pdfH, opacity:1 });
+
+          // 🔹 default signature only → clickable link to verify page
+          if (isDefaultSignature){
+            addLinkAnnotation(pdfDoc, page, s.x_pdf, yBottom, pdfW, pdfH, SIGNATURE_VERIFY_URL);
+          }
         }
       }
       progressBar.style.width = '86%';
@@ -468,11 +513,11 @@ document.addEventListener('DOMContentLoaded', ()=> {
       const blob = new Blob([out], { type:'application/pdf' });
       const a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
-      
+
       // Use original filename with "_signed" suffix instead of random timestamp
       const downloadFilename = originalFilename ? `${originalFilename}_signed.pdf` : `signed_document.pdf`;
       a.download = downloadFilename;
-      
+
       document.body.appendChild(a);
       a.click();
       a.remove();
