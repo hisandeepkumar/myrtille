@@ -383,14 +383,14 @@
     <div class="header">
       <h1><i class="fas fa-file-pdf"></i> Emergency Seal & Signature, And page no. Adder</h1>
     </div>
-    
+
     <div class="upload-area" id="uploadArea">
       <i class="fas fa-cloud-upload-alt"></i>
       <h3>Upload Your PDF Document</h3>
       <p>Click here or drag and drop your PDF file</p>
       <input type="file" id="pdfUpload" accept="application/pdf" hidden>
     </div>
-    
+
     <div class="file-info" id="fileInfo">
       <p>File: <span id="fileName">-</span></p>
       <p>Size: <span id="fileSize">-</span></p>
@@ -457,11 +457,6 @@
     </div>
   </div>
 
-
-
-
-
-  
   <!-- back button -->
   <button
   type="button"
@@ -534,10 +529,6 @@
   </style>
 </button>
 
-
-  
-
-
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       const uploadArea = document.getElementById('uploadArea');
@@ -561,6 +552,43 @@
       const headerToggle = document.getElementById('headerToggle');
 
       let currentFile = null;
+
+      // 🔹 Signature click → redirect URL (only when real myrtille_signature.png used)
+      const SIGNATURE_VERIFY_URL = 'https://myrtille.in/signature_verified.html';
+
+      // 🔹 Helper: attach a clickable link annotation over a rectangle
+      function addLinkAnnotation(pdfDoc, page, x, y, width, height, url) {
+        try {
+          const PDFName = PDFLib.PDFName;
+          const PDFArray = PDFLib.PDFArray;
+          const PDFString = PDFLib.PDFString;
+
+          const annotDict = {
+            Type: 'Annot',
+            Subtype: 'Link',
+            Rect: [x, y, x + width, y + height],
+            Border: [0, 0, 0],
+            F: 4,
+            A: {
+              Type: 'Action',
+              S: 'URI',
+              URI: PDFString.of(url)
+            }
+          };
+
+          const annotRef = pdfDoc.context.register(pdfDoc.context.obj(annotDict));
+          const key = PDFName.of('Annots');
+          let annots = page.node.lookupMaybe(key, PDFArray);
+
+          if (annots) {
+            annots.push(annotRef);
+          } else {
+            page.node.set(key, pdfDoc.context.obj([annotRef]));
+          }
+        } catch (e) {
+          console.warn('[signature-link] annotation failed:', e);
+        }
+      }
 
       // Toggle button event listeners
       dateTimeToggle.addEventListener('click', () => {
@@ -618,11 +646,11 @@
         if (validFiles.length !== selectedFiles.length) {
           showError("Please select only PDF files");
         }
-        
+
         if (validFiles.length > 0) {
           currentFile = validFiles[0];
           updateFileInfo();
-          
+
           // Reset the file input to allow selecting the same file again
           fileInput.value = '';
         }
@@ -661,11 +689,10 @@
         const year = now.getFullYear();
         const hours = now.getHours();
         const minutes = now.getMinutes();
-        
-        // Format time to have leading zeros if needed
+
         const formattedHours = hours < 10 ? `0${hours}` : hours;
         const formattedMinutes = minutes < 10 ? `0${minutes}` : minutes;
-        
+
         return `${date}_${month}_${year}_${formattedHours}_${formattedMinutes}`;
       }
 
@@ -678,26 +705,19 @@
         const hours = now.getHours();
         const minutes = now.getMinutes();
         const seconds = now.getSeconds();
-        
-        // Format time to have leading zeros if needed
+
         const formattedHours = hours < 10 ? `0${hours}` : hours;
         const formattedMinutes = minutes < 10 ? `0${minutes}` : minutes;
         const formattedSeconds = seconds < 10 ? `0${seconds}` : seconds;
-        
+
         return `${date}-${month}-${year} ${formattedHours}:${formattedMinutes}:${formattedSeconds}`;
       }
 
-      // Function to generate final filename
       function generateFinalFilename(originalName) {
-        // Remove .pdf extension
         let baseName = originalName.replace(/\.pdf$/i, '');
-        
-        // Check if the name already ends with "final file"
         if (!baseName.toLowerCase().endsWith(' final file')) {
           baseName = baseName + ' final file';
         }
-        
-        // Add .pdf extension back
         return baseName + '.pdf';
       }
 
@@ -733,8 +753,9 @@
           // Try to load the signature image from the server
           let signatureImage;
           let signatureAspectRatio = 1;
+          // 🔹 flag: true only when real myrtille_signature.png loaded successfully
+          let signatureLoadedFromFile = false;
           try {
-            // Try to load the image from the same directory
             const signatureImageUrl = 'myrtille_signature.png';
             const signatureImageBytes = await fetch(signatureImageUrl)
               .then(res => {
@@ -744,12 +765,13 @@
             signatureImage = await finalPdf.embedPng(signatureImageBytes);
             const signatureDims = signatureImage.scale(1);
             signatureAspectRatio = signatureDims.width / signatureDims.height;
+            signatureLoadedFromFile = true;
           } catch (error) {
             console.log('Signature image not found, creating placeholder:', error);
-            // Create a placeholder signature image
             signatureImage = await createPlaceholderSignature(finalPdf);
             const signatureDims = signatureImage.scale(1);
             signatureAspectRatio = signatureDims.width / signatureDims.height;
+            signatureLoadedFromFile = false;
           }
 
           // Try to load header image
@@ -767,18 +789,16 @@
               headerImage = await finalPdf.embedPng(headerImageBytes);
               const headerDims = headerImage.scale(1);
               headerAspectRatio = headerDims.width / headerDims.height;
-              
-              // Calculate header height based on A4 width and image aspect ratio
-              headerHeight = (a4Width - 40) / headerAspectRatio; // Full width minus 20px padding on each side
-              headerHeight = Math.min(headerHeight, 120); // Limit max height to 120 points
+
+              headerHeight = (a4Width - 40) / headerAspectRatio;
+              headerHeight = Math.min(headerHeight, 120);
             } catch (error) {
               console.log('Header image not found:', error);
               headerImage = null;
-              headerHeight = 60; // Default height if image not found
+              headerHeight = 60;
             }
           }
 
-          // Define header and footer heights
           const footerHeight = 110;
 
           for (let index = 0; index < pageCount; index++) {
@@ -792,7 +812,6 @@
 
             // Draw header if enabled
             if (headerImage && headerToggle.classList.contains('active')) {
-              // Draw header image to fit full width
               newPage.drawImage(headerImage, {
                 x: 0,
                 y: a4Height - headerHeight,
@@ -800,7 +819,6 @@
                 height: headerHeight,
               });
 
-              // Add header line (separator)
               newPage.drawLine({
                 start: { x: 0, y: a4Height - headerHeight },
                 end: { x: a4Width, y: a4Height - headerHeight },
@@ -815,10 +833,10 @@
               y: 0,
               width: a4Width,
               height: footerHeight,
-              color: PDFLib.rgb(1, 1, 1), // Pure white
+              color: PDFLib.rgb(1, 1, 1),
             });
 
-            // Draw left side footer text - MYRTILLE INDUSTRIES
+            // Left side footer text
             newPage.drawText("MYRTILLE INDUSTRIES", {
               x: 40,
               y: 90,
@@ -843,19 +861,17 @@
               font: helveticaBoldFont,
             });
 
-            // Add "Signature and Seal of Bidder" if enabled
             if (signatureSealToggle.classList.contains('active')) {
               const signatureSealText = "Signature and Seal of Bidder";
               const textWidth = helveticaBoldFont.widthOfTextAtSize(signatureSealText, 10);
-              
-              // Underline text by drawing a line
+
               newPage.drawLine({
                 start: { x: 40, y: 35 },
                 end: { x: 40 + textWidth, y: 35 },
                 thickness: 1,
                 color: PDFLib.rgb(0.1, 0.1, 0.1),
               });
-              
+
               newPage.drawText(signatureSealText, {
                 x: 40,
                 y: 40,
@@ -865,24 +881,38 @@
               });
             }
 
-            // Draw middle signature image - BIGGER SIZE
-            const signatureWidth = 200; // Increased from 150 to 200 (33% bigger)
+            // Middle signature image
+            const signatureWidth = 200;
             const signatureHeight = signatureWidth / signatureAspectRatio;
-            
-            // Ensure height doesn't exceed available space
-            const finalSignatureHeight = Math.min(signatureHeight, 80); // Increased from 60 to 80
+            const finalSignatureHeight = Math.min(signatureHeight, 80);
             const finalSignatureWidth = finalSignatureHeight * signatureAspectRatio;
-            
+
+            const sigX = a4Width / 2 - finalSignatureWidth / 2;
+            const sigY = 25;
+
             newPage.drawImage(signatureImage, {
-              x: a4Width/2 - finalSignatureWidth/2,
-              y: 25,
+              x: sigX,
+              y: sigY,
               width: finalSignatureWidth,
               height: finalSignatureHeight,
             });
 
-            // Draw right side footer text - GST, URN, PAN
+            // 🔹 Clickable link over the signature (only when real signature file used)
+            if (signatureLoadedFromFile) {
+              addLinkAnnotation(
+                finalPdf,
+                newPage,
+                sigX,
+                sigY,
+                finalSignatureWidth,
+                finalSignatureHeight,
+                SIGNATURE_VERIFY_URL
+              );
+            }
+
+            // Right side footer text
             const rightSideX = a4Width - 200;
-            
+
             newPage.drawText("GST: 08AMHPY5013C1Z4", {
               x: rightSideX,
               y: 90,
@@ -907,7 +937,6 @@
               font: helveticaFont,
             });
 
-            // Add date and time if enabled
             if (dateTimeToggle.classList.contains('active')) {
               const dateTimeStr = getCurrentDateTimeString();
               newPage.drawText(dateTimeStr, {
@@ -919,12 +948,10 @@
               });
             }
 
-            // Add page number if enabled
             if (pageNumberToggle.classList.contains('active')) {
               const pageNumText = `Page no. ${index + 1}`;
               const pageNumWidth = helveticaBoldFont.widthOfTextAtSize(pageNumText, 10);
-              
-              // Draw black background
+
               newPage.drawRectangle({
                 x: a4Width - pageNumWidth - 30,
                 y: 10,
@@ -932,8 +959,7 @@
                 height: 15,
                 color: PDFLib.rgb(0, 0, 0),
               });
-              
-              // Draw page number text
+
               newPage.drawText(pageNumText, {
                 x: a4Width - pageNumWidth - 20,
                 y: 13,
@@ -966,11 +992,10 @@
 
           const finalPdfBytes = await finalPdf.save();
           const blob = new Blob([finalPdfBytes], { type: 'application/pdf' });
-          
-          // Generate filename based on original file name
+
           const originalFileName = currentFile.name;
           const finalFileName = generateFinalFilename(originalFileName);
-          
+
           saveAs(blob, finalFileName);
 
           statusMessage.textContent = "Document generated successfully!";
@@ -989,44 +1014,33 @@
         }
       }
 
-      // Function to create a placeholder signature image
       async function createPlaceholderSignature(pdfDoc) {
-        // Create a canvas to draw a signature placeholder
         const canvas = document.createElement('canvas');
-        canvas.width = 400; // Even wider canvas for better aspect ratio
+        canvas.width = 400;
         canvas.height = 120;
         const ctx = canvas.getContext('2d');
-        
-        // Draw signature background
+
         ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
-        
-        // Draw signature border
+
         ctx.strokeStyle = '#5b86e5';
         ctx.lineWidth = 2;
         ctx.setLineDash([5, 3]);
-        ctx.strokeRect(5, 5, canvas.width-10, canvas.height-10);
-        
-        // Draw signature text
+        ctx.strokeRect(5, 5, canvas.width - 10, canvas.height - 10);
+
         ctx.fillStyle = '#333333';
         ctx.font = 'italic 28px Arial';
         ctx.textAlign = 'center';
-        ctx.fillText('Myrtille Industries Signature', canvas.width/2, canvas.height/2 + 10);
-        
-        // Convert canvas to base64
+        ctx.fillText('Myrtille Industries Signature', canvas.width / 2, canvas.height / 2 + 10);
+
         const dataUrl = canvas.toDataURL('image/png');
-        
-        // Remove the data URL prefix
         const base64Data = dataUrl.split(',')[1];
-        
-        // Convert base64 to Uint8Array
         const binaryString = atob(base64Data);
         const bytes = new Uint8Array(binaryString.length);
         for (let i = 0; i < binaryString.length; i++) {
           bytes[i] = binaryString.charCodeAt(i);
         }
-        
-        // Embed the image in the PDF
+
         return await pdfDoc.embedPng(bytes);
       }
 
