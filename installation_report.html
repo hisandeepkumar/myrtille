@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1524,15 +1525,13 @@
 
       const a4Width  = 595.28;
       const a4Height = 841.89;
-      const page = finalPdf.addPage([a4Width, a4Height]);
+      const marginX  = 40;
+      const tableW   = a4Width - marginX * 2; // 515.28 pt
+      const bodyTopY = a4Height - 85;         // 756.89 pt
+      const footerSafeY = 112;                // Safe boundary above 100pt footer
 
-      setProgress(38, 'Applying Myrtille Industries letterhead…');
-
-      /* ================= 1. HEADER (EXACT LETTERHEAD) ================= */
-      page.drawRectangle({
-        x: 0, y: a4Height - 75, width: a4Width, height: 75,
-        color: rgb(1, 1, 1)
-      });
+      const address = addressData.new.address;
+      const contact = addressData.new.contact;
 
       let logoW = 0, logoH = 0;
       if (logoImage){
@@ -1542,116 +1541,161 @@
         if (logoW > 95){ logoW = 95; logoH = logoW / r; }
       }
 
-      const companyName = 'MYRTILLE INDUSTRIES';
-      const textSize = 24;
-      const textW = helveticaBoldFont.widthOfTextAtSize(companyName, textSize);
-      const gap = 14;
-      const groupW = (logoImage ? logoW + gap : 0) + textW;
-      const groupX = (a4Width - groupW) / 2;
-
-      if (logoImage){
-        const logoY = a4Height - 75 + (75 - logoH) / 2;
-        page.drawImage(logoImage, {
-          x: groupX, y: logoY, width: logoW, height: logoH
+      /* ================= LETTERHEAD DECORATOR (HEADER, FOOTER & WATERMARK PER PAGE) ================= */
+      function applyLetterheadAndWatermark(targetPage){
+        // 1. Header
+        targetPage.drawRectangle({
+          x: 0, y: a4Height - 75, width: a4Width, height: 75,
+          color: rgb(1, 1, 1)
         });
-        addLinkAnnotation(finalPdf, page, groupX, logoY, logoW, logoH, WEBSITE_URL);
-      }
 
-      const textX = groupX + (logoImage ? logoW + gap : 0);
-      page.drawText(companyName, {
-        x: textX,
-        y: a4Height - 45,
-        size: textSize,
-        color: rgb(0, 0, 0),
-        font: helveticaBoldFont
-      });
+        const companyName = 'MYRTILLE INDUSTRIES';
+        const textSize = 24;
+        const textW = helveticaBoldFont.widthOfTextAtSize(companyName, textSize);
+        const gap = 14;
+        const groupW = (logoImage ? logoW + gap : 0) + textW;
+        const groupX = (a4Width - groupW) / 2;
 
-      page.drawLine({
-        start: { x: 40, y: a4Height - 75 },
-        end:   { x: a4Width - 40, y: a4Height - 75 },
-        thickness: 1,
-        color: rgb(0.8, 0.8, 0.8)
-      });
-
-      /* ================= 2. FOOTER (EXACT LETTERHEAD) ================= */
-      page.drawRectangle({
-        x: 0, y: 0, width: a4Width, height: 100,
-        color: rgb(1, 1, 1)
-      });
-
-      page.drawLine({
-        start: { x: 40, y: 100 },
-        end:   { x: a4Width - 40, y: 100 },
-        thickness: 1,
-        color: rgb(0.8, 0.8, 0.8)
-      });
-
-      const address = addressData.new.address;
-      const contact = addressData.new.contact;
-
-      const addrLineGap = 13;
-      const addrTotal   = (address.length - 1) * addrLineGap;
-      let addrY = 50 + addrTotal / 2;
-      let maxAddrW = 0;
-
-      address.forEach(line => {
-        const w = helveticaFont.widthOfTextAtSize(line, 10);
-        if (w > maxAddrW) maxAddrW = w;
-        page.drawText(line, {
-          x: 40, y: addrY, size: 10,
-          color: rgb(0.102, 0.322, 0.463),
-          font: helveticaFont
-        });
-        addrY -= addrLineGap;
-      });
-
-      const contactGap  = 12;
-      const contactTot  = (contact.length - 1) * contactGap;
-      let contactY = 50 + contactTot / 2;
-      const contactRightX = a4Width - 40;
-      let maxContactW = 0;
-
-      contact.forEach(line => {
-        const w = helveticaFont.widthOfTextAtSize(line, 10);
-        if (w > maxContactW) maxContactW = w;
-        page.drawText(line, {
-          x: contactRightX - w, y: contactY, size: 10,
-          color: rgb(0.102, 0.322, 0.463),
-          font: helveticaFont
-        });
-        contactY -= contactGap;
-      });
-
-      if (sealImage){
-        const maxH = 58;
-        const ratio = sealImage.width / sealImage.height;
-        let sealH = maxH;
-        let sealW = sealH * ratio;
-
-        const addrEndX      = 40 + maxAddrW + 14;
-        const contactStartX = contactRightX - maxContactW - 14;
-        const maxSealW      = Math.min(contactStartX - addrEndX, 140);
-
-        if (sealW > maxSealW){
-          sealW = Math.max(20, maxSealW);
-          sealH = sealW / ratio;
+        if (logoImage){
+          const logoY = a4Height - 75 + (75 - logoH) / 2;
+          targetPage.drawImage(logoImage, {
+            x: groupX, y: logoY, width: logoW, height: logoH
+          });
+          addLinkAnnotation(finalPdf, targetPage, groupX, logoY, logoW, logoH, WEBSITE_URL);
         }
 
-        const sealX = (a4Width - sealW) / 2;
-        const sealY = (100 - sealH) / 2;
-
-        page.drawImage(sealImage, {
-          x: sealX, y: sealY, width: sealW, height: sealH
+        const textX = groupX + (logoImage ? logoW + gap : 0);
+        targetPage.drawText(companyName, {
+          x: textX,
+          y: a4Height - 45,
+          size: textSize,
+          color: rgb(0, 0, 0),
+          font: helveticaBoldFont
         });
-        addLinkAnnotation(finalPdf, page, sealX, sealY, sealW, sealH, WEBSITE_URL);
+
+        targetPage.drawLine({
+          start: { x: 40, y: a4Height - 75 },
+          end:   { x: a4Width - 40, y: a4Height - 75 },
+          thickness: 1,
+          color: rgb(0.8, 0.8, 0.8)
+        });
+
+        // 2. Footer
+        targetPage.drawRectangle({
+          x: 0, y: 0, width: a4Width, height: 100,
+          color: rgb(1, 1, 1)
+        });
+
+        targetPage.drawLine({
+          start: { x: 40, y: 100 },
+          end:   { x: a4Width - 40, y: 100 },
+          thickness: 1,
+          color: rgb(0.8, 0.8, 0.8)
+        });
+
+        const addrLineGap = 13;
+        const addrTotal   = (address.length - 1) * addrLineGap;
+        let addrY = 50 + addrTotal / 2;
+        let maxAddrW = 0;
+
+        address.forEach(line => {
+          const w = helveticaFont.widthOfTextAtSize(line, 10);
+          if (w > maxAddrW) maxAddrW = w;
+          targetPage.drawText(line, {
+            x: 40, y: addrY, size: 10,
+            color: rgb(0.102, 0.322, 0.463),
+            font: helveticaFont
+          });
+          addrY -= addrLineGap;
+        });
+
+        const contactGap  = 12;
+        const contactTot  = (contact.length - 1) * contactGap;
+        let contactY = 50 + contactTot / 2;
+        const contactRightX = a4Width - 40;
+        let maxContactW = 0;
+
+        contact.forEach(line => {
+          const w = helveticaFont.widthOfTextAtSize(line, 10);
+          if (w > maxContactW) maxContactW = w;
+          targetPage.drawText(line, {
+            x: contactRightX - w, y: contactY, size: 10,
+            color: rgb(0.102, 0.322, 0.463),
+            font: helveticaFont
+          });
+          contactY -= contactGap;
+        });
+
+        if (sealImage){
+          const maxH = 58;
+          const ratio = sealImage.width / sealImage.height;
+          let sealH = maxH;
+          let sealW = sealH * ratio;
+
+          const addrEndX      = 40 + maxAddrW + 14;
+          const contactStartX = contactRightX - maxContactW - 14;
+          const maxSealW      = Math.min(contactStartX - addrEndX, 140);
+
+          if (sealW > maxSealW){
+            sealW = Math.max(20, maxSealW);
+            sealH = sealW / ratio;
+          }
+
+          const sealX = (a4Width - sealW) / 2;
+          const sealY = (100 - sealH) / 2;
+
+          targetPage.drawImage(sealImage, {
+            x: sealX, y: sealY, width: sealW, height: sealH
+          });
+          addLinkAnnotation(finalPdf, targetPage, sealX, sealY, sealW, sealH, WEBSITE_URL);
+        }
+
+        // 3. Watermark (if enabled)
+        if (watermarkToggle.checked){
+          const watermarkText = 'MYRTILLE INDUSTRIES';
+          const font = helveticaBoldFont;
+          const { width: pw, height: ph } = targetPage.getSize();
+          const diagonalLength = Math.sqrt(pw * pw + ph * ph);
+          const angle = Math.atan2(ph, pw) * (180 / Math.PI);
+
+          let fontSize = diagonalLength / 10;
+          let wmWidth  = font.widthOfTextAtSize(watermarkText, fontSize);
+          const maxTextWidth = diagonalLength * 0.8;
+
+          while (wmWidth > maxTextWidth && fontSize > 10){
+            fontSize -= 2;
+            wmWidth = font.widthOfTextAtSize(watermarkText, fontSize);
+          }
+
+          const xCenter = pw / 2 - (wmWidth * Math.cos(angle * Math.PI / 180)) / 2;
+          const yCenter = ph / 2 - (wmWidth * Math.sin(angle * Math.PI / 180)) / 2;
+
+          targetPage.drawText(watermarkText, {
+            x: xCenter, y: yCenter,
+            size: fontSize,
+            font: font,
+            color: rgb(0.231, 0.525, 0.898),
+            opacity: 0.3,
+            rotate: degrees(angle)
+          });
+        }
       }
 
-      /* ================= 3. INSTALLATION & HANDOVER REPORT BODY ================= */
-      setProgress(62, 'Formatting report tables…');
+      setProgress(38, 'Applying Myrtille Industries letterhead…');
+      let page = finalPdf.addPage([a4Width, a4Height]);
+      applyLetterheadAndWatermark(page);
+      let curY = bodyTopY;
 
-      const marginX = 40;
-      const tableW  = a4Width - marginX * 2; // 515.28 pt
-      let curY      = a4Height - 85;         // 756.89 pt (safe footer boundary at y = 108)
+      function ensureSpace(requiredHeight){
+        if (curY - requiredHeight < footerSafeY){
+          page = finalPdf.addPage([a4Width, a4Height]);
+          applyLetterheadAndWatermark(page);
+          curY = bodyTopY;
+        }
+      }
+
+      /* ================= 3. INSTALLATION & HANDOVER REPORT BODY (DYNAMIC AUTO-FIT) ================= */
+      setProgress(62, 'Formatting report tables…');
 
       const navyFill    = rgb(0.102, 0.322, 0.463); // #1a5276
       const secHeaderBg = rgb(0.86, 0.91, 0.95);
@@ -1661,8 +1705,25 @@
       const darkText    = rgb(0.08, 0.11, 0.16);
       const labelText   = rgb(0.12, 0.24, 0.36);
 
-      // Helper to draw a bordered cell with wrapped text
-      function drawCell(x, yTop, w, h, opts = {}){
+      // Compute wrapped lines & required cell height so text NEVER overflows outside borders
+      function measureCellLayout(width, opts = {}){
+        const fnt        = opts.bold ? helveticaBoldFont : helveticaFont;
+        const fSize      = opts.fontSize || 8.5;
+        const padX       = opts.padX !== undefined ? opts.padX : 6;
+        const padY       = opts.padY !== undefined ? opts.padY : 4.5;
+        const lineHeight = opts.lineHeight || (fSize + 2.6);
+        const minHeight  = opts.minHeight || 18;
+        const maxW       = Math.max(8, width - padX * 2);
+
+        const lines = opts.text ? wrapTextLines(opts.text, fnt, fSize, maxW) : [];
+        const textH = lines.length > 0 ? (lines.length * lineHeight - (lineHeight - fSize)) : 0;
+        const requiredH = Math.max(minHeight, textH + padY * 2 + 2);
+
+        return { lines, fnt, fSize, padX, padY, lineHeight, requiredH };
+      }
+
+      // Draw a bordered cell using precomputed or dynamic layout (renders ALL wrapped lines)
+      function drawCell(x, yTop, w, h, opts = {}, precomputed){
         page.drawRectangle({
           x: x,
           y: yTop - h,
@@ -1673,34 +1734,165 @@
           borderWidth: 0.7
         });
 
-        if (opts.text){
-          const fnt   = opts.bold ? helveticaBoldFont : helveticaFont;
-          const fSize = opts.fontSize || 8.5;
-          const padX  = opts.padX !== undefined ? opts.padX : 6;
-          const padY  = opts.padY !== undefined ? opts.padY : 5;
-          const lHeight = opts.lineHeight || (fSize + 2.5);
-          const maxW  = Math.max(10, w - padX * 2);
-          const lines = wrapTextLines(opts.text, fnt, fSize, maxW);
-          const maxLines = Math.max(1, Math.floor((h - padY * 2 + 2) / lHeight));
-
-          lines.slice(0, maxLines).forEach((line, i) => {
-            const lineW = fnt.widthOfTextAtSize(line, fSize);
-            let drawX = x + padX;
+        const layout = precomputed || measureCellLayout(w, opts);
+        if (layout.lines.length > 0){
+          layout.lines.forEach((line, i) => {
+            if (!line) return;
+            const lineW = layout.fnt.widthOfTextAtSize(line, layout.fSize);
+            let drawX = x + layout.padX;
             if (opts.align === 'center') drawX = x + (w - lineW) / 2;
-            const drawY = yTop - padY - fSize - i * lHeight;
+            const drawY = yTop - layout.padY - layout.fSize - i * layout.lineHeight;
             page.drawText(line, {
               x: drawX,
               y: drawY,
-              size: fSize,
-              font: fnt,
+              size: layout.fSize,
+              font: layout.fnt,
               color: opts.color || darkText
             });
           });
         }
       }
 
+      // Draw an inline "LABEL: VALUE" cell that wraps value onto subsequent lines inside the box
+      function drawInlineLabelValueCell(x, yTop, w, h, labelStr, valueStr, labelOffset, opts = {}){
+        page.drawRectangle({
+          x: x,
+          y: yTop - h,
+          width: w,
+          height: h,
+          color: opts.bg || whiteBg,
+          borderColor: borderColor,
+          borderWidth: 0.7
+        });
+
+        const padX       = 6;
+        const padY       = 4.5;
+        const lblSize    = 7.8;
+        const valSize    = 8.5;
+        const lineHeight = 11.2;
+
+        page.drawText(labelStr, {
+          x: x + padX,
+          y: yTop - padY - valSize,
+          size: lblSize,
+          font: helveticaBoldFont,
+          color: labelText
+        });
+
+        if (valueStr){
+          const firstLineMaxW = Math.max(20, w - labelOffset - padX);
+          const fullLineMaxW  = Math.max(20, w - padX * 2);
+          const clean = sanitizePdfText(valueStr);
+          const words = clean.replace(/\n+/g, ' ').trim().split(/\s+/);
+          const lines = [];
+          let current = '';
+          let isFirst = true;
+
+          words.forEach(word => {
+            const limit = isFirst ? firstLineMaxW : fullLineMaxW;
+            const cand  = current ? (current + ' ' + word) : word;
+            if (helveticaBoldFont.widthOfTextAtSize(cand, valSize) <= limit){
+              current = cand;
+            } else {
+              if (current){
+                lines.push({ text: current, first: isFirst });
+                isFirst = false;
+                current = '';
+              }
+              let rem = word;
+              while (rem.length > 0){
+                const lim = isFirst ? firstLineMaxW : fullLineMaxW;
+                if (helveticaBoldFont.widthOfTextAtSize(rem, valSize) <= lim){
+                  current = rem;
+                  break;
+                }
+                let slice = '';
+                for (const ch of rem){
+                  if (helveticaBoldFont.widthOfTextAtSize(slice + ch, valSize) <= lim){
+                    slice += ch;
+                  } else {
+                    break;
+                  }
+                }
+                if (!slice) slice = rem[0];
+                lines.push({ text: slice, first: isFirst });
+                isFirst = false;
+                rem = rem.slice(slice.length);
+              }
+            }
+          });
+          if (current) lines.push({ text: current, first: isFirst });
+
+          lines.forEach((ln, idx) => {
+            const drawX = ln.first ? (x + labelOffset) : (x + padX);
+            const drawY = yTop - padY - valSize - idx * lineHeight;
+            page.drawText(ln.text, {
+              x: drawX,
+              y: drawY,
+              size: valSize,
+              font: helveticaBoldFont,
+              color: darkText
+            });
+          });
+        }
+      }
+
+      function measureInlineCellHeight(w, valueStr, labelOffset){
+        const minH = 19;
+        if (!valueStr) return minH;
+        const padX          = 6;
+        const padY          = 4.5;
+        const valSize       = 8.5;
+        const lineHeight    = 11.2;
+        const firstLineMaxW = Math.max(20, w - labelOffset - padX);
+        const fullLineMaxW  = Math.max(20, w - padX * 2);
+        const clean         = sanitizePdfText(valueStr);
+        const words         = clean.replace(/\n+/g, ' ').trim().split(/\s+/);
+        let lineCount = 0;
+        let current   = '';
+        let isFirst   = true;
+
+        words.forEach(word => {
+          const limit = isFirst ? firstLineMaxW : fullLineMaxW;
+          const cand  = current ? (current + ' ' + word) : word;
+          if (helveticaBoldFont.widthOfTextAtSize(cand, valSize) <= limit){
+            current = cand;
+          } else {
+            if (current){
+              lineCount++;
+              isFirst = false;
+              current = '';
+            }
+            let rem = word;
+            while (rem.length > 0){
+              const lim = isFirst ? firstLineMaxW : fullLineMaxW;
+              if (helveticaBoldFont.widthOfTextAtSize(rem, valSize) <= lim){
+                current = rem;
+                break;
+              }
+              let slice = '';
+              for (const ch of rem){
+                if (helveticaBoldFont.widthOfTextAtSize(slice + ch, valSize) <= lim){
+                  slice += ch;
+                } else {
+                  break;
+                }
+              }
+              if (!slice) slice = rem[0];
+              lineCount++;
+              isFirst = false;
+              rem = rem.slice(slice.length);
+            }
+          }
+        });
+        if (current) lineCount++;
+        const textH = lineCount > 0 ? (lineCount * lineHeight - (lineHeight - valSize)) : 0;
+        return Math.max(minH, textH + padY * 2 + 2);
+      }
+
       // Main Report Title Banner
       const titleH = 22;
+      ensureSpace(titleH);
       drawCell(marginX, curY, tableW, titleH, {
         bg: navyFill,
         text: 'INSTALLATION & HANDOVER REPORT',
@@ -1708,7 +1900,8 @@
         fontSize: 11.5,
         color: rgb(1, 1, 1),
         align: 'center',
-        padY: 5.5
+        padY: 5.5,
+        minHeight: titleH
       });
       curY -= titleH;
 
@@ -1734,143 +1927,188 @@
       /* --- SECTION 1: CUSTOMER & EQUIPMENT DETAILS --- */
       const secH = 16.5;
       const lblH = 14.5;
-      const valH = 20;
-      const valTallH = 25;
 
+      // Row 1: Customer | Department | Installation Date (auto-expanding height)
+      const c3_1 = tableW * 0.44;
+      const c3_2 = tableW * 0.30;
+      const c3_3 = tableW - c3_1 - c3_2;
+
+      const r1c1Opts = { text: valCustomer, bold: true, fontSize: 8.5, padY: 4.5, minHeight: 20 };
+      const r1c2Opts = { text: valDepartment, bold: true, fontSize: 8.5, padY: 4.5, minHeight: 20 };
+      const r1c3Opts = { text: valInstallDate, bold: true, fontSize: 8.5, padY: 4.5, minHeight: 20 };
+      const r1L1 = measureCellLayout(c3_1, r1c1Opts);
+      const r1L2 = measureCellLayout(c3_2, r1c2Opts);
+      const r1L3 = measureCellLayout(c3_3, r1c3Opts);
+      const row1ValH = Math.max(r1L1.requiredH, r1L2.requiredH, r1L3.requiredH);
+
+      ensureSpace(secH + lblH + row1ValH);
       drawCell(marginX, curY, tableW, secH, {
         bg: secHeaderBg,
         text: '1. CUSTOMER & EQUIPMENT DETAILS',
         bold: true,
         fontSize: 8.5,
         color: labelText,
-        padY: 4
+        padY: 4,
+        minHeight: secH
       });
       curY -= secH;
 
-      // Row 1: Customer | Department | Installation Date
-      const c3_1 = tableW * 0.44;
-      const c3_2 = tableW * 0.30;
-      const c3_3 = tableW - c3_1 - c3_2;
-
-      drawCell(marginX, curY, c3_1, lblH, { bg: labelBg, text: 'CUSTOMER / HOSPITAL NAME', bold: true, fontSize: 7.5, color: labelText, padY: 3.5 });
-      drawCell(marginX + c3_1, curY, c3_2, lblH, { bg: labelBg, text: 'DEPARTMENT', bold: true, fontSize: 7.5, color: labelText, padY: 3.5 });
-      drawCell(marginX + c3_1 + c3_2, curY, c3_3, lblH, { bg: labelBg, text: 'INSTALLATION DATE', bold: true, fontSize: 7.5, color: labelText, padY: 3.5 });
+      drawCell(marginX, curY, c3_1, lblH, { bg: labelBg, text: 'CUSTOMER / HOSPITAL NAME', bold: true, fontSize: 7.5, color: labelText, padY: 3.5, minHeight: lblH });
+      drawCell(marginX + c3_1, curY, c3_2, lblH, { bg: labelBg, text: 'DEPARTMENT', bold: true, fontSize: 7.5, color: labelText, padY: 3.5, minHeight: lblH });
+      drawCell(marginX + c3_1 + c3_2, curY, c3_3, lblH, { bg: labelBg, text: 'INSTALLATION DATE', bold: true, fontSize: 7.5, color: labelText, padY: 3.5, minHeight: lblH });
       curY -= lblH;
 
-      drawCell(marginX, curY, c3_1, valH, { text: valCustomer, bold: true, fontSize: 8.5, padY: 5 });
-      drawCell(marginX + c3_1, curY, c3_2, valH, { text: valDepartment, bold: true, fontSize: 8.5, padY: 5 });
-      drawCell(marginX + c3_1 + c3_2, curY, c3_3, valH, { text: valInstallDate, bold: true, fontSize: 8.5, padY: 5 });
-      curY -= valH;
+      drawCell(marginX, curY, c3_1, row1ValH, r1c1Opts, r1L1);
+      drawCell(marginX + c3_1, curY, c3_2, row1ValH, r1c2Opts, r1L2);
+      drawCell(marginX + c3_1 + c3_2, curY, c3_3, row1ValH, r1c3Opts, r1L3);
+      curY -= row1ValH;
 
-      // Row 2: Address / Location | Contact Person & Mobile
+      // Row 2: Address / Location | Contact Person & Mobile (auto-expanding height)
       const c2_1 = tableW * 0.54;
       const c2_2 = tableW - c2_1;
 
-      drawCell(marginX, curY, c2_1, lblH, { bg: labelBg, text: 'ADDRESS / LOCATION', bold: true, fontSize: 7.5, color: labelText, padY: 3.5 });
-      drawCell(marginX + c2_1, curY, c2_2, lblH, { bg: labelBg, text: 'CONTACT PERSON & MOBILE', bold: true, fontSize: 7.5, color: labelText, padY: 3.5 });
+      const r2c1Opts = { text: valAddress, bold: true, fontSize: 8.3, padY: 4.5, lineHeight: 10.6, minHeight: 24 };
+      const r2c2Opts = { text: valContact, bold: true, fontSize: 8.3, padY: 4.5, lineHeight: 10.6, minHeight: 24 };
+      const r2L1 = measureCellLayout(c2_1, r2c1Opts);
+      const r2L2 = measureCellLayout(c2_2, r2c2Opts);
+      const row2ValH = Math.max(r2L1.requiredH, r2L2.requiredH);
+
+      ensureSpace(lblH + row2ValH);
+      drawCell(marginX, curY, c2_1, lblH, { bg: labelBg, text: 'ADDRESS / LOCATION', bold: true, fontSize: 7.5, color: labelText, padY: 3.5, minHeight: lblH });
+      drawCell(marginX + c2_1, curY, c2_2, lblH, { bg: labelBg, text: 'CONTACT PERSON & MOBILE', bold: true, fontSize: 7.5, color: labelText, padY: 3.5, minHeight: lblH });
       curY -= lblH;
 
-      drawCell(marginX, curY, c2_1, valTallH, { text: valAddress, bold: true, fontSize: 8.3, padY: 4, lineHeight: 9.8 });
-      drawCell(marginX + c2_1, curY, c2_2, valTallH, { text: valContact, bold: true, fontSize: 8.3, padY: 4, lineHeight: 9.8 });
-      curY -= valTallH;
+      drawCell(marginX, curY, c2_1, row2ValH, r2c1Opts, r2L1);
+      drawCell(marginX + c2_1, curY, c2_2, row2ValH, r2c2Opts, r2L2);
+      curY -= row2ValH;
 
-      // Row 3: Equipment / Model | Serial Number | Manufacturer / Brand
+      // Row 3: Equipment / Model | Serial Number | Manufacturer / Brand (auto-expanding height)
       const eq1 = tableW * 0.40;
       const eq2 = tableW * 0.30;
       const eq3 = tableW - eq1 - eq2;
 
-      drawCell(marginX, curY, eq1, lblH, { bg: labelBg, text: 'EQUIPMENT / MODEL', bold: true, fontSize: 7.5, color: labelText, padY: 3.5 });
-      drawCell(marginX + eq1, curY, eq2, lblH, { bg: labelBg, text: 'SERIAL NUMBER', bold: true, fontSize: 7.5, color: labelText, padY: 3.5 });
-      drawCell(marginX + eq1 + eq2, curY, eq3, lblH, { bg: labelBg, text: 'MANUFACTURER / BRAND', bold: true, fontSize: 7.5, color: labelText, padY: 3.5 });
+      const r3c1Opts = { text: valEquipment, bold: true, fontSize: 8.5, padY: 4.5, minHeight: 20 };
+      const r3c2Opts = { text: valSerial, bold: true, fontSize: 8.5, padY: 4.5, minHeight: 20 };
+      const r3c3Opts = { text: valManufacturer, bold: true, fontSize: 8.5, padY: 4.5, minHeight: 20 };
+      const r3L1 = measureCellLayout(eq1, r3c1Opts);
+      const r3L2 = measureCellLayout(eq2, r3c2Opts);
+      const r3L3 = measureCellLayout(eq3, r3c3Opts);
+      const row3ValH = Math.max(r3L1.requiredH, r3L2.requiredH, r3L3.requiredH);
+
+      ensureSpace(lblH + row3ValH);
+      drawCell(marginX, curY, eq1, lblH, { bg: labelBg, text: 'EQUIPMENT / MODEL', bold: true, fontSize: 7.5, color: labelText, padY: 3.5, minHeight: lblH });
+      drawCell(marginX + eq1, curY, eq2, lblH, { bg: labelBg, text: 'SERIAL NUMBER', bold: true, fontSize: 7.5, color: labelText, padY: 3.5, minHeight: lblH });
+      drawCell(marginX + eq1 + eq2, curY, eq3, lblH, { bg: labelBg, text: 'MANUFACTURER / BRAND', bold: true, fontSize: 7.5, color: labelText, padY: 3.5, minHeight: lblH });
       curY -= lblH;
 
-      drawCell(marginX, curY, eq1, valH, { text: valEquipment, bold: true, fontSize: 8.5, padY: 5 });
-      drawCell(marginX + eq1, curY, eq2, valH, { text: valSerial, bold: true, fontSize: 8.5, padY: 5 });
-      drawCell(marginX + eq1 + eq2, curY, eq3, valH, { text: valManufacturer, bold: true, fontSize: 8.5, padY: 5 });
-      curY -= valH;
+      drawCell(marginX, curY, eq1, row3ValH, r3c1Opts, r3L1);
+      drawCell(marginX + eq1, curY, eq2, row3ValH, r3c2Opts, r3L2);
+      drawCell(marginX + eq1 + eq2, curY, eq3, row3ValH, r3c3Opts, r3L3);
+      curY -= row3ValH;
 
-      // Sub-header: PURCHASE ORDER DETAILS
+      // Sub-header & Row 4: PURCHASE ORDER DETAILS (auto-expanding height)
       const poSubH = 14.5;
+      const poHalf = tableW * 0.5;
+      const poH1   = measureInlineCellHeight(poHalf, valPoNumber, 64);
+      const poH2   = measureInlineCellHeight(poHalf, valPoDate, 52);
+      const poRowH = Math.max(poH1, poH2);
+
+      ensureSpace(poSubH + poRowH);
       drawCell(marginX, curY, tableW, poSubH, {
         bg: labelBg,
         text: 'PURCHASE ORDER DETAILS',
         bold: true,
         fontSize: 7.5,
         color: labelText,
-        padY: 3.5
+        padY: 3.5,
+        minHeight: poSubH
       });
       curY -= poSubH;
 
-      const poHalf = tableW * 0.5;
-      const poRowH = 18.5;
-      drawCell(marginX, curY, poHalf, poRowH, { bg: whiteBg });
-      page.drawText('PO NUMBER:', { x: marginX + 6, y: curY - 12.5, size: 7.8, font: helveticaBoldFont, color: labelText });
-      if (valPoNumber){
-        page.drawText(sanitizePdfText(valPoNumber), { x: marginX + 64, y: curY - 12.5, size: 8.5, font: helveticaBoldFont, color: darkText });
-      }
-
-      drawCell(marginX + poHalf, curY, poHalf, poRowH, { bg: whiteBg });
-      page.drawText('PO DATE:', { x: marginX + poHalf + 6, y: curY - 12.5, size: 7.8, font: helveticaBoldFont, color: labelText });
-      if (valPoDate){
-        page.drawText(sanitizePdfText(valPoDate), { x: marginX + poHalf + 52, y: curY - 12.5, size: 8.5, font: helveticaBoldFont, color: darkText });
-      }
+      drawInlineLabelValueCell(marginX, curY, poHalf, poRowH, 'PO NUMBER:', valPoNumber, 64);
+      drawInlineLabelValueCell(marginX + poHalf, curY, poHalf, poRowH, 'PO DATE:', valPoDate, 52);
       curY -= poRowH;
 
-      // Conditional TENDER DETAILS row (appears only if Tender Details or Tender Date is filled)
+      // Conditional TENDER DETAILS row (auto-expanding height, appears only if filled)
       if (valTenderDetails || valTenderDate){
         if (valTenderDetails && valTenderDate){
-          drawCell(marginX, curY, poHalf, poRowH, { bg: whiteBg });
-          page.drawText('TENDER DETAILS:', { x: marginX + 6, y: curY - 12.5, size: 7.8, font: helveticaBoldFont, color: labelText });
-          page.drawText(sanitizePdfText(valTenderDetails), { x: marginX + 82, y: curY - 12.5, size: 8.5, font: helveticaBoldFont, color: darkText });
+          const tH1 = measureInlineCellHeight(poHalf, valTenderDetails, 82);
+          const tH2 = measureInlineCellHeight(poHalf, valTenderDate, 70);
+          const tenderRowH = Math.max(tH1, tH2);
 
-          drawCell(marginX + poHalf, curY, poHalf, poRowH, { bg: whiteBg });
-          page.drawText('TENDER DATE:', { x: marginX + poHalf + 6, y: curY - 12.5, size: 7.8, font: helveticaBoldFont, color: labelText });
-          page.drawText(sanitizePdfText(valTenderDate), { x: marginX + poHalf + 70, y: curY - 12.5, size: 8.5, font: helveticaBoldFont, color: darkText });
+          ensureSpace(tenderRowH);
+          drawInlineLabelValueCell(marginX, curY, poHalf, tenderRowH, 'TENDER DETAILS:', valTenderDetails, 82);
+          drawInlineLabelValueCell(marginX + poHalf, curY, poHalf, tenderRowH, 'TENDER DATE:', valTenderDate, 70);
+          curY -= tenderRowH;
         } else if (valTenderDetails){
-          drawCell(marginX, curY, tableW, poRowH, { bg: whiteBg });
-          page.drawText('TENDER DETAILS:', { x: marginX + 6, y: curY - 12.5, size: 7.8, font: helveticaBoldFont, color: labelText });
-          page.drawText(sanitizePdfText(valTenderDetails), { x: marginX + 84, y: curY - 12.5, size: 8.5, font: helveticaBoldFont, color: darkText });
+          const tenderRowH = measureInlineCellHeight(tableW, valTenderDetails, 84);
+          ensureSpace(tenderRowH);
+          drawInlineLabelValueCell(marginX, curY, tableW, tenderRowH, 'TENDER DETAILS:', valTenderDetails, 84);
+          curY -= tenderRowH;
         } else {
-          drawCell(marginX, curY, tableW, poRowH, { bg: whiteBg });
-          page.drawText('TENDER DATE:', { x: marginX + 6, y: curY - 12.5, size: 7.8, font: helveticaBoldFont, color: labelText });
-          page.drawText(sanitizePdfText(valTenderDate), { x: marginX + 72, y: curY - 12.5, size: 8.5, font: helveticaBoldFont, color: darkText });
+          const tenderRowH = measureInlineCellHeight(tableW, valTenderDate, 72);
+          ensureSpace(tenderRowH);
+          drawInlineLabelValueCell(marginX, curY, tableW, tenderRowH, 'TENDER DATE:', valTenderDate, 72);
+          curY -= tenderRowH;
         }
-        curY -= poRowH;
       }
       curY -= 6;
 
-      /* --- SECTION 2: INSTALLATION CHECKLIST --- */
+      /* --- SECTION 2: INSTALLATION CHECKLIST (AUTO-EXPANDING REMARKS ROWS) --- */
+      const colSr  = 42;
+      const colChk = 232;
+      const colSt  = 96;
+      const colRem = tableW - colSr - colChk - colSt; // 145.28
+      const chkHeadH = 15.5;
+
+      function drawChecklistHeader(){
+        drawCell(marginX, curY, colSr, chkHeadH, { bg: labelBg, text: 'SR. NO.', bold: true, fontSize: 7.5, color: labelText, align: 'center', padY: 4, minHeight: chkHeadH });
+        drawCell(marginX + colSr, curY, colChk, chkHeadH, { bg: labelBg, text: 'CHECKPOINT', bold: true, fontSize: 7.5, color: labelText, padY: 4, minHeight: chkHeadH });
+        drawCell(marginX + colSr + colChk, curY, colSt, chkHeadH, { bg: labelBg, text: 'STATUS', bold: true, fontSize: 7.5, color: labelText, align: 'center', padY: 4, minHeight: chkHeadH });
+        drawCell(marginX + colSr + colChk + colSt, curY, colRem, chkHeadH, { bg: labelBg, text: 'REMARKS', bold: true, fontSize: 7.5, color: labelText, padY: 4, minHeight: chkHeadH });
+        curY -= chkHeadH;
+      }
+
+      // Measure first checklist row together with section header so header isn't orphaned
+      const firstSt = checklistState[0];
+      const firstChkLayout = measureCellLayout(colChk, { text: CHECKLIST_ITEMS[0].text, fontSize: 8.1, padY: 4.5, minHeight: 19 });
+      const firstRemLayout = measureCellLayout(colRem, { text: firstSt.remarks, bold: true, fontSize: 7.8, padY: 4, lineHeight: 9.8, minHeight: 19 });
+      const firstRowH = Math.max(19, firstChkLayout.requiredH, firstRemLayout.requiredH);
+
+      ensureSpace(secH + chkHeadH + firstRowH);
       drawCell(marginX, curY, tableW, secH, {
         bg: secHeaderBg,
         text: '2. INSTALLATION CHECKLIST',
         bold: true,
         fontSize: 8.5,
         color: labelText,
-        padY: 4
+        padY: 4,
+        minHeight: secH
       });
       curY -= secH;
+      drawChecklistHeader();
 
-      const colSr  = 42;
-      const colChk = 232;
-      const colSt  = 96;
-      const colRem = tableW - colSr - colChk - colSt; // 145.28
-
-      const chkHeadH = 15.5;
-      drawCell(marginX, curY, colSr, chkHeadH, { bg: labelBg, text: 'SR. NO.', bold: true, fontSize: 7.5, color: labelText, align: 'center', padY: 4 });
-      drawCell(marginX + colSr, curY, colChk, chkHeadH, { bg: labelBg, text: 'CHECKPOINT', bold: true, fontSize: 7.5, color: labelText, padY: 4 });
-      drawCell(marginX + colSr + colChk, curY, colSt, chkHeadH, { bg: labelBg, text: 'STATUS', bold: true, fontSize: 7.5, color: labelText, align: 'center', padY: 4 });
-      drawCell(marginX + colSr + colChk + colSt, curY, colRem, chkHeadH, { bg: labelBg, text: 'REMARKS', bold: true, fontSize: 7.5, color: labelText, padY: 4 });
-      curY -= chkHeadH;
-
-      const chkRowH = 19;
       CHECKLIST_ITEMS.forEach((item, idx) => {
         const st = checklistState[idx];
-        drawCell(marginX, curY, colSr, chkRowH, { text: item.sr, fontSize: 8.2, align: 'center', padY: 5 });
-        drawCell(marginX + colSr, curY, colChk, chkRowH, { text: item.text, fontSize: 8.1, padY: 5 });
-        drawCell(marginX + colSr + colChk, curY, colSt, chkRowH, { bg: whiteBg });
+        const chkOpts = { text: item.text, fontSize: 8.1, padY: 4.5, minHeight: 19 };
+        const remOpts = { text: st.remarks, bold: true, fontSize: 7.8, padY: 4, lineHeight: 9.8, minHeight: 19 };
+        const chkLayout = idx === 0 ? firstChkLayout : measureCellLayout(colChk, chkOpts);
+        const remLayout = idx === 0 ? firstRemLayout : measureCellLayout(colRem, remOpts);
+        const rowH = Math.max(19, chkLayout.requiredH, remLayout.requiredH);
 
-        // Draw crisp vector Yes / No checkboxes inside Status column (bold label when checked)
-        const stX = marginX + colSr + colChk + 10;
+        if (idx > 0 && curY - rowH < footerSafeY){
+          page = finalPdf.addPage([a4Width, a4Height]);
+          applyLetterheadAndWatermark(page);
+          curY = bodyTopY;
+          drawChecklistHeader();
+        }
+
+        drawCell(marginX, curY, colSr, rowH, { text: item.sr, fontSize: 8.2, align: 'center', padY: 5, minHeight: rowH });
+        drawCell(marginX + colSr, curY, colChk, rowH, chkOpts, chkLayout);
+        drawCell(marginX + colSr + colChk, curY, colSt, rowH, { bg: whiteBg, minHeight: rowH });
+
+        // Crisp vector Yes / No checkboxes inside Status column
+        const stX  = marginX + colSr + colChk + 10;
         const boxY = curY - 13.8;
         drawCheckboxVector(page, stX, boxY, 8.5, st.status === 'yes');
         page.drawText('Yes', {
@@ -1891,38 +2129,35 @@
           color: darkText
         });
 
-        drawCell(marginX + colSr + colChk + colSt, curY, colRem, chkRowH, {
-          text: st.remarks,
-          bold: true,
-          fontSize: 7.8,
-          padY: 3.5,
-          lineHeight: 9.2
-        });
-
-        curY -= chkRowH;
+        drawCell(marginX + colSr + colChk + colSt, curY, colRem, rowH, remOpts, remLayout);
+        curY -= rowH;
       });
       curY -= 6;
 
-      /* --- SECTION 3: INSTALLATION SUMMARY --- */
+      /* --- SECTION 3: INSTALLATION SUMMARY (AUTO-EXPANDING REMARKS) --- */
+      const sumCol1 = tableW * 0.45;
+      const sumCol2 = tableW - sumCol1;
+      const sumRemOpts = { text: valSumRemarks, bold: true, fontSize: 8.2, padY: 4.5, lineHeight: 10.4, minHeight: 24 };
+      const sumRemLayout = measureCellLayout(sumCol2, sumRemOpts);
+      const sumValH = Math.max(24, sumRemLayout.requiredH);
+
+      ensureSpace(secH + lblH + sumValH);
       drawCell(marginX, curY, tableW, secH, {
         bg: secHeaderBg,
         text: '3. INSTALLATION SUMMARY',
         bold: true,
         fontSize: 8.5,
         color: labelText,
-        padY: 4
+        padY: 4,
+        minHeight: secH
       });
       curY -= secH;
 
-      const sumCol1 = tableW * 0.45;
-      const sumCol2 = tableW - sumCol1;
-
-      drawCell(marginX, curY, sumCol1, lblH, { bg: labelBg, text: 'INSTALLATION STATUS', bold: true, fontSize: 7.5, color: labelText, padY: 3.5 });
-      drawCell(marginX + sumCol1, curY, sumCol2, lblH, { bg: labelBg, text: 'REMARKS / PENDING WORK (IF ANY)', bold: true, fontSize: 7.5, color: labelText, padY: 3.5 });
+      drawCell(marginX, curY, sumCol1, lblH, { bg: labelBg, text: 'INSTALLATION STATUS', bold: true, fontSize: 7.5, color: labelText, padY: 3.5, minHeight: lblH });
+      drawCell(marginX + sumCol1, curY, sumCol2, lblH, { bg: labelBg, text: 'REMARKS / PENDING WORK (IF ANY)', bold: true, fontSize: 7.5, color: labelText, padY: 3.5, minHeight: lblH });
       curY -= lblH;
 
-      const sumValH = 24;
-      drawCell(marginX, curY, sumCol1, sumValH, { bg: whiteBg });
+      drawCell(marginX, curY, sumCol1, sumValH, { bg: whiteBg, minHeight: sumValH });
 
       const sBoxY = curY - 16;
       drawCheckboxVector(page, marginX + 8, sBoxY, 9, summaryStatus === 'installed');
@@ -1943,112 +2178,86 @@
         color: darkText
       });
 
-      drawCell(marginX + sumCol1, curY, sumCol2, sumValH, {
-        text: valSumRemarks,
-        bold: true,
-        fontSize: 8.2,
-        padY: 4,
-        lineHeight: 9.6
-      });
+      drawCell(marginX + sumCol1, curY, sumCol2, sumValH, sumRemOpts, sumRemLayout);
       curY -= (sumValH + 6);
 
-      /* --- SECTION 4: ACKNOWLEDGEMENT --- */
+      /* --- SECTION 4: ACKNOWLEDGEMENT (AUTO-EXPANDING NAME/DATE & SIGNATURE SPACE) --- */
+      const ackNoteText = 'The equipment mentioned above has been installed / checked and handed over to the customer. The customer acknowledges receipt and the installation status recorded in this report.';
+      const ackNoteOpts = { text: ackNoteText, fontSize: 8, padY: 4.5, lineHeight: 10.2, minHeight: 24 };
+      const ackNoteLayout = measureCellLayout(tableW, ackNoteOpts);
+      const ackNoteH = ackNoteLayout.requiredH;
+
+      const ackHalf = tableW * 0.5;
+      const engNameLines  = valEngName     ? wrapTextLines(valEngName, helveticaBoldFont, 8.5, ackHalf - 46) : [];
+      const custNameLines = valCustRepName ? wrapTextLines(valCustRepName, helveticaBoldFont, 8.5, ackHalf - 46) : [];
+      const maxNameLines  = Math.max(1, engNameLines.length, custNameLines.length);
+      const signBoxH      = 60 + (maxNameLines - 1) * 10.5;
+
+      ensureSpace(secH + ackNoteH + lblH + signBoxH);
       drawCell(marginX, curY, tableW, secH, {
         bg: secHeaderBg,
         text: '4. ACKNOWLEDGEMENT',
         bold: true,
         fontSize: 8.5,
         color: labelText,
-        padY: 4
+        padY: 4,
+        minHeight: secH
       });
       curY -= secH;
 
-      const ackNoteText = 'The equipment mentioned above has been installed / checked and handed over to the customer. The customer acknowledges receipt and the installation status recorded in this report.';
-      const ackNoteH = 24;
-      drawCell(marginX, curY, tableW, ackNoteH, {
-        text: ackNoteText,
-        fontSize: 8,
-        padY: 4,
-        lineHeight: 9.6
-      });
+      drawCell(marginX, curY, tableW, ackNoteH, ackNoteOpts, ackNoteLayout);
       curY -= ackNoteH;
 
-      const ackHalf = tableW * 0.5;
-      drawCell(marginX, curY, ackHalf, lblH, { bg: labelBg, text: 'INSTALLATION ENGINEER', bold: true, fontSize: 7.5, color: labelText, padY: 3.5 });
-      drawCell(marginX + ackHalf, curY, ackHalf, lblH, { bg: labelBg, text: 'CUSTOMER / HOSPITAL REPRESENTATIVE', bold: true, fontSize: 7.5, color: labelText, padY: 3.5 });
+      drawCell(marginX, curY, ackHalf, lblH, { bg: labelBg, text: 'INSTALLATION ENGINEER', bold: true, fontSize: 7.5, color: labelText, padY: 3.5, minHeight: lblH });
+      drawCell(marginX + ackHalf, curY, ackHalf, lblH, { bg: labelBg, text: 'CUSTOMER / HOSPITAL REPRESENTATIVE', bold: true, fontSize: 7.5, color: labelText, padY: 3.5, minHeight: lblH });
       curY -= lblH;
 
-      // Sign-off box with ample vertical room for Step 2 digital signature placement
-      const signBoxH = 60;
-      drawCell(marginX, curY, ackHalf, signBoxH, { bg: whiteBg });
-      drawCell(marginX + ackHalf, curY, ackHalf, signBoxH, { bg: whiteBg });
+      // Sign-off box with dynamic top space for wrapped names + ample vertical room for signature
+      drawCell(marginX, curY, ackHalf, signBoxH, { bg: whiteBg, minHeight: signBoxH });
+      drawCell(marginX + ackHalf, curY, ackHalf, signBoxH, { bg: whiteBg, minHeight: signBoxH });
+
+      const sigLineOffsetY = signBoxH - 11;
 
       // Left column: Installation Engineer
       const lX = marginX + 7;
       page.drawText('Name:', { x: lX, y: curY - 13, size: 8, font: helveticaBoldFont, color: labelText });
-      if (valEngName){
-        page.drawText(sanitizePdfText(valEngName), { x: lX + 34, y: curY - 13, size: 8.5, font: helveticaBoldFont, color: darkText });
+      if (engNameLines.length > 0){
+        engNameLines.forEach((ln, idx) => {
+          page.drawText(ln, { x: lX + 34, y: curY - 13 - idx * 10.5, size: 8.5, font: helveticaBoldFont, color: darkText });
+        });
       } else {
         page.drawLine({ start: { x: lX + 32, y: curY - 14 }, end: { x: marginX + ackHalf - 10, y: curY - 14 }, thickness: 0.6, color: borderColor });
       }
 
-      page.drawText('Signature:', { x: lX, y: curY - 49, size: 8, font: helveticaBoldFont, color: labelText });
-      page.drawLine({ start: { x: lX + 46, y: curY - 50 }, end: { x: marginX + ackHalf - 85, y: curY - 50 }, thickness: 0.6, color: borderColor });
+      page.drawText('Signature:', { x: lX, y: curY - sigLineOffsetY, size: 8, font: helveticaBoldFont, color: labelText });
+      page.drawLine({ start: { x: lX + 46, y: curY - sigLineOffsetY - 1 }, end: { x: marginX + ackHalf - 85, y: curY - sigLineOffsetY - 1 }, thickness: 0.6, color: borderColor });
 
-      page.drawText('Date:', { x: marginX + ackHalf - 78, y: curY - 49, size: 8, font: helveticaBoldFont, color: labelText });
+      page.drawText('Date:', { x: marginX + ackHalf - 78, y: curY - sigLineOffsetY, size: 8, font: helveticaBoldFont, color: labelText });
       if (valEngDate){
-        page.drawText(sanitizePdfText(valEngDate), { x: marginX + ackHalf - 54, y: curY - 49, size: 8.2, font: helveticaBoldFont, color: darkText });
+        page.drawText(sanitizePdfText(valEngDate), { x: marginX + ackHalf - 54, y: curY - sigLineOffsetY, size: 8.2, font: helveticaBoldFont, color: darkText });
       } else {
-        page.drawLine({ start: { x: marginX + ackHalf - 54, y: curY - 50 }, end: { x: marginX + ackHalf - 8, y: curY - 50 }, thickness: 0.6, color: borderColor });
+        page.drawLine({ start: { x: marginX + ackHalf - 54, y: curY - sigLineOffsetY - 1 }, end: { x: marginX + ackHalf - 8, y: curY - sigLineOffsetY - 1 }, thickness: 0.6, color: borderColor });
       }
 
       // Right column: Customer / Hospital Representative
       const rX = marginX + ackHalf + 7;
       page.drawText('Name:', { x: rX, y: curY - 13, size: 8, font: helveticaBoldFont, color: labelText });
-      if (valCustRepName){
-        page.drawText(sanitizePdfText(valCustRepName), { x: rX + 34, y: curY - 13, size: 8.5, font: helveticaBoldFont, color: darkText });
+      if (custNameLines.length > 0){
+        custNameLines.forEach((ln, idx) => {
+          page.drawText(ln, { x: rX + 34, y: curY - 13 - idx * 10.5, size: 8.5, font: helveticaBoldFont, color: darkText });
+        });
       } else {
         page.drawLine({ start: { x: rX + 32, y: curY - 14 }, end: { x: marginX + tableW - 10, y: curY - 14 }, thickness: 0.6, color: borderColor });
       }
 
-      page.drawText('Signature & Stamp:', { x: rX, y: curY - 49, size: 7.6, font: helveticaBoldFont, color: labelText });
-      page.drawLine({ start: { x: rX + 78, y: curY - 50 }, end: { x: marginX + tableW - 82, y: curY - 50 }, thickness: 0.6, color: borderColor });
+      page.drawText('Signature & Stamp:', { x: rX, y: curY - sigLineOffsetY, size: 7.6, font: helveticaBoldFont, color: labelText });
+      page.drawLine({ start: { x: rX + 78, y: curY - sigLineOffsetY - 1 }, end: { x: marginX + tableW - 82, y: curY - sigLineOffsetY - 1 }, thickness: 0.6, color: borderColor });
 
-      page.drawText('Date:', { x: marginX + tableW - 76, y: curY - 49, size: 8, font: helveticaBoldFont, color: labelText });
+      page.drawText('Date:', { x: marginX + tableW - 76, y: curY - sigLineOffsetY, size: 8, font: helveticaBoldFont, color: labelText });
       if (valCustRepDate){
-        page.drawText(sanitizePdfText(valCustRepDate), { x: marginX + tableW - 52, y: curY - 49, size: 8.2, font: helveticaBoldFont, color: darkText });
+        page.drawText(sanitizePdfText(valCustRepDate), { x: marginX + tableW - 52, y: curY - sigLineOffsetY, size: 8.2, font: helveticaBoldFont, color: darkText });
       } else {
-        page.drawLine({ start: { x: marginX + tableW - 52, y: curY - 50 }, end: { x: marginX + tableW - 8, y: curY - 50 }, thickness: 0.6, color: borderColor });
-      }
-
-      /* ================= 4. WATERMARK (IF ENABLED) ================= */
-      if (watermarkToggle.checked){
-        const watermarkText = 'MYRTILLE INDUSTRIES';
-        const font = helveticaBoldFont;
-        const { width: pw, height: ph } = page.getSize();
-        const diagonalLength = Math.sqrt(pw * pw + ph * ph);
-        const angle = Math.atan2(ph, pw) * (180 / Math.PI);
-
-        let fontSize = diagonalLength / 10;
-        let wmWidth  = font.widthOfTextAtSize(watermarkText, fontSize);
-        const maxTextWidth = diagonalLength * 0.8;
-
-        while (wmWidth > maxTextWidth && fontSize > 10){
-          fontSize -= 2;
-          wmWidth = font.widthOfTextAtSize(watermarkText, fontSize);
-        }
-
-        const xCenter = pw / 2 - (wmWidth * Math.cos(angle * Math.PI / 180)) / 2;
-        const yCenter = ph / 2 - (wmWidth * Math.sin(angle * Math.PI / 180)) / 2;
-
-        page.drawText(watermarkText, {
-          x: xCenter, y: yCenter,
-          size: fontSize,
-          font: font,
-          color: rgb(0.231, 0.525, 0.898),
-          opacity: 0.3,
-          rotate: degrees(angle)
-        });
+        page.drawLine({ start: { x: marginX + tableW - 52, y: curY - sigLineOffsetY - 1 }, end: { x: marginX + tableW - 8, y: curY - sigLineOffsetY - 1 }, thickness: 0.6, color: borderColor });
       }
 
       setProgress(88, 'Finalizing letterhead PDF…');
@@ -2451,3 +2660,4 @@
 </script>
 </body>
 </html>
+```
