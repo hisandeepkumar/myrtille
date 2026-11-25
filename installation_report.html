@@ -1,4 +1,4 @@
-```html
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1035,7 +1035,7 @@
       <div class="watermark-toggle">
         <label for="watermarkToggle">
           MYRTILLE watermark
-          <input type="checkbox" id="watermarkToggle" aria-label="Enable Watermark">
+          <input type="checkbox" id="watermarkToggle" aria-label="Enable Watermark" checked>
           <span class="toggle-switch"></span>
         </label>
       </div>
@@ -1542,7 +1542,38 @@
       }
 
       /* ================= LETTERHEAD DECORATOR (HEADER, FOOTER & WATERMARK PER PAGE) ================= */
-      function applyLetterheadAndWatermark(targetPage){
+      function drawWatermarkOnTop(targetPage){
+        if (!watermarkToggle.checked) return;
+
+        const watermarkText = 'MYRTILLE INDUSTRIES';
+        const font = helveticaBoldFont;
+        const { width: pw, height: ph } = targetPage.getSize();
+        const diagonalLength = Math.sqrt(pw * pw + ph * ph);
+        const angle = Math.atan2(ph, pw) * (180 / Math.PI);
+
+        let fontSize = diagonalLength / 10;
+        let wmWidth  = font.widthOfTextAtSize(watermarkText, fontSize);
+        const maxTextWidth = diagonalLength * 0.8;
+
+        while (wmWidth > maxTextWidth && fontSize > 10){
+          fontSize -= 2;
+          wmWidth = font.widthOfTextAtSize(watermarkText, fontSize);
+        }
+
+        const xCenter = pw / 2 - (wmWidth * Math.cos(angle * Math.PI / 180)) / 2;
+        const yCenter = ph / 2 - (wmWidth * Math.sin(angle * Math.PI / 180)) / 2;
+
+        targetPage.drawText(watermarkText, {
+          x: xCenter, y: yCenter,
+          size: fontSize,
+          font: font,
+          color: rgb(0.231, 0.525, 0.898),
+          opacity: 0.3,
+          rotate: degrees(angle)
+        });
+      }
+
+      function applyLetterhead(targetPage){
         // 1. Header
         targetPage.drawRectangle({
           x: 0, y: a4Height - 75, width: a4Width, height: 75,
@@ -1649,47 +1680,17 @@
           });
           addLinkAnnotation(finalPdf, targetPage, sealX, sealY, sealW, sealH, WEBSITE_URL);
         }
-
-        // 3. Watermark (if enabled)
-        if (watermarkToggle.checked){
-          const watermarkText = 'MYRTILLE INDUSTRIES';
-          const font = helveticaBoldFont;
-          const { width: pw, height: ph } = targetPage.getSize();
-          const diagonalLength = Math.sqrt(pw * pw + ph * ph);
-          const angle = Math.atan2(ph, pw) * (180 / Math.PI);
-
-          let fontSize = diagonalLength / 10;
-          let wmWidth  = font.widthOfTextAtSize(watermarkText, fontSize);
-          const maxTextWidth = diagonalLength * 0.8;
-
-          while (wmWidth > maxTextWidth && fontSize > 10){
-            fontSize -= 2;
-            wmWidth = font.widthOfTextAtSize(watermarkText, fontSize);
-          }
-
-          const xCenter = pw / 2 - (wmWidth * Math.cos(angle * Math.PI / 180)) / 2;
-          const yCenter = ph / 2 - (wmWidth * Math.sin(angle * Math.PI / 180)) / 2;
-
-          targetPage.drawText(watermarkText, {
-            x: xCenter, y: yCenter,
-            size: fontSize,
-            font: font,
-            color: rgb(0.231, 0.525, 0.898),
-            opacity: 0.3,
-            rotate: degrees(angle)
-          });
-        }
       }
 
       setProgress(38, 'Applying Myrtille Industries letterhead…');
       let page = finalPdf.addPage([a4Width, a4Height]);
-      applyLetterheadAndWatermark(page);
+      applyLetterhead(page);
       let curY = bodyTopY;
 
       function ensureSpace(requiredHeight){
         if (curY - requiredHeight < footerSafeY){
           page = finalPdf.addPage([a4Width, a4Height]);
-          applyLetterheadAndWatermark(page);
+          applyLetterhead(page);
           curY = bodyTopY;
         }
       }
@@ -2098,7 +2099,7 @@
 
         if (idx > 0 && curY - rowH < footerSafeY){
           page = finalPdf.addPage([a4Width, a4Height]);
-          applyLetterheadAndWatermark(page);
+          applyLetterhead(page);
           curY = bodyTopY;
           drawChecklistHeader();
         }
@@ -2259,6 +2260,9 @@
       } else {
         page.drawLine({ start: { x: marginX + tableW - 52, y: curY - sigLineOffsetY - 1 }, end: { x: marginX + tableW - 8, y: curY - sigLineOffsetY - 1 }, thickness: 0.6, color: borderColor });
       }
+
+      // Draw watermark on the top-most layer of every page (above all table backgrounds, borders, text & headers)
+      finalPdf.getPages().forEach(p => drawWatermarkOnTop(p));
 
       setProgress(88, 'Finalizing letterhead PDF…');
       const bytes = await finalPdf.save();
@@ -2573,30 +2577,60 @@
       setProgress(58, 'Placing signatures…');
 
       const pages = pdfDoc.getPages();
+      const wmFont = watermarkToggle.checked ? await pdfDoc.embedFont(StandardFonts.HelveticaBold) : null;
       let placed = 0;
 
       for (let i = 0; i < pages.length; i++){
         const pd = pageData[i];
-        if (!pd || !pd.signatures || !pd.signatures.length) continue;
-
         const page = pages[i];
 
-        for (const s of pd.signatures){
-          const scaleX  = pd.pdfSize.width / pd.viewport.width;
-          const pdfW    = (s.visualWidth || signatureWidth) * scaleX;
-          const pdfH    = (pdfW / embedded.width) * embedded.height;
-          const yBottom = pd.pdfSize.height - s.top_pdf - pdfH;
+        if (pd && pd.signatures && pd.signatures.length){
+          for (const s of pd.signatures){
+            const scaleX  = pd.pdfSize.width / pd.viewport.width;
+            const pdfW    = (s.visualWidth || signatureWidth) * scaleX;
+            const pdfH    = (pdfW / embedded.width) * embedded.height;
+            const yBottom = pd.pdfSize.height - s.top_pdf - pdfH;
 
-          page.drawImage(embedded, {
-            x: s.x_pdf,
-            y: yBottom,
-            width: pdfW,
-            height: pdfH,
-            opacity: 1
+            page.drawImage(embedded, {
+              x: s.x_pdf,
+              y: yBottom,
+              width: pdfW,
+              height: pdfH,
+              opacity: 1
+            });
+
+            addLinkAnnotation(pdfDoc, page, s.x_pdf, yBottom, pdfW, pdfH, SIGNATURE_VERIFY_URL);
+            placed++;
+          }
+        }
+
+        // Re-assert watermark on the absolute top-most layer above placed signatures as well
+        if (wmFont){
+          const watermarkText = 'MYRTILLE INDUSTRIES';
+          const { width: pw, height: ph } = page.getSize();
+          const diagonalLength = Math.sqrt(pw * pw + ph * ph);
+          const angle = Math.atan2(ph, pw) * (180 / Math.PI);
+
+          let fontSize = diagonalLength / 10;
+          let wmWidth  = wmFont.widthOfTextAtSize(watermarkText, fontSize);
+          const maxTextWidth = diagonalLength * 0.8;
+
+          while (wmWidth > maxTextWidth && fontSize > 10){
+            fontSize -= 2;
+            wmWidth = wmFont.widthOfTextAtSize(watermarkText, fontSize);
+          }
+
+          const xCenter = pw / 2 - (wmWidth * Math.cos(angle * Math.PI / 180)) / 2;
+          const yCenter = ph / 2 - (wmWidth * Math.sin(angle * Math.PI / 180)) / 2;
+
+          page.drawText(watermarkText, {
+            x: xCenter, y: yCenter,
+            size: fontSize,
+            font: wmFont,
+            color: rgb(0.231, 0.525, 0.898),
+            opacity: 0.3,
+            rotate: degrees(angle)
           });
-
-          addLinkAnnotation(pdfDoc, page, s.x_pdf, yBottom, pdfW, pdfH, SIGNATURE_VERIFY_URL);
-          placed++;
         }
       }
 
@@ -2660,4 +2694,3 @@
 </script>
 </body>
 </html>
-```
